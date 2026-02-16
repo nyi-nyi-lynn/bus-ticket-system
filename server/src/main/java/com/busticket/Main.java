@@ -1,17 +1,25 @@
 package com.busticket;
 
+import com.busticket.rmi.UserRemoteImpl;
+
+import java.rmi.Naming;
+import java.rmi.registry.LocateRegistry;
+
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
-    static void main() {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        IO.println(String.format("Hello and welcome!"));
+    public static void main(String[] args) {
+        try {
+            System.out.println("Starting RMI Server...");
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            IO.println("i = " + i);
+            LocateRegistry.createRegistry(1099);
+            Naming.rebind("rmi://localhost/UserService", new UserRemoteImpl());
+
+            System.out.println("RMI Server is running on port 1099...");
+
+        } catch (Exception e) {
+            System.err.println("Server Exception: " + e.toString());
+            e.printStackTrace();
         }
     }
 }

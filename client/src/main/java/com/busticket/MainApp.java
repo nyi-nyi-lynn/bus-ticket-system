@@ -1,21 +1,26 @@
 package com.busticket;
 
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
 import javafx.stage.Stage;
 
 public class MainApp extends Application {
     @Override
-    public void start(Stage stage) {
-        Label label = new Label("Bus Ticket System Client");
-        Scene scene = new Scene(label, 400, 200);
+    public void start(Stage stage) throws Exception {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/busticket/view/login.fxml"));
+        Parent root = loader.load();
+
+        Scene scene = new Scene(root);
+
+        stage.setTitle("Bus Ticket Booking System - Login");
         stage.setScene(scene);
-        stage.setTitle("Bus Ticket System");
+        stage.setResizable(false);
         stage.show();
     }
 
     public static void main(String[] args) {
-        launch();
+        launch(args);
     }
 }
