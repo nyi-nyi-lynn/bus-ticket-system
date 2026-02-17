@@ -50,7 +50,7 @@ public class LoginController {
             Session.setCurrentUser(user);
 
             if ("ADMIN".equals(user.getRole())) {
-                Navigator.switchScene(getStage(event), "/com/busticket/view/admin_dashboard.fxml");
+                Navigator.switchScene(getStage(event), "/com/busticket/view/admin/admin_dashboard.fxml");
             } else if ("STAFF".equals(user.getRole())) {
                 Navigator.switchScene(getStage(event), "/com/busticket/view/staff_dashboard.fxml");
             } else {
@@ -73,7 +73,7 @@ public class LoginController {
 
     @FXML
     public void goToRegister(ActionEvent event) {
-        Navigator.switchScene(getStage(event), "/com/busticket/view/register.fxml");
+        Navigator.switchScene(getStage(event), "/com/busticket/view/auth/register.fxml");
     }
 
     private Stage getStage(ActionEvent event) {

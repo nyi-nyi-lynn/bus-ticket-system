@@ -61,7 +61,7 @@ public class PassengerDashBoardController {
     @FXML
     public void handleLogout() {
         Stage stage = (Stage) passengerContentPane.getScene().getWindow();
-        Navigator.switchScene(stage, "/com/busticket/view/login.fxml");
+        Navigator.switchScene(stage, "/com/busticket/view/auth/login.fxml");
     }
 
     private void openPage(String key) {

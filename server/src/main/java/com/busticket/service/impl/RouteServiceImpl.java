@@ -1,6 +1,8 @@
 package com.busticket.service.impl;
 
 import com.busticket.dao.RouteDAO;
+import com.busticket.dao.impl.RouteDAOImpl;
+import com.busticket.database.DatabaseConnection;
 import com.busticket.dto.RouteDTO;
 import com.busticket.mapper.RouteMapper;
 import com.busticket.model.Route;
@@ -8,13 +10,14 @@ import com.busticket.service.RouteService;
 
 import java.util.List;
 
-public class RouteServieImpl implements RouteService {
+public class RouteServiceImpl implements RouteService {
 
     private final RouteDAO routeDAO;
 
-    public  RouteServieImpl(RouteDAO routeDAO) {
-        this.routeDAO = routeDAO;
+    public RouteServiceImpl() {
+        this.routeDAO = new RouteDAOImpl(DatabaseConnection.getConnection());
     }
+
 
     @Override
     public boolean save(RouteDTO dto) {

@@ -16,7 +16,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="860.0" prefWidth="1280.0" styleClass="app-shell role-admin" stylesheets="@app.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.busticket.controller.AdminDashBoardController">
+<BorderPane prefHeight="860.0" prefWidth="1280.0" styleClass="app-shell role-admin" stylesheets="@../app.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.busticket.controller.AdminDashBoardController">
 
     <left>
         <VBox prefWidth="230.0" styleClass="sidebar">

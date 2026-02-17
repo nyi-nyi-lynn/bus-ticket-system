@@ -45,7 +45,7 @@ public class StaffDashboardController {
 
     @FXML
     public void handleLogout(ActionEvent event) {
-        Navigator.switchScene(getStage(event), "/com/busticket/view/login.fxml");
+        Navigator.switchScene(getStage(event), "/com/busticket/view/auth/login.fxml");
     }
 
     private Stage getStage(ActionEvent event) {

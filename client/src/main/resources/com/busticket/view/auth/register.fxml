@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="760.0" prefWidth="1160.0" styleClass="app-shell role-customer" stylesheets="@app.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.busticket.controller.RegisterController">
+<BorderPane prefHeight="760.0" prefWidth="1160.0" styleClass="app-shell role-customer" stylesheets="@../app.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.busticket.controller.RegisterController">
 
     <left>
         <VBox prefWidth="280.0" styleClass="sidebar">

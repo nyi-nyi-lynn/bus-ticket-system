@@ -1,6 +1,5 @@
 package com.busticket;
 
-import atlantafx.base.theme.PrimerDark;
 import atlantafx.base.theme.PrimerLight;
 import com.busticket.util.Navigator;
 import javafx.application.Application;
@@ -16,7 +15,7 @@ public class MainApp extends Application {
         stage.setHeight(780);
         stage.setMinWidth(1060);
         stage.setMinHeight(700);
-        Navigator.switchScene(stage, "/com/busticket/view/login.fxml");
+        Navigator.switchScene(stage, "/com/busticket/view/auth/login.fxml");
         stage.centerOnScreen();
         stage.show();
     }

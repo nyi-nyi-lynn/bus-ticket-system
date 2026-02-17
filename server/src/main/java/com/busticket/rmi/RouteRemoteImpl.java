@@ -3,17 +3,17 @@ package com.busticket.rmi;
 import com.busticket.dto.RouteDTO;
 import com.busticket.remote.RouteRemote;
 import com.busticket.service.RouteService;
-import com.busticket.service.impl.RouteServieImpl;
+import com.busticket.service.impl.RouteServiceImpl;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 
 public class RouteRemoteImpl extends UnicastRemoteObject implements RouteRemote {
-    private RouteService routeService ;
+    private final RouteService routeService ;
 
    public RouteRemoteImpl() throws RemoteException{
-       routeService = new RouteServieImpl();
+       routeService = new RouteServiceImpl();
    }
 
     @Override
