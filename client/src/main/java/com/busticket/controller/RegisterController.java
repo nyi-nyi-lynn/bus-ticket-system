@@ -3,12 +3,14 @@ package com.busticket.controller;
 import com.busticket.dto.UserDTO;
 import com.busticket.remote.UserRemote;
 import com.busticket.rmi.RMIClient;
-import com.busticket.util.SceneManager;
+import com.busticket.util.Navigator;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.Node;
+import javafx.stage.Stage;
 
 public class RegisterController {
 
@@ -52,7 +54,7 @@ public class RegisterController {
 
             if (success) {
                 showAlert(Alert.AlertType.INFORMATION, "Register Success", "Registration Successful");
-                SceneManager.switchScene(event, "login.fxml");
+                Navigator.switchScene(getStage(event), "/com/busticket/view/login.fxml");
             } else {
                 showAlert(Alert.AlertType.ERROR, "Register Failed", "Email might already exist!");
             }
@@ -65,7 +67,7 @@ public class RegisterController {
 
     @FXML
     public void goToLogin(ActionEvent event) {
-        SceneManager.switchScene(event, "login.fxml");
+        Navigator.switchScene(getStage(event), "/com/busticket/view/login.fxml");
     }
 
     private void showAlert(Alert.AlertType type, String title, String message) {
@@ -74,5 +76,9 @@ public class RegisterController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private Stage getStage(ActionEvent event) {
+        return (Stage) ((Node) event.getSource()).getScene().getWindow();
     }
 }

@@ -1,22 +1,23 @@
 package com.busticket;
 
+import atlantafx.base.theme.PrimerDark;
+import atlantafx.base.theme.PrimerLight;
+import com.busticket.util.Navigator;
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class MainApp extends Application {
     @Override
-    public void start(Stage stage) throws Exception {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/busticket/view/login.fxml"));
-        Parent root = loader.load();
+    public void start(Stage stage) {
+        Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
 
-        Scene scene = new Scene(root);
-
-        stage.setTitle("Bus Ticket Booking System - Login");
-        stage.setScene(scene);
-        stage.setResizable(false);
+        stage.setTitle("Bus Ticket System");
+        stage.setWidth(1200);
+        stage.setHeight(780);
+        stage.setMinWidth(1060);
+        stage.setMinHeight(700);
+        Navigator.switchScene(stage, "/com/busticket/view/login.fxml");
+        stage.centerOnScreen();
         stage.show();
     }
 

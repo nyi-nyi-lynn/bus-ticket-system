@@ -1,14 +1,193 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import java.lang.String?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.busticket.controller.AdminDashBoardController"
-            prefHeight="400.0" prefWidth="600.0">
+<BorderPane prefHeight="860.0" prefWidth="1280.0" styleClass="app-shell role-admin" stylesheets="@app.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.busticket.controller.AdminDashBoardController">
 
-</AnchorPane>
+    <left>
+        <VBox prefWidth="230.0" styleClass="sidebar">
+            <Label styleClass="brand" text="Bus Ticket" />
+            <Label text="Admin Panel" />
+            <Region VBox.vgrow="ALWAYS" />
+            <Button fx:id="overviewNavButton" contentDisplay="CENTER" onAction="#openOverview" prefHeight="38.0" prefWidth="150.0" text="Overview">
+            <styleClass>
+               <String fx:value="nav-button" />
+               <String fx:value="nav-active" />
+            </styleClass></Button>
+            <Button fx:id="busRouteNavButton" onAction="#openBusRouteSection" prefHeight="38.0" prefWidth="150.0" styleClass="nav-button" text="Bus and Route" />
+            <Button fx:id="scheduleNavButton" onAction="#openScheduleSection" prefHeight="38.0" prefWidth="150.0" styleClass="nav-button" text="Schedule" />
+            <Button fx:id="reportNavButton" onAction="#openReportSection" prefHeight="38.0" prefWidth="150.0" styleClass="nav-button" text="Sales Report" />
+            <Region VBox.vgrow="ALWAYS" />
+            <Button onAction="#handleLogout" styleClass="nav-button" text="Logout" />
+        </VBox>
+    </left>
+
+    <top>
+        <HBox spacing="16.0" styleClass="topbar">
+            <Label styleClass="page-title" text="Admin Dashboard" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Label styleClass="pill" text="Role: Admin" />
+            <Button onAction="#handleLogout" styleClass="secondary-button" text="Logout" />
+        </HBox>
+    </top>
+
+    <center>
+        <StackPane styleClass="content">
+            <VBox fx:id="overviewSection" spacing="14.0">
+                <HBox spacing="14.0">
+                    <VBox prefWidth="260.0" spacing="6.0" styleClass="card metric-card role-admin-accent">
+                        <Label styleClass="metric-sub" text="Today Revenue" />
+                        <Label fx:id="todayRevenueLabel" styleClass="metric" text="0.00" />
+                    </VBox>
+                    <VBox prefWidth="260.0" spacing="6.0" styleClass="card metric-card role-admin-accent">
+                        <Label styleClass="metric-sub" text="Today Tickets" />
+                        <Label fx:id="todayBookingsLabel" styleClass="metric" text="0" />
+                    </VBox>
+                    <VBox prefWidth="260.0" spacing="6.0" styleClass="card metric-card role-admin-accent">
+                        <Label styleClass="metric-sub" text="Open Trips" />
+                        <Label fx:id="openTripsLabel" styleClass="metric" text="0" />
+                    </VBox>
+                </HBox>
+                <VBox spacing="10.0" styleClass="card">
+                    <Label styleClass="card-title" text="Upcoming Trips Overview" />
+                    <TableView fx:id="overviewTripsTable" prefHeight="420.0">
+                        <columns>
+                            <TableColumn fx:id="overviewBusColumn" text="Bus" />
+                            <TableColumn fx:id="overviewFromColumn" text="From" />
+                            <TableColumn fx:id="overviewToColumn" text="To" />
+                            <TableColumn fx:id="overviewDateColumn" text="Date" />
+                            <TableColumn fx:id="overviewDepartureColumn" text="Departure" />
+                            <TableColumn fx:id="overviewPriceColumn" text="Price" />
+                            <TableColumn fx:id="overviewStatusColumn" text="Status" />
+                        </columns>
+                    </TableView>
+                </VBox>
+            </VBox>
+
+            <VBox fx:id="busRouteSection" managed="false" spacing="16.0" visible="false">
+                <HBox spacing="16.0">
+                    <VBox prefWidth="470.0" spacing="10.0" styleClass="card">
+                    <Label styleClass="card-title" text="Add Bus" />
+                    <GridPane hgap="10.0" vgap="10.0">
+                        <Label styleClass="field-label" text="Bus Number" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                        <TextField fx:id="busNumberField" promptText="Bus Number" styleClass="input" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                        <Label styleClass="field-label" text="Type" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                        <TextField fx:id="busTypeField" promptText="VIP / NORMAL" styleClass="input" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <Label styleClass="field-label" text="Total Seats" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                        <TextField fx:id="totalSeatsField" promptText="Total Seats" styleClass="input" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                     <columnConstraints>
+                        <ColumnConstraints />
+                        <ColumnConstraints />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                     </rowConstraints>
+                    </GridPane>
+                    <Button onAction="#handleAddBus" styleClass="primary-button" text="Add Bus" />
+                </VBox>
+
+                    <VBox prefWidth="470.0" spacing="10.0" styleClass="card">
+                    <Label styleClass="card-title" text="Add Route" />
+                    <GridPane hgap="10.0" vgap="10.0">
+                        <Label styleClass="field-label" text="Origin City" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                        <TextField fx:id="originCityField" promptText="Origin City" styleClass="input" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                        <Label styleClass="field-label" text="Destination City" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                        <TextField fx:id="destinationCityField" promptText="Destination City" styleClass="input" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <Label styleClass="field-label" text="Distance (KM)" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                        <TextField fx:id="distanceField" promptText="Distance (KM)" styleClass="input" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                        <Label styleClass="field-label" text="Estimated Duration" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <TextField fx:id="durationField" promptText="HH:MM:SS" styleClass="input" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                     <columnConstraints>
+                        <ColumnConstraints />
+                        <ColumnConstraints />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                     </rowConstraints>
+                    </GridPane>
+                    <Button onAction="#handleAddRoute" styleClass="primary-button" text="Add Route" />
+                </VBox>
+                </HBox>
+            </VBox>
+
+            <VBox fx:id="scheduleSection" managed="false" spacing="16.0" visible="false">
+                <VBox prefWidth="980.0" spacing="10.0" styleClass="card">
+                    <Label styleClass="card-title" text="Create Trip Schedule" />
+                    <GridPane hgap="10.0" vgap="10.0">
+                        <Label styleClass="field-label" text="Bus ID" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                        <TextField fx:id="tripBusIdField" promptText="Bus ID" styleClass="input" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                        <Label styleClass="field-label" text="Route ID" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                        <TextField fx:id="tripRouteIdField" promptText="Route ID" styleClass="input" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <Label styleClass="field-label" text="Travel Date" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                        <DatePicker fx:id="tripDatePicker" promptText="Travel Date" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                        <Label styleClass="field-label" text="Departure Time" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                        <TextField fx:id="departureTimeField" promptText="HH:MM:SS" styleClass="input" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                        <Label styleClass="field-label" text="Arrival Time" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <TextField fx:id="arrivalTimeField" promptText="HH:MM:SS" styleClass="input" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                        <Label styleClass="field-label" text="Price" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                        <TextField fx:id="tripPriceField" promptText="Price" styleClass="input" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                  <columnConstraints>
+                     <ColumnConstraints />
+                     <ColumnConstraints />
+                     <ColumnConstraints />
+                  </columnConstraints>
+                  <rowConstraints>
+                     <RowConstraints />
+                     <RowConstraints />
+                     <RowConstraints />
+                     <RowConstraints />
+                  </rowConstraints>
+                    </GridPane>
+                    <Button onAction="#handleCreateTrip" styleClass="primary-button" text="Create Trip" />
+                </VBox>
+            </VBox>
+
+            <VBox fx:id="reportSection" managed="false" spacing="16.0" visible="false">
+                <VBox prefWidth="980.0" spacing="10.0" styleClass="card">
+                    <Label styleClass="card-title" text="Sales Report" />
+                    <GridPane hgap="10.0" vgap="10.0">
+                        <Label styleClass="field-label" text="From Date" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                        <DatePicker fx:id="reportFromDatePicker" promptText="From Date" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                        <Label styleClass="field-label" text="To Date" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                        <DatePicker fx:id="reportToDatePicker" promptText="To Date" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                  <columnConstraints>
+                     <ColumnConstraints />
+                     <ColumnConstraints />
+                  </columnConstraints>
+                  <rowConstraints>
+                     <RowConstraints />
+                     <RowConstraints />
+                  </rowConstraints>
+                    </GridPane>
+                    <Button onAction="#handleGenerateReport" styleClass="primary-button" text="Generate Report" />
+                </VBox>
+            </VBox>
+        </StackPane>
+    </center>
+
+    <bottom>
+        <HBox spacing="10.0" styleClass="topbar">
+            <Label fx:id="statusLabel" styleClass="pill" text="Status" />
+        </HBox>
+    </bottom>
+</BorderPane>

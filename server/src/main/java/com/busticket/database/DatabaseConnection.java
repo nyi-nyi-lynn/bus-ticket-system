@@ -5,9 +5,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DatabaseConnection {
-    private static final String URL = "jdbc:mysql://localhost:3306/bus_ticket";
-    private static final String USER = "root";
-    private static final String PASSWORD = "rootpass";
+    private static final String URL = getEnvOrDefault("BTS_DB_URL", "jdbc:mysql://localhost:3306/bus_ticket");
+    private static final String USER = getEnvOrDefault("BTS_DB_USER", "root");
+    private static final String PASSWORD = getEnvOrDefault("BTS_DB_PASSWORD", "rootpass");
 
     private static Connection connection;
 
@@ -18,8 +18,14 @@ public class DatabaseConnection {
             }
         }catch (SQLException e){
             e.printStackTrace();
+            return null;
         }
 
         return connection;
+    }
+
+    private static String getEnvOrDefault(String key, String defaultValue) {
+        String value = System.getenv(key);
+        return value == null || value.isBlank() ? defaultValue : value;
     }
 }

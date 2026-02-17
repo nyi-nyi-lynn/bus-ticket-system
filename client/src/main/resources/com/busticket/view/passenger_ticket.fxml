@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.busticket.controller.PassengerTicketController"
+      spacing="14.0">
+
+    <HBox spacing="14.0">
+        <VBox styleClass="card" spacing="8.0" prefWidth="520.0">
+            <Label text="Ticket Details" styleClass="card-title"/>
+            <Label text="Passenger" styleClass="section-title"/>
+            <Label fx:id="passengerLabel" text="-" styleClass="metric-sub"/>
+            <Label text="Route" styleClass="section-title"/>
+            <Label fx:id="routeLabel" text="-" styleClass="metric-sub"/>
+            <Label text="Date and Time" styleClass="section-title"/>
+            <Label fx:id="dateTimeLabel" text="-" styleClass="metric-sub"/>
+            <Label text="Seats" styleClass="section-title"/>
+            <Label fx:id="seatsLabel" text="-" styleClass="metric-sub"/>
+            <Label text="Ticket Code" styleClass="section-title"/>
+            <Label fx:id="ticketCodeLabel" text="-" styleClass="metric-sub"/>
+        </VBox>
+
+        <VBox styleClass="card" spacing="8.0" prefWidth="280.0">
+            <Label text="QR" styleClass="card-title"/>
+            <VBox styleClass="qr-box" spacing="8.0">
+                <Label text="##########"/>
+                <Label text="##########"/>
+                <Label text="##########"/>
+            </VBox>
+            <Label fx:id="qrPayloadLabel" text="-" styleClass="metric-sub"/>
+        </VBox>
+    </HBox>
+
+    <VBox styleClass="card" spacing="10.0">
+        <Label text="Ticket History" styleClass="card-title"/>
+        <TableView fx:id="ticketHistoryTable" prefHeight="220.0">
+            <columns>
+                <TableColumn fx:id="historyTicketCodeColumn" text="Ticket Code"/>
+                <TableColumn fx:id="historyRouteColumn" text="Route (From)"/>
+                <TableColumn fx:id="historyDateColumn" text="Date"/>
+                <TableColumn fx:id="historyStatusColumn" text="Status"/>
+            </columns>
+        </TableView>
+        <HBox spacing="10.0">
+            <Button text="Open Selected Ticket" onAction="#handleOpenSelectedTicket" styleClass="secondary-button"/>
+            <Button text="Download PDF" onAction="#handleDownloadPdf" styleClass="primary-button"/>
+            <Button text="Back to Routes" onAction="#handleBackToRoutes" styleClass="secondary-button"/>
+        </HBox>
+        <Label fx:id="ticketStatusLabel" text="Status" styleClass="pill"/>
+    </VBox>
+</VBox>

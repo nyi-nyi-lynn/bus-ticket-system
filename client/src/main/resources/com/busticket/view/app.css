@@ -1,0 +1,310 @@
+.root {
+    -fx-font-family: "Segoe UI Variable", "Inter", "Segoe UI", sans-serif;
+    -fx-background-color: #f5f9ff;
+}
+
+.app-shell {
+    -fx-background-color: linear-gradient(to bottom right, #f5f9ff, #edf4ff 65%, #eef7ff);
+}
+
+/* Use high-specificity root selectors so AtlantisFX defaults do not override page backgrounds */
+.border-pane.app-shell.role-admin {
+    -fx-background-color: linear-gradient(to bottom right, #f7f9fc, #eef3f9 60%, #f4f7fb);
+}
+
+.border-pane.app-shell.role-customer {
+    -fx-background-color: linear-gradient(to bottom right, #f5f9ff, #edf4ff 65%, #eef7ff);
+}
+
+.border-pane.app-shell.role-staff {
+    -fx-background-color: linear-gradient(to bottom right, #fff8ef, #fff3df 58%, #fffbf3);
+}
+
+.sidebar {
+    -fx-background-color: rgba(255, 255, 255, 0.9);
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 0 1 0 0;
+    -fx-padding: 20 14 20 14;
+    -fx-spacing: 10;
+}
+
+.sidebar .label {
+    -fx-text-fill: #475569;
+}
+
+.brand {
+    -fx-text-fill: #0f172a;
+    -fx-font-size: 20px;
+    -fx-font-weight: 800;
+}
+
+.topbar {
+    -fx-background-color: rgba(255, 255, 255, 0.88);
+    -fx-border-color: #dbeafe;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 14 18 14 18;
+}
+
+.topbar .label {
+    -fx-text-fill: #0f172a;
+}
+
+.content {
+    -fx-padding: 18;
+}
+
+.page-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #0f172a;
+}
+
+.section-title {
+    -fx-font-size: 13px;
+    -fx-text-fill: #475569;
+}
+
+.card {
+    -fx-background-color: rgba(255, 255, 255, 0.95);
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+    -fx-border-color: #dbe7ff;
+    -fx-border-width: 1;
+    -fx-padding: 14;
+    -fx-effect: dropshadow(gaussian, rgba(59, 130, 246, 0.16), 20, 0.2, 0, 8);
+}
+
+.card-title {
+    -fx-font-size: 15px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f172a;
+}
+
+.metric {
+    -fx-font-size: 27px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #0f172a;
+}
+
+.metric-sub {
+    -fx-font-size: 12px;
+    -fx-text-fill: #475569;
+}
+
+.metric-card {
+    -fx-padding: 16;
+}
+
+.role-admin-accent {
+    -fx-border-color: #a78bfa;
+}
+
+.role-customer-accent {
+    -fx-border-color: #60a5fa;
+}
+
+.role-staff-accent {
+    -fx-border-color: #fbbf24;
+}
+
+.pill {
+    -fx-background-color: #e2e8f0;
+    -fx-text-fill: #334155;
+    -fx-padding: 5 10 5 10;
+    -fx-background-radius: 999;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+}
+
+.nav-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #64748b;
+    -fx-background-radius: 11;
+    -fx-background-insets: 0;
+    -fx-padding: 9 12 9 12;
+    -fx-font-weight: 700;
+}
+
+.nav-button:hover {
+    -fx-background-color: #eef2ff;
+}
+
+.sidebar .button.nav-button.nav-active {
+    -fx-text-fill: #ffffff;
+    -fx-background-color: #2563eb;
+    -fx-background-insets: 0;
+}
+
+.sidebar .button.nav-button.nav-active:hover,
+.sidebar .button.nav-button.nav-active:focused,
+.sidebar .button.nav-button.nav-active:pressed,
+.sidebar .button.nav-button.nav-active:armed {
+    -fx-text-fill: #ffffff;
+    -fx-background-insets: 0;
+}
+
+.role-admin .sidebar .button.nav-button.nav-active,
+.role-admin .sidebar .button.nav-button.nav-active:hover,
+.role-admin .sidebar .button.nav-button.nav-active:focused,
+.role-admin .sidebar .button.nav-button.nav-active:pressed,
+.role-admin .sidebar .button.nav-button.nav-active:armed {
+    -fx-background-color: linear-gradient(to right, #7c3aed, #9d4edd);
+}
+
+.role-customer .sidebar .button.nav-button.nav-active,
+.role-customer .sidebar .button.nav-button.nav-active:hover,
+.role-customer .sidebar .button.nav-button.nav-active:focused,
+.role-customer .sidebar .button.nav-button.nav-active:pressed,
+.role-customer .sidebar .button.nav-button.nav-active:armed {
+    -fx-background-color: linear-gradient(to right, #2563eb, #0ea5e9);
+}
+
+.role-staff .sidebar .button.nav-button.nav-active,
+.role-staff .sidebar .button.nav-button.nav-active:hover,
+.role-staff .sidebar .button.nav-button.nav-active:focused,
+.role-staff .sidebar .button.nav-button.nav-active:pressed,
+.role-staff .sidebar .button.nav-button.nav-active:armed {
+    -fx-background-color: linear-gradient(to right, #f59e0b, #fb923c);
+    -fx-text-fill: #111827;
+}
+
+.primary-button {
+    -fx-background-radius: 12;
+    -fx-padding: 9 14 9 14;
+    -fx-font-weight: 700;
+}
+
+.secondary-button {
+    -fx-background-radius: 12;
+    -fx-padding: 9 14 9 14;
+}
+
+.role-admin .primary-button {
+    -fx-background-color: linear-gradient(to right, #7c3aed, #9333ea);
+    -fx-text-fill: #ffffff;
+}
+
+.role-customer .primary-button {
+    -fx-background-color: linear-gradient(to right, #2563eb, #0ea5e9);
+    -fx-text-fill: #ffffff;
+}
+
+.role-staff .primary-button {
+    -fx-background-color: linear-gradient(to right, #f59e0b, #fb923c);
+    -fx-text-fill: #111827;
+}
+
+.input,
+.combo-box-base,
+.date-picker {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 11;
+    -fx-border-radius: 11;
+    -fx-border-color: #cfe0ff;
+    -fx-padding: 9 10 9 10;
+}
+
+.table-view {
+    -fx-background-color: rgba(255, 255, 255, 0.92);
+    -fx-background-radius: 12;
+    -fx-border-color: #dbe7ff;
+    -fx-border-radius: 12;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: #edf4ff;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: #1e293b;
+    -fx-font-weight: 700;
+}
+
+.table-row-cell {
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #334155;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: #dbeafe;
+}
+
+.trip-list {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.trip-list .list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 6 2 6 2;
+}
+
+.trip-list-item {
+    -fx-background-color: linear-gradient(to right, rgba(255,255,255,0.95), rgba(239,246,255,0.95));
+    -fx-border-color: #cfe0ff;
+    -fx-border-radius: 13;
+    -fx-background-radius: 13;
+    -fx-padding: 12;
+    -fx-effect: dropshadow(gaussian, rgba(37, 99, 235, 0.16), 14, 0.15, 0, 6);
+}
+
+.trip-route-title {
+    -fx-text-fill: #0f172a;
+    -fx-font-size: 14px;
+    -fx-font-weight: 800;
+}
+
+.trip-meta {
+    -fx-text-fill: #475569;
+    -fx-font-size: 12px;
+}
+
+.field-label {
+    -fx-text-fill: #64748b;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+}
+
+.trip-price {
+    -fx-text-fill: #16a34a;
+    -fx-font-size: 18px;
+    -fx-font-weight: 800;
+}
+
+.seat-grid .seat-button {
+    -fx-background-color: #e2e8f0;
+    -fx-text-fill: #1e293b;
+    -fx-background-radius: 8;
+}
+
+.seat-grid .seat-selected {
+    -fx-background-color: #10b981;
+    -fx-text-fill: #ffffff;
+}
+
+.seat-grid .seat-booked {
+    -fx-background-color: #ef4444;
+    -fx-text-fill: #ffffff;
+}
+
+.qr-box {
+    -fx-background-color: #f8fafc;
+    -fx-border-color: #dbeafe;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-padding: 16;
+}
+
+.status-success {
+    -fx-background-color: #10b981;
+    -fx-text-fill: #ffffff;
+    -fx-background-radius: 10;
+    -fx-padding: 4 8 4 8;
+}
+
+.status-error {
+    -fx-background-color: #ef4444;
+    -fx-text-fill: #ffffff;
+    -fx-background-radius: 10;
+    -fx-padding: 4 8 4 8;
+}

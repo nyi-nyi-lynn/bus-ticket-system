@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.busticket.controller.PassengerRouteSearchController"
+      spacing="14.0">
+
+    <VBox styleClass="card" spacing="10.0">
+        <Label text="Search Routes" styleClass="card-title"/>
+        <HBox spacing="10.0">
+            <VBox spacing="4.0">
+                <Label text="From" styleClass="field-label"/>
+                <ComboBox fx:id="originField" promptText="From" styleClass="input"/>
+            </VBox>
+            <VBox spacing="4.0">
+                <Label text="To" styleClass="field-label"/>
+                <ComboBox fx:id="destinationField" promptText="To" styleClass="input"/>
+            </VBox>
+            <VBox spacing="4.0">
+                <Label text="Date" styleClass="field-label"/>
+                <DatePicker fx:id="travelDatePicker"/>
+            </VBox>
+            <Button text="Search" onAction="#handleSearchTrips" styleClass="primary-button"/>
+        </HBox>
+        <Label fx:id="statusLabel" text="Status" styleClass="metric-sub"/>
+    </VBox>
+
+    <VBox styleClass="card" spacing="10.0">
+        <Label text="Available Trips (Modern List)" styleClass="card-title"/>
+        <ListView fx:id="tripListView" prefHeight="420.0" styleClass="trip-list"/>
+        <HBox spacing="10.0">
+            <Button text="Book Selected Trip" onAction="#handleBookSelectedTrip" styleClass="primary-button"/>
+        </HBox>
+    </VBox>
+</VBox>

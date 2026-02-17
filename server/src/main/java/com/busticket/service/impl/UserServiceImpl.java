@@ -19,7 +19,7 @@ public class UserServiceImpl implements UserService {
 
     public UserServiceImpl() {
         this.userDAO = new UserDAOImpl(DatabaseConnection.getConnection());
-        seedDefaultAdmin();
+        seedDefaultUsers();
     }
 
     @Override
@@ -96,19 +96,29 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private void seedDefaultAdmin() {
+    private void seedDefaultUsers() {
         String adminEmail = "admin@busticket.com";
-        if (userDAO.findByEmail(adminEmail) != null) {
-            return;
+        if (userDAO.findByEmail(adminEmail) == null) {
+            User admin = new User();
+            admin.setName("System Admin");
+            admin.setEmail(adminEmail);
+            admin.setPassword(PasswordUtil.hashPassword("admin123"));
+            admin.setPhone("0000000000");
+            admin.setRole(Role.ADMIN);
+            admin.setStatus(UserStatus.ACTIVE);
+            userDAO.save(admin);
         }
 
-        User admin = new User();
-        admin.setName("System Admin");
-        admin.setEmail(adminEmail);
-        admin.setPassword(PasswordUtil.hashPassword("admin123"));
-        admin.setPhone("0000000000");
-        admin.setRole(Role.ADMIN);
-        admin.setStatus(UserStatus.ACTIVE);
-        userDAO.save(admin);
+        String staffEmail = "staff@busticket.com";
+        if (userDAO.findByEmail(staffEmail) == null) {
+            User staff = new User();
+            staff.setName("System Staff");
+            staff.setEmail(staffEmail);
+            staff.setPassword(PasswordUtil.hashPassword("staff123"));
+            staff.setPhone("0000000001");
+            staff.setRole(Role.STAFF);
+            staff.setStatus(UserStatus.ACTIVE);
+            userDAO.save(staff);
+        }
     }
 }

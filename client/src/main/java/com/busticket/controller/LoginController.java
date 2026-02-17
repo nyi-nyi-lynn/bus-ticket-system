@@ -3,13 +3,15 @@ package com.busticket.controller;
 import com.busticket.dto.UserDTO;
 import com.busticket.remote.UserRemote;
 import com.busticket.rmi.RMIClient;
-import com.busticket.util.SceneManager;
+import com.busticket.util.Navigator;
 import com.busticket.util.Session;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.event.ActionEvent;
+import javafx.stage.Stage;
 
 public class LoginController {
     @FXML private TextField emailField;
@@ -45,14 +47,14 @@ public class LoginController {
             }
 
 
-             Session.setCurrentUser(user);
+            Session.setCurrentUser(user);
 
             if ("ADMIN".equals(user.getRole())) {
-                System.out.println("Navigating to Admin Dashboard...");
-                 SceneManager.switchScene(event,"admin_dashboard.fxml");
+                Navigator.switchScene(getStage(event), "/com/busticket/view/admin_dashboard.fxml");
+            } else if ("STAFF".equals(user.getRole())) {
+                Navigator.switchScene(getStage(event), "/com/busticket/view/staff_dashboard.fxml");
             } else {
-                System.out.println("Navigating to Passenger Dashboard...");
-                 SceneManager.switchScene(event,"passenger_dashboard.fxml");
+                Navigator.switchScene(getStage(event), "/com/busticket/view/passenger_dashboard.fxml");
             }
 
         } catch (Exception e) {
@@ -71,6 +73,10 @@ public class LoginController {
 
     @FXML
     public void goToRegister(ActionEvent event) {
-        SceneManager.switchScene(event, "register.fxml");
+        Navigator.switchScene(getStage(event), "/com/busticket/view/register.fxml");
+    }
+
+    private Stage getStage(ActionEvent event) {
+        return (Stage) ((Node) event.getSource()).getScene().getWindow();
     }
 }
