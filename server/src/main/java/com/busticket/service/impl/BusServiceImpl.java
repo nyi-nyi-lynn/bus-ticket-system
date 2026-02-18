@@ -4,8 +4,6 @@ import com.busticket.dao.BusDAO;
 import com.busticket.dao.impl.BusDAOImpl;
 import com.busticket.database.DatabaseConnection;
 import com.busticket.dto.BusDTO;
-import com.busticket.mapper.BusMapper;
-import com.busticket.model.Bus;
 import com.busticket.service.BusService;
 
 import java.util.List;
@@ -18,8 +16,8 @@ public class BusServiceImpl implements BusService {
     }
     @Override
     public boolean save(BusDTO dto) {
-        Bus bus = BusMapper.toModel(dto);
-        return busDAO.save(bus);
+      
+        return false;
     }
 
     @Override

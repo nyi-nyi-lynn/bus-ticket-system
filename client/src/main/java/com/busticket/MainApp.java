@@ -17,10 +17,12 @@ public class MainApp extends Application {
     public static void main(String[] args) {
         try {
             UserRemote user = RMIClient.getUserRemote();
-            List<UserDTO> users = user.getAllUsers();
-            for(UserDTO userDTO : users){
-                System.out.println("Name: " + userDTO.getName());
-                System.out.println("Email: " + userDTO.getEmail());
+            UserDTO loginUser = user.login("nyinyi@gmail.com","password");
+            if(loginUser != null){
+                System.out.println("Login successful");
+                System.out.println(loginUser.getName());
+            }else {
+                System.out.println("Login failed");
             }
 
         } catch (Exception e) {

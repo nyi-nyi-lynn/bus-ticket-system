@@ -4,7 +4,6 @@ import com.busticket.dao.RouteDAO;
 import com.busticket.dao.impl.RouteDAOImpl;
 import com.busticket.database.DatabaseConnection;
 import com.busticket.dto.RouteDTO;
-import com.busticket.mapper.RouteMapper;
 import com.busticket.model.Route;
 import com.busticket.service.RouteService;
 
@@ -21,8 +20,8 @@ public class RouteServiceImpl implements RouteService {
 
     @Override
     public boolean save(RouteDTO dto) {
-        Route route = RouteMapper.toModel(dto);
-        return routeDAO.save(route);
+
+        return false;
     }
 
     @Override

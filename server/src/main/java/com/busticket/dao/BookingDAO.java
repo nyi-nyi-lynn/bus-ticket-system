@@ -3,7 +3,6 @@ package com.busticket.dao;
 import com.busticket.enums.BookingStatus;
 import com.busticket.model.Booking;
 
-import java.sql.Connection;
 import java.util.List;
 
 public interface BookingDAO {

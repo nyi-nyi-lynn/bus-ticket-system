@@ -9,5 +9,11 @@ public interface UserService {
 
     boolean register(UserDTO dto);
 
+    UserDTO getUserById(Long userId);
+
+    boolean updateUser(UserDTO dto);
+
+    boolean deleteUser(Long userId);
+
     List<UserDTO> getAllUsers();
 }
