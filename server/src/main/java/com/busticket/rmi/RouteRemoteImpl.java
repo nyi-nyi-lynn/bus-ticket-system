@@ -23,16 +23,16 @@ public class RouteRemoteImpl extends UnicastRemoteObject implements RouteRemote 
 
     @Override
     public boolean updateRoute(RouteDTO dto) throws RemoteException {
-        return false;
+        return routeService.update(dto);
     }
 
     @Override
     public boolean deleteRoute(Long id) throws RemoteException {
-        return false;
+        return routeService.delete(id);
     }
 
     @Override
     public List<RouteDTO> getAllRoutes() throws RemoteException {
-        return List.of();
+        return routeService.getAll();
     }
 }

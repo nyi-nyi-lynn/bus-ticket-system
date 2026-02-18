@@ -7,6 +7,7 @@ import com.busticket.dto.RouteDTO;
 import com.busticket.model.Route;
 import com.busticket.service.RouteService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class RouteServiceImpl implements RouteService {
@@ -20,22 +21,49 @@ public class RouteServiceImpl implements RouteService {
 
     @Override
     public boolean save(RouteDTO dto) {
-
-        return false;
+        return routeDAO.save(toModel(dto));
     }
 
     @Override
     public boolean update(RouteDTO dto) {
-        return false;
+        if (dto == null || dto.getRouteId() == null) {
+            return false;
+        }
+        return routeDAO.update(toModel(dto));
     }
 
     @Override
     public boolean delete(Long id) {
-        return false;
+        return routeDAO.delete(id);
     }
 
     @Override
     public List<RouteDTO> getAll() {
-        return List.of();
+        List<Route> routes = routeDAO.findAll();
+        List<RouteDTO> dtos = new ArrayList<>();
+        for (Route route : routes) {
+            dtos.add(toDTO(route));
+        }
+        return dtos;
+    }
+
+    private Route toModel(RouteDTO dto) {
+        Route route = new Route();
+        route.setRouteId(dto.getRouteId());
+        route.setOriginCity(dto.getOriginCity());
+        route.setDestinationCity(dto.getDestinationCity());
+        route.setDistanceKm(dto.getDistanceKm());
+        route.setEstimatedDuration(dto.getEstimatedDuration());
+        return route;
+    }
+
+    private RouteDTO toDTO(Route route) {
+        RouteDTO dto = new RouteDTO();
+        dto.setRouteId(route.getRouteId());
+        dto.setOriginCity(route.getOriginCity());
+        dto.setDestinationCity(route.getDestinationCity());
+        dto.setDistanceKm(route.getDistanceKm());
+        dto.setEstimatedDuration(route.getEstimatedDuration());
+        return dto;
     }
 }
