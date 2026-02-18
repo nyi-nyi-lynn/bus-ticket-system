@@ -1,5 +1,7 @@
 package com.busticket.model;
 
+import com.busticket.enums.TripStatus;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -11,12 +13,7 @@ public class Trip {
     private LocalTime departureTime;
     private LocalTime arrivalTime;
     private double price;
-    private String status;
-    private String busNumber;
-    private String originCity;
-    private String destinationCity;
-    private int totalSeats;
-    private int availableSeats;
+    private TripStatus status;
 
     public Long getTripId() {
         return tripId;
@@ -74,51 +71,11 @@ public class Trip {
         this.price = price;
     }
 
-    public String getStatus() {
+    public TripStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(TripStatus status) {
         this.status = status;
-    }
-
-    public String getBusNumber() {
-        return busNumber;
-    }
-
-    public void setBusNumber(String busNumber) {
-        this.busNumber = busNumber;
-    }
-
-    public String getOriginCity() {
-        return originCity;
-    }
-
-    public void setOriginCity(String originCity) {
-        this.originCity = originCity;
-    }
-
-    public String getDestinationCity() {
-        return destinationCity;
-    }
-
-    public void setDestinationCity(String destinationCity) {
-        this.destinationCity = destinationCity;
-    }
-
-    public int getAvailableSeats() {
-        return availableSeats;
-    }
-
-    public void setAvailableSeats(int availableSeats) {
-        this.availableSeats = availableSeats;
-    }
-
-    public int getTotalSeats() {
-        return totalSeats;
-    }
-
-    public void setTotalSeats(int totalSeats) {
-        this.totalSeats = totalSeats;
     }
 }

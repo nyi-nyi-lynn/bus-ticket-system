@@ -1,24 +1,22 @@
 package com.busticket.dto;
 
+import java.io.Serial;
 import java.io.Serializable;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 public class BookingDTO implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private Long bookingId;
     private Long userId;
     private Long tripId;
-    private LocalDateTime bookingDate;
-    private double totalPrice;
+
+    private List<String> seatNumbers;
+
+    private Double totalPrice;
     private String ticketCode;
     private String status;
-    private List<String> seatNumbers = new ArrayList<>();
-
-    public BookingDTO() {
-    }
 
     public Long getBookingId() {
         return bookingId;
@@ -44,19 +42,19 @@ public class BookingDTO implements Serializable {
         this.tripId = tripId;
     }
 
-    public LocalDateTime getBookingDate() {
-        return bookingDate;
+    public List<String> getSeatNumbers() {
+        return seatNumbers;
     }
 
-    public void setBookingDate(LocalDateTime bookingDate) {
-        this.bookingDate = bookingDate;
+    public void setSeatNumbers(List<String> seatNumbers) {
+        this.seatNumbers = seatNumbers;
     }
 
-    public double getTotalPrice() {
+    public Double getTotalPrice() {
         return totalPrice;
     }
 
-    public void setTotalPrice(double totalPrice) {
+    public void setTotalPrice(Double totalPrice) {
         this.totalPrice = totalPrice;
     }
 
@@ -74,13 +72,5 @@ public class BookingDTO implements Serializable {
 
     public void setStatus(String status) {
         this.status = status;
-    }
-
-    public List<String> getSeatNumbers() {
-        return seatNumbers;
-    }
-
-    public void setSeatNumbers(List<String> seatNumbers) {
-        this.seatNumbers = seatNumbers;
     }
 }

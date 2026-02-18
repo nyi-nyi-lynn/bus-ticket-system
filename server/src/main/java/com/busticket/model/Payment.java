@@ -1,14 +1,15 @@
 package com.busticket.model;
 
+import com.busticket.enums.PaymentStatus;
+
 import java.time.LocalDateTime;
 
 public class Payment {
     private Long paymentId;
     private Long bookingId;
     private String paymentMethod;
-    private String paymentStatus;
-    private double paidAmount;
-    private LocalDateTime paidAt;
+    private PaymentStatus paymentStatus;
+    private Double paidAmount;
 
     public Long getPaymentId() {
         return paymentId;
@@ -34,27 +35,19 @@ public class Payment {
         this.paymentMethod = paymentMethod;
     }
 
-    public String getPaymentStatus() {
+    public PaymentStatus getPaymentStatus() {
         return paymentStatus;
     }
 
-    public void setPaymentStatus(String paymentStatus) {
+    public void setPaymentStatus(PaymentStatus paymentStatus) {
         this.paymentStatus = paymentStatus;
     }
 
-    public double getPaidAmount() {
+    public Double getPaidAmount() {
         return paidAmount;
     }
 
-    public void setPaidAmount(double paidAmount) {
+    public void setPaidAmount(Double paidAmount) {
         this.paidAmount = paidAmount;
-    }
-
-    public LocalDateTime getPaidAt() {
-        return paidAt;
-    }
-
-    public void setPaidAt(LocalDateTime paidAt) {
-        this.paidAt = paidAt;
     }
 }

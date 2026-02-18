@@ -1,5 +1,7 @@
 package com.busticket.dto;
 
+import com.busticket.enums.BookingStatus;
+
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -17,7 +19,7 @@ public class TicketDTO implements Serializable {
     private LocalDate travelDate;
     private LocalTime departureTime;
     private List<String> seatNumbers = new ArrayList<>();
-    private String bookingStatus;
+    private BookingStatus bookingStatus;
     private String qrPayload;
 
     public TicketDTO() {
@@ -87,11 +89,11 @@ public class TicketDTO implements Serializable {
         this.seatNumbers = seatNumbers;
     }
 
-    public String getBookingStatus() {
+    public BookingStatus getBookingStatus() {
         return bookingStatus;
     }
 
-    public void setBookingStatus(String bookingStatus) {
+    public void setBookingStatus(BookingStatus bookingStatus) {
         this.bookingStatus = bookingStatus;
     }
 

@@ -1,20 +1,19 @@
 package com.busticket.dto;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
 public class PaymentDTO implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private Long paymentId;
     private Long bookingId;
+
     private String paymentMethod;
     private String paymentStatus;
-    private double paidAmount;
-    private LocalDateTime paidAt;
-
-    public PaymentDTO() {
-    }
+    private Double paidAmount;
 
     public Long getPaymentId() {
         return paymentId;
@@ -48,19 +47,11 @@ public class PaymentDTO implements Serializable {
         this.paymentStatus = paymentStatus;
     }
 
-    public double getPaidAmount() {
+    public Double getPaidAmount() {
         return paidAmount;
     }
 
-    public void setPaidAmount(double paidAmount) {
+    public void setPaidAmount(Double paidAmount) {
         this.paidAmount = paidAmount;
-    }
-
-    public LocalDateTime getPaidAt() {
-        return paidAt;
-    }
-
-    public void setPaidAt(LocalDateTime paidAt) {
-        this.paidAt = paidAt;
     }
 }

@@ -1,9 +1,11 @@
 package com.busticket.model;
 
+import com.busticket.enums.BusType;
+
 public class Bus {
     private Long busId;
     private String busNumber;
-    private String type;
+    private BusType type;
     private int totalSeats;
 
     public Long getBusId() {
@@ -22,11 +24,11 @@ public class Bus {
         this.busNumber = busNumber;
     }
 
-    public String getType() {
+    public BusType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(BusType type) {
         this.type = type;
     }
 

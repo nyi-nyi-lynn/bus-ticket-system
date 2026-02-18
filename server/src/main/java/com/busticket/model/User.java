@@ -12,6 +12,19 @@ public class User {
     private Role role;
     private UserStatus status;
 
+    public User() {
+    }
+
+    public User(Long userId, String name, String email, String password, String phone, Role role, UserStatus status) {
+        this.userId = userId;
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.phone = phone;
+        this.role = role;
+        this.status = status;
+    }
+
     public Long getUserId() {
         return userId;
     }
