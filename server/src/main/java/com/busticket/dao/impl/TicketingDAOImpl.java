@@ -1,6 +1,5 @@
 package com.busticket.dao.impl;
 
-import com.busticket.dao.TicketingDAO;
 import com.busticket.enums.BookingStatus;
 import com.busticket.enums.TripStatus;
 import com.busticket.model.Booking;
