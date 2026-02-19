@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.busticket.controller.auth.RegisterController" stylesheets="@/com/busticket/view/theme.css">
+    <VBox alignment="CENTER" spacing="18" maxWidth="520" styleClass="card">
+        <VBox spacing="6">
+            <Label text="Create Account" styleClass="page-title" />
+            <Label text="Register to manage your trips" styleClass="page-subtitle" />
+        </VBox>
+        <VBox spacing="10">
+            <TextField fx:id="nameField" promptText="Full Name" styleClass="field" />
+            <TextField fx:id="emailField" promptText="Email" styleClass="field" />
+            <TextField fx:id="phoneField" promptText="Phone" styleClass="field" />
+            <PasswordField fx:id="passwordField" promptText="Password" styleClass="field" />
+            <PasswordField fx:id="confirmPasswordField" promptText="Confirm Password" styleClass="field" />
+        </VBox>
+        <VBox spacing="10">
+            <Button fx:id="registerButton" text="Register" onAction="#onRegister" styleClass="primary-button" maxWidth="Infinity" />
+            <Button fx:id="backButton" text="Back to Login" onAction="#onBack" styleClass="ghost-button" maxWidth="Infinity" />
+        </VBox>
+        <padding>
+            <Insets top="24" right="28" bottom="24" left="28" />
+        </padding>
+    </VBox>
+</StackPane>

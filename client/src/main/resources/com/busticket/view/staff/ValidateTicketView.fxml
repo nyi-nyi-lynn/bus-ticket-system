@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.busticket.controller.staff.ValidateTicketController" spacing="16">
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Validate Ticket" styleClass="page-title" />
+    </HBox>
+    <VBox styleClass="card" spacing="12">
+        <TextField fx:id="ticketCodeField" promptText="Ticket code" styleClass="field" />
+        <Button fx:id="validateButton" text="Validate" onAction="#onValidate" styleClass="primary-button" />
+        <Label fx:id="validationResultLabel" text="" />
+    </VBox>
+</VBox>

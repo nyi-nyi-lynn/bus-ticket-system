@@ -1,0 +1,28 @@
+﻿NAVIGATION FLOW MAP
+
+Auth Flow:
+Login -> Register
+Login -> Passenger Dashboard (Role: PASSENGER)
+Login -> Admin Dashboard (Role: ADMIN)
+Login -> Staff Dashboard (Role: STAFF)
+Login -> Guest Dashboard (Continue as Guest)
+
+Passenger Flow:
+Passenger Dashboard -> Search Trips -> Seat Selection -> Payment -> Ticket Success -> Passenger Dashboard
+Passenger Dashboard -> Profile
+
+Guest Flow:
+Guest Dashboard -> Search Trips -> Seat Selection -> Guest Info -> Payment -> Ticket Success -> Guest Dashboard
+Guest Dashboard -> Exit -> Login
+
+Admin Flow:
+Admin Dashboard -> Manage Users
+Admin Dashboard -> Manage Buses
+Admin Dashboard -> Manage Routes
+Admin Dashboard -> Manage Trips
+Admin Dashboard -> Reports
+
+Staff Flow:
+Staff Dashboard -> View Trips
+Staff Dashboard -> Manage Bookings
+Staff Dashboard -> Validate Ticket

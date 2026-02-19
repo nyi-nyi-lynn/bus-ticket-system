@@ -24,4 +24,8 @@ public class RMIClient {
     public static BookingRemote getBookingRemote() throws Exception{
         return (BookingRemote) Naming.lookup("rmi://localhost/BookingService");
     }
+
+    public static PaymentRemote getPaymentRemote() throws Exception {
+        return (PaymentRemote) Naming.lookup("rmi://localhost/PaymentService");
+    }
 }

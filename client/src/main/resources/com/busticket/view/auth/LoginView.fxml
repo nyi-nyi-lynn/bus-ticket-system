@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.busticket.controller.auth.LoginController" stylesheets="@/com/busticket/view/theme.css">
+    <VBox alignment="CENTER" spacing="20" maxWidth="420" styleClass="card">
+        <VBox spacing="6">
+            <Label text="Welcome Back" styleClass="page-title" />
+            <Label text="Sign in to continue" styleClass="page-subtitle" />
+        </VBox>
+        <VBox spacing="12">
+            <TextField fx:id="emailField" promptText="Email" styleClass="field" />
+            <PasswordField fx:id="passwordField" promptText="Password" styleClass="field" />
+        </VBox>
+        <VBox spacing="10">
+            <Button fx:id="loginButton" text="Login" onAction="#onLogin" styleClass="primary-button" maxWidth="Infinity" />
+            <Button fx:id="registerButton" text="Register" onAction="#onRegister" styleClass="ghost-button" maxWidth="Infinity" />
+            <Hyperlink fx:id="guestButton" text="Continue as Guest" onAction="#onGuest" />
+        </VBox>
+        <HBox spacing="8" alignment="CENTER_LEFT">
+            <Label text="Need an account?" />
+            <Hyperlink text="Create one" onAction="#onRegister" />
+        </HBox>
+        <padding>
+            <Insets top="28" right="28" bottom="28" left="28" />
+        </padding>
+    </VBox>
+</StackPane>

@@ -1,33 +1,18 @@
 package com.busticket;
 
-import com.busticket.dto.UserDTO;
-import com.busticket.remote.UserRemote;
-import com.busticket.rmi.RMIClient;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
-import java.util.List;
+import com.busticket.util.SceneSwitcher;
 
 public class MainApp extends Application {
     @Override
     public void start(Stage stage) {
-
+        SceneSwitcher.init(stage);
+        SceneSwitcher.showAuth("/com/busticket/view/auth/LoginView.fxml");
     }
 
     public static void main(String[] args) {
-        try {
-            UserRemote user = RMIClient.getUserRemote();
-            UserDTO loginUser = user.login("admin@busticket.com","admin123");
-            if(loginUser != null){
-                System.out.println("Login successful");
-                System.out.println(loginUser.getName());
-            }else {
-                System.out.println("Login failed");
-            }
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-//        launch(args);
+        launch(args);
     }
 }

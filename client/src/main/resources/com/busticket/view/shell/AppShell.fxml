@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane fx:id="root" xmlns:fx="http://javafx.com/fxml" fx:controller="com.busticket.controller.shell.AppShellController" styleClass="app-shell" stylesheets="@/com/busticket/view/theme.css">
+    <left>
+        <VBox fx:id="sidebar" styleClass="sidebar" prefWidth="240">
+            <Text text="Bus Ticket" styleClass="sidebar-title" />
+            <VBox spacing="6" fx:id="navBox">
+                <Button fx:id="navDashboard" text="Dashboard" onAction="#onDashboard" styleClass="nav-button" />
+                <Button fx:id="navSearchTrips" text="Search Trips" onAction="#onSearchTrips" styleClass="nav-button" />
+                <Button fx:id="navMyBookings" text="My Bookings" onAction="#onMyBookings" styleClass="nav-button" />
+                <Button fx:id="navProfile" text="Profile" onAction="#onProfile" styleClass="nav-button" />
+                <Button fx:id="navManageUsers" text="Manage Users" onAction="#onManageUsers" styleClass="nav-button" />
+                <Button fx:id="navManageBuses" text="Manage Buses" onAction="#onManageBuses" styleClass="nav-button" />
+                <Button fx:id="navManageRoutes" text="Manage Routes" onAction="#onManageRoutes" styleClass="nav-button" />
+                <Button fx:id="navManageTrips" text="Manage Trips" onAction="#onManageTrips" styleClass="nav-button" />
+                <Button fx:id="navReports" text="Reports" onAction="#onReports" styleClass="nav-button" />
+                <Button fx:id="navStaffTrips" text="View Trips" onAction="#onStaffTrips" styleClass="nav-button" />
+                <Button fx:id="navStaffBookings" text="Manage Bookings" onAction="#onStaffBookings" styleClass="nav-button" />
+                <Button fx:id="navValidateTicket" text="Validate Ticket" onAction="#onValidateTicket" styleClass="nav-button" />
+                <Button fx:id="navLogout" text="Logout" onAction="#onLogout" styleClass="nav-button" />
+            </VBox>
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Text text="Role" />
+                <Text fx:id="roleBadge" text="Guest" styleClass="badge" />
+            </HBox>
+        </VBox>
+    </left>
+    <center>
+        <StackPane fx:id="contentHost" styleClass="content-area">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10" />
+            </padding>
+        </StackPane>
+    </center>
+</BorderPane>
