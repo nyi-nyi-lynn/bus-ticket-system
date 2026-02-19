@@ -9,7 +9,7 @@ public interface RouteDAO {
 
     boolean update(Route route);
 
-    boolean delete(Long id);
+    boolean deactivate(Long id);
 
     List<Route> findAll();
 }

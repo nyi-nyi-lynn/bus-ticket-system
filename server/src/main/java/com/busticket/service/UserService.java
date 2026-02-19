@@ -13,7 +13,7 @@ public interface UserService {
 
     boolean updateUser(UserDTO dto);
 
-    boolean deleteUser(Long userId);
+    boolean deactivateUser(Long userId);
 
     List<UserDTO> getAllUsers();
 }

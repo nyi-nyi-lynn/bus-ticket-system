@@ -22,11 +22,13 @@ public class TripServiceImpl implements TripService {
 
     @Override
     public boolean save(TripDTO dto) {
+        // Validate required fields.
         return tripDAO.save(toModel(dto));
     }
 
     @Override
     public boolean update(TripDTO dto) {
+        // Validate required fields and identifiers.
         if (dto == null || dto.getTripId() == null) {
             return false;
         }
@@ -35,6 +37,7 @@ public class TripServiceImpl implements TripService {
 
     @Override
     public boolean delete(Long id) {
+        // Soft delete: close trip.
         return tripDAO.delete(id);
     }
 
@@ -50,6 +53,7 @@ public class TripServiceImpl implements TripService {
 
     @Override
     public List<TripDTO> search(String origin, String destination, LocalDate date) {
+        // Validate required search criteria.
         List<Trip> trips = tripDAO.search(origin, destination, date);
         List<TripDTO> dtos = new ArrayList<>();
         for (Trip trip : trips) {

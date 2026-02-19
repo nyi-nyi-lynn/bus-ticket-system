@@ -65,8 +65,8 @@ public class BusDAOImpl implements BusDAO {
     }
 
     @Override
-    public boolean delete(Long id) {
-        String sql = "DELETE FROM buses WHERE bus_id = ?";
+    public boolean deactivate(Long id) {
+        String sql = "UPDATE buses SET is_active = 0 WHERE bus_id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setLong(1, id);
             return ps.executeUpdate() > 0;
@@ -78,7 +78,7 @@ public class BusDAOImpl implements BusDAO {
 
     @Override
     public List<Bus> findAll() {
-        String sql = "SELECT bus_id, bus_number, type, total_seats FROM buses ORDER BY bus_id DESC";
+        String sql = "SELECT bus_id, bus_number, type, total_seats FROM buses WHERE is_active = 1 ORDER BY bus_id DESC";
         List<Bus> buses = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {

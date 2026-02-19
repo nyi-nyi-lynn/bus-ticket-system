@@ -88,10 +88,11 @@ public class UserDAOImpl implements UserDAO {
     }
 
     @Override
-    public boolean delete(Long userId) {
-        String sql = "DELETE FROM users WHERE user_id = ?";
+    public boolean deactivate(Long userId) {
+        String sql = "UPDATE users SET status = ? WHERE user_id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setLong(1, userId);
+            ps.setString(1, UserStatus.BLOCKED.name());
+            ps.setLong(2, userId);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -101,7 +102,7 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public List<User> findAll() {
-        String sql = "SELECT user_id, name, email, password, phone, role, status FROM users ORDER BY user_id DESC";
+        String sql = "SELECT user_id, name, email, password, phone, role, status FROM users WHERE status = 'ACTIVE' ORDER BY user_id DESC";
         List<User> users = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {

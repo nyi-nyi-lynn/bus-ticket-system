@@ -17,7 +17,7 @@ public class MainApp extends Application {
     public static void main(String[] args) {
         try {
             UserRemote user = RMIClient.getUserRemote();
-            UserDTO loginUser = user.login("nyinyi@gmail.com","password");
+            UserDTO loginUser = user.login("admin@busticket.com","admin123");
             if(loginUser != null){
                 System.out.println("Login successful");
                 System.out.println(loginUser.getName());

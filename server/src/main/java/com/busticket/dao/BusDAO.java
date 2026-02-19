@@ -9,7 +9,7 @@ public interface BusDAO {
 
     boolean update(Bus bus);
 
-    boolean delete(Long id);
+    boolean deactivate(Long id);
 
     List<Bus> findAll();
 }

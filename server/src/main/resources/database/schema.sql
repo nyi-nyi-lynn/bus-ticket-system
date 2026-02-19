@@ -17,7 +17,8 @@ CREATE TABLE IF NOT EXISTS buses (
     bus_id BIGINT PRIMARY KEY AUTO_INCREMENT,
     bus_number VARCHAR(80) NOT NULL UNIQUE,
     type ENUM('VIP', 'NORMAL') NOT NULL DEFAULT 'NORMAL',
-    total_seats INT NOT NULL CHECK (total_seats > 0)
+    total_seats INT NOT NULL CHECK (total_seats > 0),
+    is_active TINYINT(1) NOT NULL DEFAULT 1
 );
 
 CREATE TABLE IF NOT EXISTS routes (
@@ -25,7 +26,8 @@ CREATE TABLE IF NOT EXISTS routes (
     origin_city VARCHAR(120) NOT NULL,
     destination_city VARCHAR(120) NOT NULL,
     distance_km DECIMAL(10,2) NOT NULL CHECK (distance_km >= 0),
-    estimated_duration VARCHAR(40) NOT NULL
+    estimated_duration VARCHAR(40) NOT NULL,
+    is_active TINYINT(1) NOT NULL DEFAULT 1
 );
 
 CREATE TABLE IF NOT EXISTS trips (

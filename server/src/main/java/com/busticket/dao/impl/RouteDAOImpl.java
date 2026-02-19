@@ -54,8 +54,8 @@ public class RouteDAOImpl implements RouteDAO {
     }
 
     @Override
-    public boolean delete(Long id) {
-        String sql = "DELETE FROM routes WHERE route_id = ?";
+    public boolean deactivate(Long id) {
+        String sql = "UPDATE routes SET is_active = 0 WHERE route_id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setLong(1, id);
             return ps.executeUpdate() > 0;
@@ -67,7 +67,7 @@ public class RouteDAOImpl implements RouteDAO {
 
     @Override
     public List<Route> findAll() {
-        String sql = "SELECT route_id, origin_city, destination_city, distance_km, estimated_duration FROM routes ORDER BY route_id DESC";
+        String sql = "SELECT route_id, origin_city, destination_city, distance_km, estimated_duration FROM routes WHERE is_active = 1 ORDER BY route_id DESC";
         List<Route> routes = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {

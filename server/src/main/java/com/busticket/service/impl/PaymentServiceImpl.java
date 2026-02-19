@@ -21,6 +21,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public PaymentDTO createPayment(PaymentDTO dto) {
+        // Validate required fields.
         if (dto == null || dto.getBookingId() == null) {
             return null;
         }
@@ -47,6 +48,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public PaymentDTO getPaymentById(Long paymentId) {
+        // Validate required identifier.
         if (paymentId == null) {
             return null;
         }
@@ -56,6 +58,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public PaymentDTO getPaymentByBookingId(Long bookingId) {
+        // Validate required identifier.
         if (bookingId == null) {
             return null;
         }

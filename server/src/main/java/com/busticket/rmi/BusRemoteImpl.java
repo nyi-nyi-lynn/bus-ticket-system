@@ -27,8 +27,8 @@ public class BusRemoteImpl extends UnicastRemoteObject implements BusRemote {
     }
 
     @Override
-    public boolean deleteBus(Long id) throws RemoteException {
-        return busService.delete(id);
+    public boolean deactivateBus(Long id) throws RemoteException {
+        return busService.deactivate(id);
     }
 
     @Override

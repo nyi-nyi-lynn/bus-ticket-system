@@ -10,7 +10,7 @@ public interface BusRemote {
 
     boolean updateBus(BusDTO dto) throws RemoteException;
 
-    boolean deleteBus(Long id) throws RemoteException;
+    boolean deactivateBus(Long id) throws RemoteException;
 
     List<BusDTO> getAllBuses() throws RemoteException;
 }

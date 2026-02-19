@@ -9,7 +9,7 @@ public interface RouteService {
 
     boolean update(RouteDTO dto);
 
-    boolean delete(Long id);
+    boolean deactivate(Long id);
 
     List<RouteDTO> getAll();
 }

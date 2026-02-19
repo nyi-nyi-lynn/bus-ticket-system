@@ -29,6 +29,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingDTO createBooking(BookingDTO dto) {
+        // Validate required fields and requested seats.
         if (dto == null || dto.getUserId() == null || dto.getTripId() == null) {
             return null;
         }
@@ -41,6 +42,7 @@ public class BookingServiceImpl implements BookingService {
             return null;
         }
 
+        // Prevent double-booking by rejecting already reserved seats.
         List<Long> booked = bookingDAO.findBookedSeats(dto.getTripId());
         Set<Long> bookedSet = new HashSet<>(booked);
         for (Long seatId : seatIds) {
@@ -76,6 +78,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public boolean confirmBooking(Long bookingId) {
+        // Validate required identifier.
         if (bookingId == null) {
             return false;
         }
@@ -84,6 +87,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<Long> getBookedSeatIds(Long tripId) {
+        // Validate required identifier.
         if (tripId == null) {
             return List.of();
         }

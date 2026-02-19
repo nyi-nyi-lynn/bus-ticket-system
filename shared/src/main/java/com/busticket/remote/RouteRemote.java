@@ -12,7 +12,7 @@ public interface RouteRemote extends Remote {
 
     boolean updateRoute(RouteDTO dto) throws RemoteException;
 
-    boolean deleteRoute(Long id) throws RemoteException;
+    boolean deactivateRoute(Long id) throws RemoteException;
 
     List<RouteDTO> getAllRoutes() throws RemoteException;
 }

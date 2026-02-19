@@ -9,7 +9,7 @@ public interface BusService {
 
     boolean update(BusDTO dto);
 
-    boolean delete(Long id);
+    boolean deactivate(Long id);
 
     List<BusDTO> getAll();
 }

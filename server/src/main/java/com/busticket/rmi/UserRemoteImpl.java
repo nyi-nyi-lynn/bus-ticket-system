@@ -37,8 +37,8 @@ public class UserRemoteImpl extends UnicastRemoteObject implements UserRemote {
     }
 
     @Override
-    public boolean deleteUser(Long userId) throws RemoteException {
-        return userService.deleteUser(userId);
+    public boolean deactivateUser(Long userId) throws RemoteException {
+        return userService.deactivateUser(userId);
     }
 
     @Override

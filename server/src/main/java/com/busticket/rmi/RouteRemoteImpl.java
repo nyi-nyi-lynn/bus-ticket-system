@@ -27,8 +27,8 @@ public class RouteRemoteImpl extends UnicastRemoteObject implements RouteRemote 
     }
 
     @Override
-    public boolean deleteRoute(Long id) throws RemoteException {
-        return routeService.delete(id);
+    public boolean deactivateRoute(Long id) throws RemoteException {
+        return routeService.deactivate(id);
     }
 
     @Override

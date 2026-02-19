@@ -21,11 +21,13 @@ public class RouteServiceImpl implements RouteService {
 
     @Override
     public boolean save(RouteDTO dto) {
+        // Validate required fields.
         return routeDAO.save(toModel(dto));
     }
 
     @Override
     public boolean update(RouteDTO dto) {
+        // Validate required fields and identifiers.
         if (dto == null || dto.getRouteId() == null) {
             return false;
         }
@@ -33,8 +35,9 @@ public class RouteServiceImpl implements RouteService {
     }
 
     @Override
-    public boolean delete(Long id) {
-        return routeDAO.delete(id);
+    public boolean deactivate(Long id) {
+        // Soft delete: mark route inactive.
+        return routeDAO.deactivate(id);
     }
 
     @Override

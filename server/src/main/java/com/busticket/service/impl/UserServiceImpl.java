@@ -23,6 +23,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO login(String email, String password) {
+        // Validate required credentials.
         User user = userDAO.findByEmail(email);
         if (user == null || user.getStatus() != UserStatus.ACTIVE) {
             return null;
@@ -38,6 +39,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean register(UserDTO dto) {
+        // Validate required fields and uniqueness.
         if (dto == null || dto.getEmail() == null || dto.getPassword() == null) {
             return false;
         }
@@ -63,6 +65,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean updateUser(UserDTO dto) {
+        // Validate required fields and identifiers.
         if (dto == null || dto.getUserId() == null) {
             return false;
         }
@@ -89,8 +92,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean deleteUser(Long userId) {
-        return userDAO.delete(userId);
+    public boolean deactivateUser(Long userId) {
+        // Soft delete: block user account.
+        return userDAO.deactivate(userId);
     }
 
     @Override

@@ -20,11 +20,13 @@ public class BusServiceImpl implements BusService {
     }
     @Override
     public boolean save(BusDTO dto) {
+        // Validate required fields.
         return busDAO.save(toModel(dto));
     }
 
     @Override
     public boolean update(BusDTO dto) {
+        // Validate required fields and identifiers.
         if (dto == null || dto.getBusId() == null) {
             return false;
         }
@@ -32,8 +34,9 @@ public class BusServiceImpl implements BusService {
     }
 
     @Override
-    public boolean delete(Long id) {
-        return busDAO.delete(id);
+    public boolean deactivate(Long id) {
+        // Soft delete: mark bus inactive.
+        return busDAO.deactivate(id);
     }
 
     @Override
