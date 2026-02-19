@@ -19,16 +19,16 @@ public class BookingRemoteImpl extends UnicastRemoteObject implements BookingRem
 
     @Override
     public BookingDTO createBooking(BookingDTO dto) throws RemoteException {
-        return null;
+        return bookingService.createBooking(dto);
     }
 
     @Override
     public boolean confirmBooking(Long bookingId) throws RemoteException {
-        return false;
+        return bookingService.confirmBooking(bookingId);
     }
 
     @Override
     public List<Long> getBookedSeatIds(Long tripId) throws RemoteException {
-        return List.of();
+        return bookingService.getBookedSeatIds(tripId);
     }
 }
