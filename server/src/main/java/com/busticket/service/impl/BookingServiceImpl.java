@@ -37,43 +37,70 @@ public class BookingServiceImpl implements BookingService {
             return null;
         }
 
-        List<Long> seatIds = findSeatIds(dto.getTripId(), dto.getSeatNumbers());
-        if (seatIds.size() != dto.getSeatNumbers().size()) {
-            return null;
-        }
+        boolean originalAutoCommit = true;
+        try {
+            // Transaction boundary: lock seats and insert booking atomically.
+            originalAutoCommit = connection.getAutoCommit();
+            connection.setAutoCommit(false);
 
-        // Prevent double-booking by rejecting already reserved seats.
-        List<Long> booked = bookingDAO.findBookedSeats(dto.getTripId());
-        Set<Long> bookedSet = new HashSet<>(booked);
-        for (Long seatId : seatIds) {
-            if (bookedSet.contains(seatId)) {
+            lockSeatsForTrip(dto.getTripId());
+
+            List<Long> seatIds = findSeatIds(dto.getTripId(), dto.getSeatNumbers());
+            if (seatIds.size() != dto.getSeatNumbers().size()) {
+                connection.rollback();
                 return null;
             }
-        }
 
-        Booking booking = new Booking();
-        booking.setUserId(dto.getUserId());
-        booking.setTripId(dto.getTripId());
-        booking.setTotalPrice(dto.getTotalPrice() == null ? 0.0 : dto.getTotalPrice());
-        booking.setTicketCode(generateTicketCode());
-        booking.setStatus(BookingStatus.PENDING);
+            // Prevent double-booking by rejecting already reserved seats.
+            List<Long> booked = bookingDAO.findBookedSeats(dto.getTripId());
+            Set<Long> bookedSet = new HashSet<>(booked);
+            for (Long seatId : seatIds) {
+                if (bookedSet.contains(seatId)) {
+                    connection.rollback();
+                    return null;
+                }
+            }
 
-        Long bookingId = bookingDAO.createBooking(booking);
-        if (bookingId == null) {
+            Booking booking = new Booking();
+            booking.setUserId(dto.getUserId());
+            booking.setTripId(dto.getTripId());
+            booking.setTotalPrice(dto.getTotalPrice() == null ? 0.0 : dto.getTotalPrice());
+            booking.setTicketCode(generateTicketCode());
+            booking.setStatus(BookingStatus.PENDING);
+
+            Long bookingId = bookingDAO.createBooking(booking);
+            if (bookingId == null) {
+                connection.rollback();
+                return null;
+            }
+
+            bookingDAO.insertBookingSeats(bookingId, seatIds);
+            connection.commit();
+
+            BookingDTO result = new BookingDTO();
+            result.setBookingId(bookingId);
+            result.setUserId(dto.getUserId());
+            result.setTripId(dto.getTripId());
+            result.setSeatNumbers(dto.getSeatNumbers());
+            result.setTotalPrice(booking.getTotalPrice());
+            result.setTicketCode(booking.getTicketCode());
+            result.setStatus(booking.getStatus().name());
+            return result;
+        } catch (SQLException e) {
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
             return null;
+        } finally {
+            try {
+                connection.setAutoCommit(originalAutoCommit);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
-
-        bookingDAO.insertBookingSeats(bookingId, seatIds);
-
-        BookingDTO result = new BookingDTO();
-        result.setBookingId(bookingId);
-        result.setUserId(dto.getUserId());
-        result.setTripId(dto.getTripId());
-        result.setSeatNumbers(dto.getSeatNumbers());
-        result.setTotalPrice(booking.getTotalPrice());
-        result.setTicketCode(booking.getTicketCode());
-        result.setStatus(booking.getStatus().name());
-        return result;
     }
 
     @Override
@@ -92,6 +119,15 @@ public class BookingServiceImpl implements BookingService {
             return List.of();
         }
         return bookingDAO.findBookedSeats(tripId);
+    }
+
+    @Override
+    public int cancelExpiredPending(int minutes) {
+        // Validate required parameter.
+        if (minutes <= 0) {
+            return 0;
+        }
+        return bookingDAO.cancelExpiredPending(minutes);
     }
 
     private List<Long> findSeatIds(Long tripId, List<String> seatNumbers) {
@@ -125,6 +161,20 @@ public class BookingServiceImpl implements BookingService {
             e.printStackTrace();
         }
         return seatIds;
+    }
+
+    private void lockSeatsForTrip(Long tripId) throws SQLException {
+        String sql = """
+            SELECT s.seat_id
+            FROM seats s
+            JOIN trips t ON t.bus_id = s.bus_id
+            WHERE t.trip_id = ?
+            FOR UPDATE
+        """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setLong(1, tripId);
+            ps.executeQuery();
+        }
     }
 
     private String generateTicketCode() {

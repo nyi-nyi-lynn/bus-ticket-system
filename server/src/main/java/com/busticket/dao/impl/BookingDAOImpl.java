@@ -72,6 +72,7 @@ public class BookingDAOImpl implements BookingDAO {
             FROM booking_seat bs
             JOIN bookings b ON b.booking_id = bs.booking_id
             WHERE b.trip_id = ? AND b.status <> 'CANCELLED'
+            FOR UPDATE
         """;
         List<Long> seatIds = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -98,5 +99,22 @@ public class BookingDAOImpl implements BookingDAO {
             e.printStackTrace();
         }
         return false;
+    }
+
+    @Override
+    public int cancelExpiredPending(int minutes) {
+        String sql = """
+            UPDATE bookings
+            SET status = 'CANCELLED'
+            WHERE status = 'PENDING'
+              AND booking_date < (NOW() - INTERVAL ? MINUTE)
+        """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, minutes);
+            return ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 }

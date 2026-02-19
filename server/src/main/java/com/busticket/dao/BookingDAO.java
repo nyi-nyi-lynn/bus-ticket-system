@@ -13,4 +13,6 @@ public interface BookingDAO {
     List<Long> findBookedSeats(Long tripId);
 
     boolean updateStatus(Long bookingId, BookingStatus status);
+
+    int cancelExpiredPending(int minutes);
 }

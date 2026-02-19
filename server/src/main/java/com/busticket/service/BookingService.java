@@ -10,4 +10,6 @@ public interface BookingService {
     boolean confirmBooking(Long bookingId);
 
     List<Long> getBookedSeatIds(Long tripId);
+
+    int cancelExpiredPending(int minutes);
 }
