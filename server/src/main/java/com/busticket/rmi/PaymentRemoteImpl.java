@@ -1,5 +1,6 @@
 package com.busticket.rmi;
 
+import com.busticket.dto.PaymentDTO;
 import com.busticket.remote.PaymentRemote;
 import com.busticket.service.PaymentService;
 import com.busticket.service.impl.PaymentServiceImpl;
@@ -12,5 +13,20 @@ public class PaymentRemoteImpl extends UnicastRemoteObject implements PaymentRem
 
     public PaymentRemoteImpl() throws RemoteException{
         paymentService = new PaymentServiceImpl();
+    }
+
+    @Override
+    public PaymentDTO createPayment(PaymentDTO dto) throws RemoteException {
+        return paymentService.createPayment(dto);
+    }
+
+    @Override
+    public PaymentDTO getPaymentById(Long paymentId) throws RemoteException {
+        return paymentService.getPaymentById(paymentId);
+    }
+
+    @Override
+    public PaymentDTO getPaymentByBookingId(Long bookingId) throws RemoteException {
+        return paymentService.getPaymentByBookingId(bookingId);
     }
 }
