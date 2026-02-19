@@ -25,17 +25,17 @@ public class TripRemoteImpl extends UnicastRemoteObject implements TripRemote {
 
     @Override
     public boolean updateTrip(TripDTO dto) throws RemoteException {
-        return false;
+        return tripService.update(dto);
     }
 
     @Override
     public boolean deleteTrip(Long id) throws RemoteException {
-        return false;
+        return tripService.delete(id);
     }
 
     @Override
     public List<TripDTO> getAllTrips() throws RemoteException {
-        return List.of();
+        return tripService.getAll();
     }
 
     @Override
