@@ -2,7 +2,6 @@ package com.busticket.model;
 
 import com.busticket.enums.PaymentStatus;
 
-import java.time.LocalDateTime;
 
 public class Payment {
     private Long paymentId;

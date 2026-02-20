@@ -2,11 +2,12 @@ package com.busticket.remote;
 
 import com.busticket.dto.TripDTO;
 
+import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.time.LocalDate;
 import java.util.List;
 
-public interface TripRemote {
+public interface TripRemote extends Remote {
     boolean saveTrip(TripDTO dto) throws RemoteException;
 
     boolean updateTrip(TripDTO dto) throws RemoteException;
@@ -15,6 +16,5 @@ public interface TripRemote {
 
     List<TripDTO> getAllTrips() throws RemoteException;
 
-    List<TripDTO> searchTrips(String origin, String destination, LocalDate date)
-            throws RemoteException;
+    List<TripDTO> searchTrips(String origin, String destination, LocalDate date) throws RemoteException;
 }
