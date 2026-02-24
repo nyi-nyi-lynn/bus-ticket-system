@@ -72,6 +72,11 @@ public class TripServiceImpl implements TripService {
         trip.setArrivalTime(dto.getArrivalTime());
         trip.setPrice(dto.getPrice());
         trip.setStatus(parseStatus(dto.getStatus()));
+        trip.setBusNumber(dto.getBusNumber());
+        trip.setOriginCity(dto.getOriginCity());
+        trip.setDestinationCity(dto.getDestinationCity());
+        trip.setTotalSeats(dto.getTotalSeats());
+        trip.setAvailableSeats(dto.getAvailableSeats());
         return trip;
     }
 
@@ -85,6 +90,11 @@ public class TripServiceImpl implements TripService {
         dto.setArrivalTime(trip.getArrivalTime());
         dto.setPrice(trip.getPrice());
         dto.setStatus(trip.getStatus() == null ? null : trip.getStatus().name());
+        dto.setBusNumber(trip.getBusNumber());
+        dto.setOriginCity(trip.getOriginCity());
+        dto.setDestinationCity(trip.getDestinationCity());
+        dto.setTotalSeats(trip.getTotalSeats());
+        dto.setAvailableSeats(trip.getAvailableSeats());
         return dto;
     }
 

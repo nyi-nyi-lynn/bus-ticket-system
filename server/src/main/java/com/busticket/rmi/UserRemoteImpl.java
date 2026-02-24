@@ -10,39 +10,41 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 
 public class UserRemoteImpl extends UnicastRemoteObject implements UserRemote {
-    private final UserService userService;
-
     public  UserRemoteImpl() throws RemoteException{
-        userService = new UserServiceImpl();
+    }
+
+    // FIXED
+    private UserService userService() {
+        return new UserServiceImpl();
     }
 
     @Override
     public UserDTO login(String email, String password) throws RemoteException {
-        return userService.login(email, password);
+        return userService().login(email, password);
     }
 
     @Override
     public boolean register(UserDTO user) throws RemoteException {
-        return userService.register(user);
+        return userService().register(user);
     }
 
     @Override
     public UserDTO getUserById(Long userId) throws RemoteException {
-        return userService.getUserById(userId);
+        return userService().getUserById(userId);
     }
 
     @Override
     public boolean updateUser(UserDTO user) throws RemoteException {
-        return userService.updateUser(user);
+        return userService().updateUser(user);
     }
 
     @Override
     public boolean deactivateUser(Long userId) throws RemoteException {
-        return userService.deactivateUser(userId);
+        return userService().deactivateUser(userId);
     }
 
     @Override
     public List<UserDTO> getAllUsers() throws RemoteException {
-        return userService.getAllUsers();
+        return userService().getAllUsers();
     }
 }

@@ -114,6 +114,12 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
+    public PaymentDTO processPayment(PaymentDTO dto) {
+        // ADDED
+        return createPayment(dto);
+    }
+
+    @Override
     public PaymentDTO getPaymentById(Long paymentId) {
         // Validate required identifier.
         if (paymentId == null) {

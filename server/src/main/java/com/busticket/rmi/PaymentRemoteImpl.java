@@ -9,24 +9,32 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
 public class PaymentRemoteImpl extends UnicastRemoteObject implements PaymentRemote {
-    private PaymentService paymentService;
-
     public PaymentRemoteImpl() throws RemoteException{
-        paymentService = new PaymentServiceImpl();
+    }
+
+    // FIXED
+    private PaymentService paymentService() {
+        return new PaymentServiceImpl();
     }
 
     @Override
     public PaymentDTO createPayment(PaymentDTO dto) throws RemoteException {
-        return paymentService.createPayment(dto);
+        return paymentService().createPayment(dto);
+    }
+
+    @Override
+    public PaymentDTO processPayment(PaymentDTO dto) throws RemoteException {
+        // ADDED
+        return paymentService().processPayment(dto);
     }
 
     @Override
     public PaymentDTO getPaymentById(Long paymentId) throws RemoteException {
-        return paymentService.getPaymentById(paymentId);
+        return paymentService().getPaymentById(paymentId);
     }
 
     @Override
     public PaymentDTO getPaymentByBookingId(Long bookingId) throws RemoteException {
-        return paymentService.getPaymentByBookingId(bookingId);
+        return paymentService().getPaymentByBookingId(bookingId);
     }
 }

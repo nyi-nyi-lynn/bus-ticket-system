@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.busticket.controller.staff.StaffTripsController" spacing="16">
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.busticket.controller.staff.StaffTripsController" spacing="16" stylesheets="@../theme.css">
     <HBox spacing="10" alignment="CENTER_LEFT">
         <Label text="Trips" styleClass="page-title" />
     </HBox>
@@ -23,3 +23,4 @@
         <Button fx:id="refreshButton" text="Refresh" onAction="#onRefresh" styleClass="primary-button" />
     </VBox>
 </VBox>
+

@@ -9,6 +9,8 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
 
+import java.util.List;
+
 public class AppShellController {
     @FXML private StackPane contentHost;
 
@@ -27,10 +29,17 @@ public class AppShellController {
     @FXML private Button navLogout;
 
     @FXML private Text roleBadge;
+    private List<Button> navButtons;
 
     @FXML
     private void initialize() {
+        navButtons = List.of(
+                navDashboard, navSearchTrips, navMyBookings, navProfile,
+                navManageUsers, navManageBuses, navManageRoutes, navManageTrips,
+                navReports, navStaffTrips, navStaffBookings, navValidateTicket, navLogout
+        );
         applyRoleNavigation();
+        setDefaultActiveNav();
     }
 
     public void setContent(Node node) {
@@ -42,56 +51,70 @@ public class AppShellController {
         boolean guest = Session.isGuest();
 
         setAllNavVisible(false);
-        navLogout.setVisible(true);
+        setNavVisibility(navLogout, true);
 
         if (guest) {
-            navDashboard.setVisible(true);
-            navSearchTrips.setVisible(true);
+            setNavVisibility(navDashboard, true);
+            setNavVisibility(navSearchTrips, true);
             roleBadge.setText("Guest");
             return;
         }
 
         if (role == Role.PASSENGER) {
-            navDashboard.setVisible(true);
-            navSearchTrips.setVisible(true);
-            navMyBookings.setVisible(true);
-            navProfile.setVisible(true);
+            setNavVisibility(navDashboard, true);
+            setNavVisibility(navSearchTrips, true);
+            setNavVisibility(navMyBookings, true);
+            setNavVisibility(navProfile, true);
             roleBadge.setText("Passenger");
         } else if (role == Role.ADMIN) {
-            navDashboard.setVisible(true);
-            navManageUsers.setVisible(true);
-            navManageBuses.setVisible(true);
-            navManageRoutes.setVisible(true);
-            navManageTrips.setVisible(true);
-            navReports.setVisible(true);
+            setNavVisibility(navDashboard, true);
+            setNavVisibility(navManageUsers, true);
+            setNavVisibility(navManageBuses, true);
+            setNavVisibility(navManageRoutes, true);
+            setNavVisibility(navManageTrips, true);
+            setNavVisibility(navReports, true);
             roleBadge.setText("Admin");
         } else if (role == Role.STAFF) {
-            navDashboard.setVisible(true);
-            navStaffTrips.setVisible(true);
-            navStaffBookings.setVisible(true);
-            navValidateTicket.setVisible(true);
+            setNavVisibility(navDashboard, true);
+            setNavVisibility(navStaffTrips, true);
+            setNavVisibility(navStaffBookings, true);
+            setNavVisibility(navValidateTicket, true);
             roleBadge.setText("Staff");
         }
     }
 
     private void setAllNavVisible(boolean visible) {
-        navDashboard.setVisible(visible);
-        navSearchTrips.setVisible(visible);
-        navMyBookings.setVisible(visible);
-        navProfile.setVisible(visible);
-        navManageUsers.setVisible(visible);
-        navManageBuses.setVisible(visible);
-        navManageRoutes.setVisible(visible);
-        navManageTrips.setVisible(visible);
-        navReports.setVisible(visible);
-        navStaffTrips.setVisible(visible);
-        navStaffBookings.setVisible(visible);
-        navValidateTicket.setVisible(visible);
-        navLogout.setVisible(visible);
+        for (Button navButton : navButtons) {
+            setNavVisibility(navButton, visible);
+        }
+    }
+
+    private void setNavVisibility(Button button, boolean visible) {
+        button.setVisible(visible);
+        button.setManaged(visible);
+    }
+
+    private void setDefaultActiveNav() {
+        for (Button navButton : navButtons) {
+            if (navButton.isVisible() && navButton != navLogout) {
+                setActiveNav(navButton);
+                return;
+            }
+        }
+    }
+
+    private void setActiveNav(Button activeButton) {
+        for (Button navButton : navButtons) {
+            navButton.getStyleClass().remove("active");
+        }
+        if (activeButton != null && !activeButton.getStyleClass().contains("active")) {
+            activeButton.getStyleClass().add("active");
+        }
     }
 
     @FXML
     private void onDashboard() {
+        setActiveNav(navDashboard);
         if (Session.isGuest()) {
             SceneSwitcher.switchContent("/com/busticket/view/guest/GuestDashboardView.fxml");
             return;
@@ -108,56 +131,67 @@ public class AppShellController {
 
     @FXML
     private void onSearchTrips() {
+        setActiveNav(navSearchTrips);
         SceneSwitcher.switchContent("/com/busticket/view/passenger/SearchTripsView.fxml");
     }
 
     @FXML
     private void onMyBookings() {
+        setActiveNav(navMyBookings);
         SceneSwitcher.switchContent("/com/busticket/view/passenger/MyBookingsView.fxml");
     }
 
     @FXML
     private void onProfile() {
+        setActiveNav(navProfile);
         SceneSwitcher.switchContent("/com/busticket/view/passenger/ProfileView.fxml");
     }
 
     @FXML
     private void onManageUsers() {
+        setActiveNav(navManageUsers);
         SceneSwitcher.switchContent("/com/busticket/view/admin/ManageUsersView.fxml");
     }
 
     @FXML
     private void onManageBuses() {
+        setActiveNav(navManageBuses);
         SceneSwitcher.switchContent("/com/busticket/view/admin/ManageBusesView.fxml");
     }
 
     @FXML
     private void onManageRoutes() {
+        setActiveNav(navManageRoutes);
         SceneSwitcher.switchContent("/com/busticket/view/admin/ManageRoutesView.fxml");
     }
 
     @FXML
     private void onManageTrips() {
+        setActiveNav(navManageTrips);
         SceneSwitcher.switchContent("/com/busticket/view/admin/ManageTripsView.fxml");
     }
 
     @FXML
     private void onReports() {
+        setActiveNav(navReports);
         SceneSwitcher.switchContent("/com/busticket/view/admin/ReportsView.fxml");
     }
 
     @FXML
     private void onStaffTrips() {
+        setActiveNav(navStaffTrips);
         SceneSwitcher.switchContent("/com/busticket/view/staff/StaffTripsView.fxml");
     }
 
     @FXML
     private void onStaffBookings() {
+        setActiveNav(navStaffBookings);
         SceneSwitcher.switchContent("/com/busticket/view/staff/StaffBookingsView.fxml");
     }
 
     @FXML
     private void onValidateTicket() {
+        setActiveNav(navValidateTicket);
         SceneSwitcher.switchContent("/com/busticket/view/staff/ValidateTicketView.fxml");
     }
 

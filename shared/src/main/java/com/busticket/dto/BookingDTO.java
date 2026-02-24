@@ -2,6 +2,7 @@ package com.busticket.dto;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.LocalDateTime; // ADDED
 import java.util.List;
 
 public class BookingDTO implements Serializable {
@@ -17,6 +18,7 @@ public class BookingDTO implements Serializable {
     private Double totalPrice;
     private String ticketCode;
     private String status;
+    private LocalDateTime bookingDate; // ADDED
 
     public Long getBookingId() {
         return bookingId;
@@ -72,5 +74,15 @@ public class BookingDTO implements Serializable {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    // ADDED
+    public LocalDateTime getBookingDate() {
+        return bookingDate;
+    }
+
+    // ADDED
+    public void setBookingDate(LocalDateTime bookingDate) {
+        this.bookingDate = bookingDate;
     }
 }

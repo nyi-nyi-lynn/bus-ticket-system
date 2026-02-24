@@ -1,4 +1,4 @@
-﻿﻿/* Theme: Fluent-inspired */
+﻿﻿﻿﻿/* Theme: Fluent-inspired */
 .root {
     -fx-font-family: "Segoe UI", "Poppins", "Arial";
     -fx-base: #f6f7fb;
@@ -24,20 +24,53 @@
 
 .nav-button {
     -fx-background-color: transparent;
-    -fx-text-fill: #334155;
     -fx-font-size: 14px;
-    -fx-padding: 10 14;
+    -fx-padding: 11 14 11 11;
     -fx-alignment: CENTER_LEFT;
     -fx-background-radius: 10;
+    -fx-border-width: 0 0 0 3;
+    -fx-border-color: transparent;
+    -fx-border-radius: 10;
+    -fx-cursor: hand;
 }
 
 .nav-button:hover {
-    -fx-background-color: #e7edff;
+    -fx-background-color: #eaf0ff;
+    -fx-border-color: transparent transparent transparent #8faeff;
+    -fx-effect: dropshadow(gaussian, rgba(47,107,255,0.18), 10, 0.25, 0, 2);
 }
 
-.nav-button-active {
-    -fx-background-color: #2f6bff;
-    -fx-text-fill: white;
+.nav-icon {
+    -fx-fill: #64748b;
+    -fx-scale-x: 0.78;
+    -fx-scale-y: 0.78;
+}
+
+.nav-text {
+    -fx-fill: #334155;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+}
+
+.nav-button:hover .nav-icon {
+    -fx-fill: #315fdb;
+}
+
+.nav-button:hover .nav-text {
+    -fx-fill: #1e3a8a;
+}
+
+.nav-button.active {
+    -fx-background-color: #dfe9ff;
+    -fx-border-color: transparent transparent transparent #2f6bff;
+}
+
+.nav-button.active .nav-icon {
+    -fx-fill: #1d4ed8;
+}
+
+.nav-button.active .nav-text {
+    -fx-fill: #1e40af;
 }
 
 .content-area {
@@ -128,6 +161,35 @@
     -fx-text-fill: white;
 }
 
+/* ADDED */
+.seat-available {
+    -fx-background-color: #2ecc71;
+    -fx-text-fill: white;
+}
+
+/* ADDED */
+.seat-selected {
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+}
+
+/* ADDED */
+.seat-unavailable {
+    -fx-background-color: #bdc3c7;
+    -fx-text-fill: #7f8c8d;
+    -fx-opacity: 0.8;
+}
+
+/* ADDED */
+.legend-dot {
+    -fx-min-width: 14;
+    -fx-min-height: 14;
+    -fx-pref-width: 14;
+    -fx-pref-height: 14;
+    -fx-background-radius: 3;
+    -fx-border-radius: 3;
+}
+
 .badge {
     -fx-background-color: #e7edff;
     -fx-text-fill: #2f6bff;
@@ -140,4 +202,198 @@
     -fx-background-color: transparent;
     -fx-text-fill: #2f6bff;
     -fx-padding: 6 0;
+}
+
+/* Search Trip */
+.search-root {
+    -fx-background-color: linear-gradient(to bottom right, #f5f7ff, #f7fafc);
+}
+
+.search-header {
+    -fx-padding: 10 10 6 10;
+}
+
+.search-card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 16;
+    -fx-padding: 12;
+    -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.08), 18, 0.2, 0, 6);
+}
+
+.section-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f172a;
+}
+
+.combo-field, .date-field {
+    -fx-background-color: #f8fafc;
+    -fx-background-radius: 10;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 10;
+    -fx-padding: 6 10;
+}
+
+.result-scroll {
+    -fx-background-color: transparent;
+    -fx-padding: 6 6 16 6;
+}
+
+.result-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* MODIFIED: keep scroll behavior, hide visual scrollbar */
+.result-scroll .scroll-bar:vertical {
+    -fx-opacity: 0;
+    -fx-pref-width: 0;
+    -fx-max-width: 0;
+    -fx-padding: 0;
+}
+
+/* ADDED: MyBookings scroll pane background and scrollbar hidden */
+.mybooking-scroll {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+/* ADDED */
+.mybooking-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* ADDED */
+.mybooking-scroll .scroll-bar:vertical,
+.mybooking-scroll .scroll-bar:horizontal {
+    -fx-opacity: 0;
+    -fx-pref-width: 0;
+    -fx-max-width: 0;
+    -fx-pref-height: 0;
+    -fx-max-height: 0;
+    -fx-padding: 0;
+}
+
+.result-container {
+    -fx-padding: 20;
+}
+
+.trip-card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+    -fx-border-color: #ebeff5;
+    -fx-padding: 20;
+    -fx-min-width: 0;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 15, 0, 0, 3);
+}
+
+.trip-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 25, 0, 0, 6);
+}
+
+.trip-route {
+    -fx-font-size: 17px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #10243f;
+}
+
+.trip-badge {
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+    -fx-background-radius: 20;
+    -fx-padding: 4 10;
+}
+
+.badge-open{
+    -fx-padding: 5px;
+    -fx-background-color: #ffff;
+    -fx-text-fill: #1e8e3e;
+    -fx-border-radius: 20px;
+}
+
+.badge-closed {
+    -fx-background-color: #fdecea;
+    -fx-text-fill: #d93025;
+}
+
+.trip-time-value {
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f172a;
+}
+
+.trip-arrow {
+    -fx-font-size: 18px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #64748b;
+}
+
+.trip-duration {
+    -fx-font-size: 12px;
+    -fx-text-fill: #777777;
+}
+
+.trip-bus-number {
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #334155;
+}
+
+.trip-bus-type {
+    -fx-background-color: #eef4ff;
+    -fx-text-fill: #2459c7;
+    -fx-background-radius: 999;
+    -fx-padding: 3 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+}
+
+.trip-meta-title {
+    -fx-text-fill: #64748b;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+}
+
+.trip-price {
+    -fx-text-fill: #1a73e8;
+    -fx-font-size: 24px;
+    -fx-font-weight: 700;
+}
+
+.trip-seats {
+    -fx-text-fill: #666666;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+}
+
+.trip-book-button {
+    -fx-background-color: #1a73e8;
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-padding: 9 16;
+}
+
+.trip-book-button:hover {
+    -fx-background-color: #155fc0;
+}
+
+.empty-state-root {
+    -fx-alignment: center;
+}
+
+.empty-icon {
+    -fx-font-size: 48px;
+}
+
+
+.empty-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #10243f;
+}
+
+.empty-subtitle {
+    -fx-font-size: 13px;
+    -fx-text-fill: #666666;
 }

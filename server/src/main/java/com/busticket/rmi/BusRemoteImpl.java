@@ -10,29 +10,31 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 
 public class BusRemoteImpl extends UnicastRemoteObject implements BusRemote {
-    private BusService busService;
-
     public BusRemoteImpl() throws RemoteException {
-        busService = new BusServiceImpl();
+    }
+
+    // FIXED
+    private BusService busService() {
+        return new BusServiceImpl();
     }
 
     @Override
     public boolean saveBus(BusDTO dto) throws RemoteException {
-        return busService.save(dto);
+        return busService().save(dto);
     }
 
     @Override
     public boolean updateBus(BusDTO dto) throws RemoteException {
-        return busService.update(dto);
+        return busService().update(dto);
     }
 
     @Override
     public boolean deactivateBus(Long id) throws RemoteException {
-        return busService.deactivate(id);
+        return busService().deactivate(id);
     }
 
     @Override
     public List<BusDTO> getAllBuses() throws RemoteException {
-        return busService.getAll();
+        return busService().getAll();
     }
 }

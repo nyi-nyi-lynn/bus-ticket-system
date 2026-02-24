@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.busticket.controller.guest.GuestDashboardController" spacing="16">
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.busticket.controller.guest.GuestDashboardController" spacing="16" stylesheets="@../theme.css">
     <HBox spacing="10" alignment="CENTER_LEFT">
         <Label text="Guest Dashboard" styleClass="page-title" />
     </HBox>
@@ -20,3 +20,4 @@
         </VBox>
     </HBox>
 </VBox>
+

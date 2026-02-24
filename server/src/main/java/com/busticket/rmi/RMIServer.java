@@ -13,6 +13,7 @@ public class RMIServer {
         Naming.rebind("rmi://localhost/RouteService", new RouteRemoteImpl());
         Naming.rebind("rmi://localhost/BusService", new BusRemoteImpl());
         Naming.rebind("rmi://localhost/TripService", new TripRemoteImpl());
+        Naming.rebind("rmi://localhost/SeatService", new SeatRemoteImpl()); // ADDED
         Naming.rebind("rmi://localhost/BookingService", new BookingRemoteImpl());
         Naming.rebind("rmi://localhost/PaymentService", new PaymentRemoteImpl());
 

@@ -21,6 +21,10 @@ public class RMIClient {
         return (TripRemote) Naming.lookup("rmi://localhost/TripService");
     }
 
+    public static SeatRemote getSeatRemote() throws Exception { // ADDED
+        return (SeatRemote) Naming.lookup("rmi://localhost/SeatService");
+    }
+
     public static BookingRemote getBookingRemote() throws Exception{
         return (BookingRemote) Naming.lookup("rmi://localhost/BookingService");
     }

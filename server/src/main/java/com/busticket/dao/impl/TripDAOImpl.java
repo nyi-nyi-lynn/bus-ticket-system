@@ -78,21 +78,28 @@ public class TripDAOImpl implements TripDAO {
 
     @Override
     public List<Trip> findAll() {
-        String sql = "SELECT * FROM trips ORDER BY trip_id DESC";
+        String sql = """
+            SELECT t.trip_id, t.bus_id, t.route_id, t.travel_date, t.departure_time, t.arrival_time, t.price, t.status,
+                   b.bus_number, b.total_seats, r.origin_city, r.destination_city,
+                   (b.total_seats - IFNULL(bs.booked_count, 0)) AS available_seats
+            FROM trips t
+            JOIN buses b ON t.bus_id = b.bus_id
+            JOIN routes r ON t.route_id = r.route_id
+            LEFT JOIN (
+                SELECT bk.trip_id, COUNT(*) AS booked_count
+                FROM bookings bk
+                JOIN booking_seat bks ON bk.booking_id = bks.booking_id
+                WHERE bk.status = 'CONFIRMED'
+                   OR (bk.status = 'PENDING' AND bk.created_at >= (NOW() - INTERVAL 15 MINUTE))
+                GROUP BY bk.trip_id
+            ) bs ON bs.trip_id = t.trip_id
+            ORDER BY t.trip_id DESC
+        """;
         List<Trip> list = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
-                Trip trip = new Trip();
-                trip.setTripId(rs.getLong("trip_id"));
-                trip.setBusId(rs.getLong("bus_id"));
-                trip.setRouteId(rs.getLong("route_id"));
-                trip.setTravelDate(rs.getDate("travel_date").toLocalDate());
-                trip.setDepartureTime(rs.getTime("departure_time").toLocalTime());
-                trip.setArrivalTime(rs.getTime("arrival_time").toLocalTime());
-                trip.setPrice(rs.getDouble("price"));
-                trip.setStatus(TripStatus.valueOf(rs.getString("status")));
-                list.add(trip);
+                list.add(mapTrip(rs));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -103,13 +110,25 @@ public class TripDAOImpl implements TripDAO {
     @Override
     public List<Trip> search(String origin, String destination, LocalDate date) {
         String sql = """
-        SELECT t.* FROM trips t
-        JOIN routes r ON t.route_id = r.route_id
-        WHERE r.origin_city = ?
-        AND r.destination_city = ?
-        AND t.travel_date = ?
-        AND t.status = 'OPEN'
-    """;
+            SELECT t.trip_id, t.bus_id, t.route_id, t.travel_date, t.departure_time, t.arrival_time, t.price, t.status,
+                   b.bus_number, b.total_seats, r.origin_city, r.destination_city,
+                   (b.total_seats - IFNULL(bs.booked_count, 0)) AS available_seats
+            FROM trips t
+            JOIN buses b ON t.bus_id = b.bus_id
+            JOIN routes r ON t.route_id = r.route_id
+            LEFT JOIN (
+                SELECT bk.trip_id, COUNT(*) AS booked_count
+                FROM bookings bk
+                JOIN booking_seat bks ON bk.booking_id = bks.booking_id
+                WHERE bk.status = 'CONFIRMED'
+                   OR (bk.status = 'PENDING' AND bk.created_at >= (NOW() - INTERVAL 15 MINUTE))
+                GROUP BY bk.trip_id
+            ) bs ON bs.trip_id = t.trip_id
+            WHERE r.origin_city = ?
+              AND r.destination_city = ?
+              AND t.travel_date = ?
+              AND t.status = 'OPEN'
+        """;
 
         List<Trip> list = new ArrayList<>();
 
@@ -119,19 +138,10 @@ public class TripDAOImpl implements TripDAO {
             ps.setString(2, destination);
             ps.setDate(3, Date.valueOf(date));
 
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-                Trip trip = new Trip();
-                trip.setTripId(rs.getLong("trip_id"));
-                trip.setBusId(rs.getLong("bus_id"));
-                trip.setRouteId(rs.getLong("route_id"));
-                trip.setTravelDate(rs.getDate("travel_date").toLocalDate());
-                trip.setDepartureTime(rs.getTime("departure_time").toLocalTime());
-                trip.setArrivalTime(rs.getTime("arrival_time").toLocalTime());
-                trip.setPrice(rs.getDouble("price"));
-                trip.setStatus(TripStatus.valueOf(rs.getString("status")));
-                list.add(trip);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapTrip(rs));
+                }
             }
 
         } catch (SQLException e) {
@@ -139,5 +149,23 @@ public class TripDAOImpl implements TripDAO {
         }
 
         return list;
+    }
+
+    private Trip mapTrip(ResultSet rs) throws SQLException {
+        Trip trip = new Trip();
+        trip.setTripId(rs.getLong("trip_id"));
+        trip.setBusId(rs.getLong("bus_id"));
+        trip.setRouteId(rs.getLong("route_id"));
+        trip.setTravelDate(rs.getDate("travel_date").toLocalDate());
+        trip.setDepartureTime(rs.getTime("departure_time").toLocalTime());
+        trip.setArrivalTime(rs.getTime("arrival_time").toLocalTime());
+        trip.setPrice(rs.getDouble("price"));
+        trip.setStatus(TripStatus.valueOf(rs.getString("status")));
+        trip.setBusNumber(rs.getString("bus_number"));
+        trip.setOriginCity(rs.getString("origin_city"));
+        trip.setDestinationCity(rs.getString("destination_city"));
+        trip.setTotalSeats(rs.getInt("total_seats"));
+        trip.setAvailableSeats(rs.getInt("available_seats"));
+        return trip;
     }
 }

@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.busticket.controller.auth.LoginController" stylesheets="@/com/busticket/view/theme.css">
+<StackPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.busticket.controller.auth.LoginController" stylesheets="@../theme.css">
     <VBox alignment="CENTER" spacing="20" maxWidth="420" styleClass="card">
         <VBox spacing="6">
             <Label text="Welcome Back" styleClass="page-title" />
@@ -34,3 +34,4 @@
         </padding>
     </VBox>
 </StackPane>
+

@@ -1,100 +1,197 @@
 package com.busticket.controller.passenger;
 
 import com.busticket.dto.TripDTO;
+import com.busticket.remote.BookingRemote; // ADDED
 import com.busticket.remote.TripRemote;
 import com.busticket.rmi.RMIClient;
-import com.busticket.util.SceneSwitcher;
-import javafx.beans.property.SimpleStringProperty;
+import com.busticket.util.SceneSwitcher; // ADDED
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
+import javafx.animation.FadeTransition;
+import javafx.util.Duration;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 public class SearchTripsController {
-    @FXML private TextField originField;
-    @FXML private TextField destinationField;
-    @FXML private DatePicker datePicker;
-
-    @FXML private TableView<TripDTO> resultTable;
-    @FXML private TableColumn<TripDTO, String> colTrip;
-    @FXML private TableColumn<TripDTO, String> colRoute;
-    @FXML private TableColumn<TripDTO, String> colDeparture;
-    @FXML private TableColumn<TripDTO, String> colArrival;
-    @FXML private TableColumn<TripDTO, String> colPrice;
-    @FXML private TableColumn<TripDTO, String> colSeats;
+    @FXML private ComboBox<String> originCombo;
+    @FXML private ComboBox<String> destinationCombo;
+    @FXML private DatePicker travelDatePicker;
+    @FXML private VBox resultContainer;
+    @FXML private ScrollPane resultScrollPane;
+    @FXML private Label resultsTitleLabel;
 
     private TripRemote tripRemote;
+    private BookingRemote bookingRemote; // ADDED
+    private List<TripDTO> allTrips = new ArrayList<>();
 
     @FXML
     private void initialize() {
-        // Table Columns Setting
-        colTrip.setCellValueFactory(data -> new SimpleStringProperty(String.valueOf(data.getValue().getTripId())));
-        colRoute.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getRouteId() + ""));
-        colDeparture.setCellValueFactory(data -> new SimpleStringProperty(String.valueOf(data.getValue().getDepartureTime())));
-        colArrival.setCellValueFactory(data -> new SimpleStringProperty(String.valueOf(data.getValue().getArrivalTime())));
-        colPrice.setCellValueFactory(data -> new SimpleStringProperty(String.valueOf(data.getValue().getPrice())));
-        colSeats.setCellValueFactory(data -> new SimpleStringProperty(String.valueOf(data.getValue().getAvailableSeats())));
+        try {
+            tripRemote = RMIClient.getTripRemote();
+            bookingRemote = RMIClient.getBookingRemote(); // ADDED
+            List<TripDTO> fetched = tripRemote.getAllTrips();
+            if (fetched != null) {
+                allTrips = fetched;
+            }
+        } catch (Exception ex) {
+            showSimpleAlert(Alert.AlertType.ERROR, "Error", "Failed to load trips", ex.getMessage());
+        }
 
-        // Data မရှိတဲ့အခါ ပြမယ့် စာသား
-        resultTable.setPlaceholder(new Label("ရှာဖွေမှုရလဒ် မရှိသေးပါ။"));
+        populateCityLists();
+        configureResultContainer();
+
+        LocalDate today = LocalDate.now();
+        travelDatePicker.setValue(today);
+        resultsTitleLabel.setText("Today's Trips");
+
+        List<TripDTO> todays = allTrips.stream()
+                .filter(t -> t.getTravelDate() != null && t.getTravelDate().equals(today))
+                .collect(Collectors.toList());
+
+        displayTrips(todays);
     }
 
     @FXML
-    private void onSearch() {
-        // Input စစ်ဆေးခြင်း
-        if (originField.getText().isEmpty() || destinationField.getText().isEmpty() || datePicker.getValue() == null) {
-            showSimpleAlert(Alert.AlertType.WARNING, "သတိပေးချက်", "အချက်အလက် ပြည့်စုံစွာ ဖြည့်ပါ", "မြို့အမည် နှင့် နေ့စွဲကို ရွေးချယ်ပေးပါ။");
+    private void handleSearch() {
+        String origin = originCombo.getValue();
+        String destination = destinationCombo.getValue();
+        LocalDate date = travelDatePicker.getValue();
+
+        if (isBlank(origin) || isBlank(destination) || date == null) {
+            showSimpleAlert(Alert.AlertType.WARNING, "Missing fields", "Please complete the search", "Origin, destination, and date are required.");
             return;
         }
 
-        try {
-            // RMI Connection ယူခြင်း
-            if (tripRemote == null) {
-                tripRemote = RMIClient.getTripRemote();
+        List<TripDTO> filtered = allTrips.stream()
+                .filter(t -> origin.equals(t.getOriginCity()))
+                .filter(t -> destination.equals(t.getDestinationCity()))
+                .filter(t -> date.equals(t.getTravelDate()))
+                .collect(Collectors.toList());
+
+        resultsTitleLabel.setText("Search Results");
+        displayTrips(filtered);
+    }
+
+    private void populateCityLists() {
+        Set<String> origins = new TreeSet<>();
+        Set<String> destinations = new TreeSet<>();
+
+        for (TripDTO t : allTrips) {
+            if (!isBlank(t.getOriginCity())) {
+                origins.add(t.getOriginCity());
             }
-
-            // Data လှမ်းယူခြင်း
-            List<TripDTO> trips = tripRemote.searchTrips(
-                    originField.getText(),
-                    destinationField.getText(),
-                    datePicker.getValue()
-            );
-
-            // ရလာတဲ့ data ကို table ထဲထည့်ခြင်း
-            if (trips == null || trips.isEmpty()) {
-                resultTable.getItems().clear();
-                showSimpleAlert(Alert.AlertType.INFORMATION, "ရှာဖွေမှုရလဒ်", "မတွေ့ပါ", "သင်ရှာဖွေနေသော ခရီးစဉ်ကို မတွေ့ရှိပါ။");
-            } else {
-                resultTable.getItems().setAll(trips);
+            if (!isBlank(t.getDestinationCity())) {
+                destinations.add(t.getDestinationCity());
             }
+        }
 
-        } catch (ClassCastException cce) {
-            // ClassCastException အတွက် အထူးသီးသန့် ရှင်းပြချက်
-            showSimpleAlert(Alert.AlertType.ERROR, "System Error", "Class Loading Error",
-                    "Client နှင့် Server ကြား Interface မကိုက်ညီပါ။ Shared library ကို 'mvn install' လုပ်ပြီး Server ကို Restart ချကြည့်ပါ။");
-            cce.printStackTrace();
-        } catch (Exception ex) {
-            // အထွေထွေ Error များအတွက်
-            showSimpleAlert(Alert.AlertType.ERROR, "Error", "ချိတ်ဆက်မှု မအောင်မြင်ပါ", ex.getMessage());
-            ex.printStackTrace();
+        originCombo.setItems(FXCollections.observableArrayList(origins));
+        destinationCombo.setItems(FXCollections.observableArrayList(destinations));
+    }
+
+    private void displayTrips(List<TripDTO> trips) {
+        resultContainer.getChildren().clear();
+
+        if (trips == null || trips.isEmpty()) {
+            showEmptyState();
+            return;
+        }
+
+        resultContainer.setAlignment(Pos.TOP_LEFT);
+
+        for (TripDTO trip : trips) {
+            try {
+                if (bookingRemote != null && trip.getTripId() != null) { // ADDED
+                    List<String> available = bookingRemote.getAvailableSeatNumbers(trip.getTripId());
+                    trip.setAvailableSeats(available == null ? 0 : available.size());
+                }
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/busticket/view/components/TripCard.fxml"));
+                Node card = loader.load();
+                if (card instanceof Region region) { // MODIFIED
+                    region.setMaxWidth(Double.MAX_VALUE);
+                    region.prefWidthProperty().bind(resultContainer.widthProperty().subtract(24));
+                }
+                com.busticket.controller.components.TripCardController controller = loader.getController();
+                controller.setData(trip);
+                controller.setOnBookNow(this::navigateToBooking);
+                resultContainer.getChildren().add(card);
+            } catch (Exception ex) {
+                showSimpleAlert(Alert.AlertType.ERROR, "Error", "Failed to render trip", ex.getMessage());
+            }
         }
     }
 
-    // Alert ပြရန် Helper Method
+    private void showEmptyState() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/busticket/view/components/EmptyState.fxml"));
+            Node empty = loader.load();
+            empty.setOpacity(0);
+            resultContainer.setAlignment(Pos.CENTER);
+            resultContainer.getChildren().setAll(empty);
+            FadeTransition ft = new FadeTransition(Duration.millis(180), empty);
+            ft.setFromValue(0);
+            ft.setToValue(1);
+            ft.play();
+        } catch (Exception ex) {
+            showSimpleAlert(Alert.AlertType.ERROR, "Error", "Failed to render empty state", ex.getMessage());
+        }
+    }
+
+    private void configureResultContainer() {
+        resultContainer.setPadding(new Insets(20));
+        resultContainer.setAlignment(Pos.TOP_LEFT);
+
+        if (resultScrollPane != null) {
+            // MODIFIED: allow natural content height growth so vertical scrolling works.
+            resultScrollPane.setFitToHeight(false);
+            resultScrollPane.setPannable(true);
+            resultScrollPane.addEventFilter(ScrollEvent.SCROLL, event -> {
+                double contentHeight = resultContainer.getBoundsInLocal().getHeight();
+                if (contentHeight <= 0) {
+                    return;
+                }
+                double delta = event.getDeltaY();
+                double newVvalue = resultScrollPane.getVvalue() - delta / contentHeight;
+                resultScrollPane.setVvalue(Math.max(0, Math.min(1, newVvalue)));
+                event.consume();
+            });
+        }
+    }
+
+    private void navigateToBooking(TripDTO trip) {
+        // MODIFIED
+        if (trip == null) {
+            return;
+        }
+        SceneSwitcher.switchToSeatSelection(trip); // ADDED
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
+    }
+
     private void showSimpleAlert(Alert.AlertType type, String title, String header, String content) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
         alert.setHeaderText(header);
         alert.setContentText(content);
         alert.showAndWait();
-    }
-
-    @FXML
-    private void onSelectTrip() {
-        TripDTO selected = resultTable.getSelectionModel().getSelectedItem();
-        if (selected == null) {
-            showSimpleAlert(Alert.AlertType.WARNING, "သတိပေးချက်", "ခရီးစဉ် မရွေးရသေးပါ", "ကျေးဇူးပြု၍ ခရီးစဉ်တစ်ခုကို အရင်ရွေးချယ်ပါ။");
-            return;
-        }
-        SceneSwitcher.switchContent("/com/busticket/view/passenger/SeatSelectionView.fxml");
     }
 }

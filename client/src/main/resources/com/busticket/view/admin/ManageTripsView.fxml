@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.busticket.controller.admin.ManageTripsController" spacing="16">
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.busticket.controller.admin.ManageTripsController" spacing="16" stylesheets="@../theme.css">
     <HBox spacing="10" alignment="CENTER_LEFT">
         <Label text="Manage Trips" styleClass="page-title" />
     </HBox>
@@ -28,3 +28,4 @@
         </HBox>
     </VBox>
 </VBox>
+

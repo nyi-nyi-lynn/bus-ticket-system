@@ -9,6 +9,14 @@ public class TicketSuccessController {
     @FXML private Label ticketCodeLabel;
 
     @FXML
+    private void initialize() {
+        String code = Session.getCurrentTicketCode();
+        if (ticketCodeLabel != null && code != null && !code.trim().isEmpty()) {
+            ticketCodeLabel.setText(code);
+        }
+    }
+
+    @FXML
     private void onDownload() {
         // UI hook for download action
     }

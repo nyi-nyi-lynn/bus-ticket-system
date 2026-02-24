@@ -7,20 +7,36 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.busticket.controller.passenger.SeatSelectionController" spacing="16">
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.busticket.controller.passenger.SeatSelectionController" spacing="16" stylesheets="@../theme.css">
     <HBox spacing="10" alignment="CENTER_LEFT">
         <Label text="Select Seats" styleClass="page-title" />
         <Label fx:id="tripLabel" text="Trip details" styleClass="page-subtitle" />
     </HBox>
     <VBox styleClass="card" spacing="14">
         <GridPane fx:id="seatGrid" hgap="8" vgap="8" />
+        <!-- ADDED -->
+        <HBox spacing="18" alignment="CENTER_LEFT">
+            <HBox spacing="6" alignment="CENTER_LEFT">
+                <Label styleClass="legend-dot,seat-available" text=" " />
+                <Label text="Available" />
+            </HBox>
+            <HBox spacing="6" alignment="CENTER_LEFT">
+                <Label styleClass="legend-dot,seat-selected" text=" " />
+                <Label text="Selected" />
+            </HBox>
+            <HBox spacing="6" alignment="CENTER_LEFT">
+                <Label styleClass="legend-dot,seat-unavailable" text=" " />
+                <Label text="Unavailable" />
+            </HBox>
+        </HBox>
         <HBox spacing="12" alignment="CENTER_RIGHT">
             <Label text="Total" />
-            <Label fx:id="totalPriceLabel" text="$0.00" styleClass="badge" />
-            <Button fx:id="continueButton" text="Continue" onAction="#onContinue" styleClass="primary-button" />
+            <Label fx:id="totalPriceLabel" text="0.00" styleClass="badge" />
+            <Button fx:id="continueButton" text="Continue to Summary" onAction="#onContinue" styleClass="primary-button" />
         </HBox>
     </VBox>
     <padding>
         <Insets top="4" right="4" bottom="4" left="4" />
     </padding>
 </VBox>
+

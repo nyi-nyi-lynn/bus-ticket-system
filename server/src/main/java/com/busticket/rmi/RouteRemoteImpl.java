@@ -10,29 +10,31 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 
 public class RouteRemoteImpl extends UnicastRemoteObject implements RouteRemote {
-    private final RouteService routeService ;
-
    public RouteRemoteImpl() throws RemoteException{
-       routeService = new RouteServiceImpl();
    }
+
+    // FIXED
+    private RouteService routeService() {
+        return new RouteServiceImpl();
+    }
 
     @Override
     public boolean saveRoute(RouteDTO dto) throws RemoteException {
-        return routeService.save(dto);
+        return routeService().save(dto);
     }
 
     @Override
     public boolean updateRoute(RouteDTO dto) throws RemoteException {
-        return routeService.update(dto);
+        return routeService().update(dto);
     }
 
     @Override
     public boolean deactivateRoute(Long id) throws RemoteException {
-        return routeService.deactivate(id);
+        return routeService().deactivate(id);
     }
 
     @Override
     public List<RouteDTO> getAllRoutes() throws RemoteException {
-        return routeService.getAll();
+        return routeService().getAll();
     }
 }

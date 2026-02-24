@@ -1,9 +1,15 @@
 package com.busticket.service.impl;
 
 import com.busticket.dao.BookingDAO;
+import com.busticket.dao.BookingSeatDAO; // ADDED
+import com.busticket.dao.SeatDAO; // ADDED
 import com.busticket.dao.impl.BookingDAOImpl;
+import com.busticket.dao.impl.BookingSeatDAOImpl; // ADDED
+import com.busticket.dao.impl.SeatDAOImpl; // ADDED
 import com.busticket.database.DatabaseConnection;
 import com.busticket.dto.BookingDTO;
+import com.busticket.dto.BookingRequestDTO; // ADDED
+import com.busticket.dto.BookingResponseDTO; // ADDED
 import com.busticket.enums.BookingStatus;
 import com.busticket.model.Booking;
 import com.busticket.service.BookingService;
@@ -12,19 +18,25 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
 public class BookingServiceImpl implements BookingService {
     private final BookingDAO bookingDAO;
+    private final BookingSeatDAO bookingSeatDAO; // ADDED
+    private final SeatDAO seatDAO; // ADDED
     private final Connection connection;
 
     public BookingServiceImpl(){
         connection = DatabaseConnection.getConnection();
         bookingDAO = new BookingDAOImpl(connection);
+        bookingSeatDAO = new BookingSeatDAOImpl(connection); // ADDED
+        seatDAO = new SeatDAOImpl(connection); // ADDED
     }
 
     @Override
@@ -104,6 +116,97 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    public BookingResponseDTO createBooking(BookingRequestDTO request) {
+        // MODIFIED
+        if (request == null || request.getUserId() == null || request.getTripId() == null) {
+            throw new IllegalArgumentException("Invalid booking request.");
+        }
+        if (request.getSeatNumbers() == null || request.getSeatNumbers().isEmpty()) {
+            throw new IllegalArgumentException("At least one seat is required.");
+        }
+
+        List<String> requestedSeatNumbers = request.getSeatNumbers().stream()
+                .filter(Objects::nonNull)
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .distinct()
+                .toList();
+        if (requestedSeatNumbers.size() != request.getSeatNumbers().size()) {
+            throw new IllegalArgumentException("Duplicate or invalid seat numbers.");
+        }
+
+        boolean originalAutoCommit = true;
+        try {
+            originalAutoCommit = connection.getAutoCommit();
+            connection.setAutoCommit(false);
+
+            TripSnapshot trip = findTripForUpdate(request.getTripId());
+            if (trip == null) {
+                throw new IllegalStateException("Trip not found.");
+            }
+            if (!"OPEN".equalsIgnoreCase(trip.status)) {
+                throw new IllegalStateException("Trip is not OPEN.");
+            }
+
+            List<Long> requestedSeatIds = findSeatIds(request.getTripId(), requestedSeatNumbers);
+            if (requestedSeatIds.size() != requestedSeatNumbers.size()) {
+                throw new IllegalStateException("One or more seats do not belong to this trip.");
+            }
+
+            List<Long> bookedSeatIds = bookingDAO.findBookedSeatIdsByTrip(request.getTripId());
+            Set<Long> bookedSet = new HashSet<>(bookedSeatIds);
+            List<Long> conflicts = requestedSeatIds.stream().filter(bookedSet::contains).toList();
+            if (!conflicts.isEmpty()) {
+                throw new IllegalStateException("SeatAlreadyBookedException: " + conflicts);
+            }
+
+            // Extra guard for selected seat ids under the same lock scope.
+            List<Long> directConflicts = bookingDAO.findByTripAndSeatIds(request.getTripId(), requestedSeatIds);
+            if (!directConflicts.isEmpty()) {
+                throw new IllegalStateException("SeatAlreadyBookedException: " + directConflicts);
+            }
+
+            double totalPrice = trip.price * requestedSeatIds.size();
+            Booking booking = new Booking();
+            booking.setUserId(request.getUserId());
+            booking.setTripId(request.getTripId());
+            booking.setTotalPrice(totalPrice);
+            booking.setTicketCode(generateTicketCode());
+            booking.setStatus(BookingStatus.PENDING);
+
+            Long bookingId = bookingDAO.save(booking);
+            if (bookingId == null) {
+                throw new IllegalStateException("Failed to create booking.");
+            }
+            bookingSeatDAO.saveAll(bookingId, requestedSeatIds);
+
+            connection.commit();
+
+            BookingResponseDTO response = new BookingResponseDTO();
+            response.setBookingId(bookingId);
+            response.setTicketCode(booking.getTicketCode());
+            response.setTotalAmount(totalPrice);
+            return response;
+        } catch (Exception ex) {
+            try {
+                connection.rollback();
+            } catch (SQLException rollbackEx) {
+                rollbackEx.printStackTrace();
+            }
+            if (ex instanceof RuntimeException runtimeException) {
+                throw runtimeException;
+            }
+            throw new RuntimeException(ex);
+        } finally {
+            try {
+                connection.setAutoCommit(originalAutoCommit);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
     public boolean confirmBooking(Long bookingId) {
         // Validate required identifier.
         if (bookingId == null) {
@@ -113,12 +216,62 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    public boolean cancelBooking(Long bookingId, Long userId) {
+        // MODIFIED
+        if (bookingId == null || userId == null) {
+            return false;
+        }
+        return bookingDAO.cancelBooking(bookingId, userId);
+    }
+
+    @Override
+    public List<BookingDTO> getBookingsByUserId(Long userId) {
+        // ADDED
+        if (userId == null) {
+            return List.of();
+        }
+        List<Booking> bookings = bookingDAO.findByUserId(userId);
+        List<BookingDTO> result = new ArrayList<>();
+        for (Booking booking : bookings) {
+            BookingDTO dto = new BookingDTO();
+            dto.setBookingId(booking.getBookingId());
+            dto.setUserId(booking.getUserId());
+            dto.setTripId(booking.getTripId());
+            dto.setSeatNumbers(booking.getSeatNumbers());
+            dto.setTotalPrice(booking.getTotalPrice());
+            dto.setTicketCode(booking.getTicketCode());
+            dto.setStatus(booking.getStatus() == null ? null : booking.getStatus().name());
+            dto.setBookingDate(booking.getBookingDate());
+            result.add(dto);
+        }
+        return result;
+    }
+
+    @Override
     public List<Long> getBookedSeatIds(Long tripId) {
         // Validate required identifier.
         if (tripId == null) {
             return List.of();
         }
-        return bookingDAO.findBookedSeats(tripId);
+        return findBookedSeatIdsByTrip(tripId);
+    }
+
+    @Override
+    public List<Long> findBookedSeatIdsByTrip(Long tripId) {
+        // ADDED
+        if (tripId == null) {
+            return List.of();
+        }
+        return bookingDAO.findBookedSeatIdsByTrip(tripId);
+    }
+
+    @Override
+    public List<String> getAvailableSeatNumbers(Long tripId) {
+        // MODIFIED
+        if (tripId == null) {
+            return List.of();
+        }
+        return seatDAO.findAvailableSeatNumbersByTrip(tripId);
     }
 
     @Override
@@ -177,8 +330,77 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
+    // ADDED
+    private TripSnapshot findTripForUpdate(Long tripId) throws SQLException {
+        String sql = """
+            SELECT trip_id, bus_id, price, status
+            FROM trips
+            WHERE trip_id = ?
+            FOR UPDATE
+        """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setLong(1, tripId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) {
+                    return null;
+                }
+                TripSnapshot snapshot = new TripSnapshot();
+                snapshot.tripId = rs.getLong("trip_id");
+                snapshot.busId = rs.getLong("bus_id");
+                snapshot.price = rs.getDouble("price");
+                snapshot.status = rs.getString("status");
+                return snapshot;
+            }
+        }
+    }
+
+    // ADDED
+    private List<Long> findSeatIdsForBusForUpdate(Long busId, List<Long> seatIds) throws SQLException {
+        if (busId == null || seatIds == null || seatIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        StringBuilder placeholders = new StringBuilder();
+        for (int i = 0; i < seatIds.size(); i++) {
+            if (i > 0) {
+                placeholders.append(", ");
+            }
+            placeholders.append("?");
+        }
+
+        String sql = """
+            SELECT seat_id
+            FROM seats
+            WHERE bus_id = ?
+              AND seat_id IN (%s)
+            FOR UPDATE
+        """.formatted(placeholders);
+
+        List<Long> matched = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setLong(1, busId);
+            for (int i = 0; i < seatIds.size(); i++) {
+                ps.setLong(i + 2, seatIds.get(i));
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    matched.add(rs.getLong("seat_id"));
+                }
+            }
+        }
+        return matched;
+    }
+
     private String generateTicketCode() {
         String raw = UUID.randomUUID().toString().replace("-", "").toUpperCase();
         return "TCK" + raw.substring(0, 12);
+    }
+
+    // ADDED
+    private static final class TripSnapshot {
+        private Long tripId;
+        private Long busId;
+        private double price;
+        private String status;
     }
 }

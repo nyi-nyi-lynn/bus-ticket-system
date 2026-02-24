@@ -7,6 +7,7 @@ import java.rmi.RemoteException;
 
 public interface PaymentRemote extends Remote {
     PaymentDTO createPayment(PaymentDTO dto) throws RemoteException;
+    PaymentDTO processPayment(PaymentDTO dto) throws RemoteException; // ADDED
 
     PaymentDTO getPaymentById(Long paymentId) throws RemoteException;
 

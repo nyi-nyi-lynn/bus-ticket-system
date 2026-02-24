@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="empty-state-root" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" stylesheets="@../theme.css">
+    <VBox alignment="CENTER" spacing="15" styleClass="empty-state">
+        <Label styleClass="empty-icon" text="&#x1F68C;" />
+        <Label styleClass="empty-title" text="No Trips Available" />
+        <Label styleClass="empty-subtitle" text="Try selecting a different date or route" textAlignment="CENTER" wrapText="true" />
+    </VBox>
+</StackPane>
+

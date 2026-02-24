@@ -9,19 +9,14 @@ public class DatabaseConnection {
     private static final String USER = getEnvOrDefault("BTS_DB_USER", "root");
     private static final String PASSWORD = getEnvOrDefault("BTS_DB_PASSWORD", "rootpass");
 
-    private static Connection connection;
-
     public static Connection getConnection(){
         try {
-            if(connection == null || connection.isClosed()){
-                connection = DriverManager.getConnection(URL,USER,PASSWORD);
-            }
+            // FIXED: return a fresh JDBC connection per call to avoid cross-thread sharing.
+            return DriverManager.getConnection(URL,USER,PASSWORD);
         }catch (SQLException e){
             e.printStackTrace();
             return null;
         }
-
-        return connection;
     }
 
     private static String getEnvOrDefault(String key, String defaultValue) {

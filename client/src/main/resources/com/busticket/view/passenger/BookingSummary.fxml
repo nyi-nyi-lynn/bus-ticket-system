@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.busticket.controller.passenger.BookingSummaryController" spacing="16" stylesheets="@../theme.css">
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Booking Summary" styleClass="page-title" />
+    </HBox>
+    <VBox styleClass="card" spacing="10">
+        <Label text="Route" styleClass="page-subtitle" />
+        <Label fx:id="routeLabel" text="-" />
+        <Label text="Selected Seats" styleClass="page-subtitle" />
+        <Label fx:id="seatsLabel" text="-" />
+        <Label text="Price per Seat" styleClass="page-subtitle" />
+        <Label fx:id="perSeatPriceLabel" text="0.00" />
+        <Label text="Total" styleClass="page-subtitle" />
+        <Label fx:id="totalPriceLabel" text="0.00" styleClass="badge" />
+        <HBox spacing="10">
+            <Button text="Back" onAction="#onBack" styleClass="ghost-button" />
+            <Button text="Confirm Booking" onAction="#onConfirmBooking" styleClass="primary-button" />
+        </HBox>
+    </VBox>
+    <padding>
+        <Insets top="4" right="4" bottom="4" left="4" />
+    </padding>
+</VBox>
+

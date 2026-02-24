@@ -2,38 +2,42 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.busticket.controller.passenger.SearchTripsController" spacing="16">
-    <HBox spacing="10" alignment="CENTER_LEFT">
-        <Label text="Search Trips" styleClass="page-title" />
-    </HBox>
-    <VBox styleClass="card" spacing="12">
-        <HBox spacing="12">
-            <TextField fx:id="originField" promptText="Origin city" styleClass="field" />
-            <TextField fx:id="destinationField" promptText="Destination city" styleClass="field" />
-            <DatePicker fx:id="datePicker" promptText="Travel date" />
-            <Button fx:id="searchButton" text="Search" onAction="#onSearch" styleClass="primary-button" />
-        </HBox>
-        <TableView fx:id="resultTable" prefHeight="420">
-            <columns>
-                <TableColumn fx:id="colTrip" text="Trip" />
-                <TableColumn fx:id="colRoute" text="Route" />
-                <TableColumn fx:id="colDeparture" text="Departure" />
-                <TableColumn fx:id="colArrival" text="Arrival" />
-                <TableColumn fx:id="colPrice" text="Price" />
-                <TableColumn fx:id="colSeats" text="Seats" />
-            </columns>
-        </TableView>
-        <Button fx:id="selectTripButton" text="Select Trip" onAction="#onSelectTrip" styleClass="ghost-button" />
-    </VBox>
+<BorderPane styleClass="content-area search-root" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.busticket.controller.passenger.SearchTripsController" stylesheets="@../theme.css">
+    <top>
+        <VBox prefHeight="100.0" prefWidth="972.0" spacing="12" styleClass="search-header">
+            <Label styleClass="page-title" text="Search Trip" />
+            <HBox alignment="CENTER_LEFT" spacing="12" styleClass="search-card">
+                <ComboBox fx:id="originCombo" prefWidth="190" promptText="Origin city" styleClass="combo-field" />
+                <ComboBox fx:id="destinationCombo" prefWidth="190" promptText="Destination city" styleClass="combo-field" />
+                <DatePicker fx:id="travelDatePicker" prefWidth="160" promptText="Travel date" styleClass="date-field" />
+                <Button fx:id="searchButton" onAction="#handleSearch" styleClass="primary-button" text="Search" />
+            </HBox>
+            <Label fx:id="resultsTitleLabel" styleClass="section-title" text="Today's Trips" />
+            <Separator />
+        </VBox>
+    </top>
+    <center>
+        <ScrollPane fx:id="resultScrollPane" fitToHeight="false" fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" pannable="true" styleClass="result-scroll">
+            <content>
+                <VBox fx:id="resultContainer" spacing="12" styleClass="result-container">
+                    <padding>
+                        <Insets bottom="20" left="20" right="20" top="20" />
+                    </padding>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
     <padding>
-        <Insets top="4" right="4" bottom="4" left="4" />
+        <Insets bottom="10" left="10" right="10" top="10" />
     </padding>
-</VBox>
+</BorderPane>
+
