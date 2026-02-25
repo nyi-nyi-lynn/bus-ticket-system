@@ -1,6 +1,8 @@
 package com.busticket.dao.impl;
 
 import com.busticket.dao.UserDAO;
+import com.busticket.dto.CreateUserRequest;
+import com.busticket.dto.UserDTO;
 import com.busticket.enums.Role;
 import com.busticket.enums.UserStatus;
 import com.busticket.model.User;
@@ -9,6 +11,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +25,7 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public User findById(Long userId) {
-        String sql = "SELECT user_id, name, email, password, phone, role, status FROM users WHERE user_id = ?";
+        String sql = "SELECT user_id, name, email, password, phone, role, status, created_at, updated_at FROM users WHERE user_id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setLong(1, userId);
             try (ResultSet rs = ps.executeQuery()) {
@@ -38,7 +41,7 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public User findByEmail(String email) {
-        String sql = "SELECT user_id, name, email, password, phone, role, status FROM users WHERE email = ?";
+        String sql = "SELECT user_id, name, email, password, phone, role, status, created_at, updated_at FROM users WHERE email = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, email);
             try (ResultSet rs = ps.executeQuery()) {
@@ -102,7 +105,7 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public List<User> findAll() {
-        String sql = "SELECT user_id, name, email, password, phone, role, status FROM users WHERE status = 'ACTIVE' ORDER BY user_id DESC";
+        String sql = "SELECT user_id, name, email, password, phone, role, status, created_at, updated_at FROM users ORDER BY user_id DESC";
         List<User> users = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -115,6 +118,42 @@ public class UserDAOImpl implements UserDAO {
         return users;
     }
 
+    @Override
+    public boolean existsByEmail(String email) {
+        String sql = "SELECT 1 FROM users WHERE email = ? LIMIT 1";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, email);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public UserDTO insert(CreateUserRequest req, String passwordHash) throws SQLException {
+        String sql = "INSERT INTO users(name, email, password, phone, role, status) VALUES(?,?,?,?,?,?)";
+        try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, req.getName());
+            ps.setString(2, req.getEmail());
+            ps.setString(3, passwordHash);
+            ps.setString(4, req.getPhone());
+            ps.setString(5, req.getRole().name());
+            ps.setString(6, req.getStatus().name());
+            ps.executeUpdate();
+
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                if (keys.next()) {
+                    long userId = keys.getLong(1);
+                    return findUserDTOById(userId);
+                }
+            }
+        }
+        throw new SQLException("Failed to create user record.");
+    }
+
     private User mapUser(ResultSet rs) throws SQLException {
         User user = new User();
         user.setUserId(rs.getLong("user_id"));
@@ -124,6 +163,34 @@ public class UserDAOImpl implements UserDAO {
         user.setPhone(rs.getString("phone"));
         user.setRole(Role.valueOf(rs.getString("role")));
         user.setStatus(UserStatus.valueOf(rs.getString("status")));
+        user.setCreatedAt(rs.getTimestamp("created_at"));
+        user.setUpdatedAt(rs.getTimestamp("updated_at"));
         return user;
+    }
+
+    private UserDTO findUserDTOById(long userId) throws SQLException {
+        String sql = "SELECT user_id, name, email, phone, role, status, created_at, updated_at FROM users WHERE user_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setLong(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapUserDTO(rs);
+                }
+            }
+        }
+        return null;
+    }
+
+    private UserDTO mapUserDTO(ResultSet rs) throws SQLException {
+        UserDTO dto = new UserDTO();
+        dto.setUserId(rs.getLong("user_id"));
+        dto.setName(rs.getString("name"));
+        dto.setEmail(rs.getString("email"));
+        dto.setPhone(rs.getString("phone"));
+        dto.setRole(rs.getString("role"));
+        dto.setStatus(rs.getString("status"));
+        dto.setCreatedAt(rs.getTimestamp("created_at") == null ? null : rs.getTimestamp("created_at").toString());
+        dto.setUpdatedAt(rs.getTimestamp("updated_at") == null ? null : rs.getTimestamp("updated_at").toString());
+        return dto;
     }
 }

@@ -14,6 +14,7 @@
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.busticket.controller.admin.ManageUsersController"
       spacing="16"
+      maxWidth="1.7976931348623157E308"
       stylesheets="@../theme.css">
     <padding>
         <Insets top="16" right="16" bottom="16" left="16" />
@@ -32,7 +33,7 @@
         <Button text="Reset" styleClass="ghost-button" onAction="#onResetFilters" />
     </HBox>
 
-    <TableView fx:id="usersTable" VBox.vgrow="ALWAYS">
+    <TableView fx:id="usersTable" VBox.vgrow="ALWAYS" maxWidth="1.7976931348623157E308">
         <columns>
             <TableColumn fx:id="nameColumn" text="Name" />
             <TableColumn fx:id="emailColumn" text="Email" />

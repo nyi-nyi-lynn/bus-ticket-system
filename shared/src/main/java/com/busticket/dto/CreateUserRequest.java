@@ -1,40 +1,40 @@
-package com.busticket.model;
+package com.busticket.dto;
 
 import com.busticket.enums.Role;
 import com.busticket.enums.UserStatus;
 
-import java.sql.Timestamp;
+import java.io.Serializable;
 
-public class User {
-    private Long userId;
+public class CreateUserRequest implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    private Long createdByUserId;
     private String name;
     private String email;
-    private String password;
     private String phone;
     private Role role;
     private UserStatus status;
-    private Timestamp createdAt;
-    private Timestamp updatedAt;
+    private String password;
 
-    public User() {
+    public CreateUserRequest() {
     }
 
-    public User(Long userId, String name, String email, String password, String phone, Role role, UserStatus status) {
-        this.userId = userId;
+    public CreateUserRequest(Long createdByUserId, String name, String email, String phone, Role role, UserStatus status, String password) {
+        this.createdByUserId = createdByUserId;
         this.name = name;
         this.email = email;
-        this.password = password;
         this.phone = phone;
         this.role = role;
         this.status = status;
+        this.password = password;
     }
 
-    public Long getUserId() {
-        return userId;
+    public Long getCreatedByUserId() {
+        return createdByUserId;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setCreatedByUserId(Long createdByUserId) {
+        this.createdByUserId = createdByUserId;
     }
 
     public String getName() {
@@ -51,14 +51,6 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getPhone() {
@@ -85,19 +77,11 @@ public class User {
         this.status = status;
     }
 
-    public Timestamp getCreatedAt() {
-        return createdAt;
+    public String getPassword() {
+        return password;
     }
 
-    public void setCreatedAt(Timestamp createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Timestamp getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Timestamp updatedAt) {
-        this.updatedAt = updatedAt;
+    public void setPassword(String password) {
+        this.password = password;
     }
 }
