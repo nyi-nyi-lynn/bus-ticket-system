@@ -10,16 +10,10 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
 
-import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.List;
 import java.util.Locale;
@@ -192,26 +186,6 @@ public class ManageUsersController {
 
     @FXML
     private void onAddUser() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/busticket/view/admin/AddUserDialog.fxml"));
-            Parent root = loader.load();
-
-            AddUserDialogController controller = loader.getController();
-            controller.setup(userRemote, currentAdminUserId, createdUser -> {
-                loadUsers();
-                showAlert(Alert.AlertType.INFORMATION, "User Created", "New user created successfully.", createdUser.getEmail());
-            });
-
-            Stage dialogStage = new Stage();
-            dialogStage.initModality(Modality.WINDOW_MODAL);
-            dialogStage.initOwner(usersTable.getScene().getWindow());
-            dialogStage.setTitle("Add User");
-            dialogStage.setResizable(false);
-            dialogStage.setScene(new Scene(root));
-            dialogStage.showAndWait();
-        } catch (IOException ex) {
-            showAlert(Alert.AlertType.ERROR, "Dialog Error", "Unable to open Add User dialog.", ex.getMessage());
-        }
     }
 
     @FXML

@@ -1,9 +1,6 @@
 package com.busticket.rmi;
 
-import com.busticket.dto.CreateUserRequest;
 import com.busticket.dto.UserDTO;
-import com.busticket.exception.DuplicateResourceException;
-import com.busticket.exception.ValidationException;
 import com.busticket.remote.UserRemote;
 import com.busticket.service.UserService;
 import com.busticket.service.impl.UserServiceImpl;
@@ -49,10 +46,5 @@ public class UserRemoteImpl extends UnicastRemoteObject implements UserRemote {
     @Override
     public List<UserDTO> getAllUsers() throws RemoteException {
         return userService().getAllUsers();
-    }
-
-    @Override
-    public UserDTO createUser(CreateUserRequest req) throws DuplicateResourceException, ValidationException, RemoteException {
-        return userService().createUser(req);
     }
 }

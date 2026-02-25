@@ -1,29 +1,20 @@
 package com.busticket.service.impl;
 
-import com.busticket.dao.UserDAO;
 import com.busticket.dao.impl.UserDAOImpl;
 import com.busticket.database.DatabaseConnection;
-import com.busticket.dto.CreateUserRequest;
+import com.busticket.dao.UserDAO;
 import com.busticket.dto.UserDTO;
 import com.busticket.enums.Role;
 import com.busticket.enums.UserStatus;
-import com.busticket.exception.DuplicateResourceException;
-import com.busticket.exception.ValidationException;
 import com.busticket.model.User;
 import com.busticket.service.UserService;
-import com.busticket.util.PasswordHasher;
+import com.busticket.util.PasswordUtil;
 
-import java.sql.SQLException;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.regex.Pattern;
 
 public class UserServiceImpl implements UserService {
-    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
-    private static final Pattern PHONE_PATTERN = Pattern.compile("^[0-9]{7,15}$");
-
     private final UserDAO userDAO;
 
     public UserServiceImpl() {
@@ -44,7 +35,8 @@ public class UserServiceImpl implements UserService {
             return blocked;
         }
 
-        if (!PasswordHasher.matches(password, user.getPassword())) {
+        String hashed = PasswordUtil.hashPassword(password);
+        if (!hashed.equals(user.getPassword())) {
             UserDTO invalid = new UserDTO();
             invalid.setStatus("INVALID_PASSWORD");
             return invalid;
@@ -66,7 +58,7 @@ public class UserServiceImpl implements UserService {
         User user = new User();
         user.setName(dto.getName());
         user.setEmail(dto.getEmail());
-        user.setPassword(PasswordHasher.hash(dto.getPassword()));
+        user.setPassword(PasswordUtil.hashPassword(dto.getPassword()));
         user.setPhone(dto.getPhone());
         user.setRole(parseRoleOrDefault(dto.getRole(), Role.PASSENGER));
         user.setStatus(parseStatusOrDefault(dto.getStatus(), UserStatus.ACTIVE));
@@ -98,7 +90,7 @@ public class UserServiceImpl implements UserService {
         if (dto.getPassword() == null || dto.getPassword().isBlank()) {
             user.setPassword(existing.getPassword());
         } else {
-            user.setPassword(PasswordHasher.hash(dto.getPassword()));
+            user.setPassword(PasswordUtil.hashPassword(dto.getPassword()));
         }
         user.setPhone(dto.getPhone());
         user.setRole(parseRoleOrDefault(dto.getRole(), existing.getRole()));
@@ -121,39 +113,6 @@ public class UserServiceImpl implements UserService {
             dtos.add(toDTO(user));
         }
         return dtos;
-    }
-
-    @Override
-    public UserDTO createUser(CreateUserRequest req) throws DuplicateResourceException, ValidationException {
-        validateCreateRequest(req);
-
-        User actor = userDAO.findById(req.getCreatedByUserId());
-        if (actor == null || actor.getRole() != Role.ADMIN) {
-            throw new ValidationException("ADMIN_ONLY");
-        }
-
-        req.setName(req.getName().trim());
-        req.setEmail(req.getEmail().trim().toLowerCase(Locale.ROOT));
-        req.setPhone(req.getPhone().trim());
-        req.setStatus(req.getStatus() == null ? UserStatus.ACTIVE : req.getStatus());
-
-        if (userDAO.existsByEmail(req.getEmail())) {
-            throw new DuplicateResourceException("EMAIL_EXISTS");
-        }
-
-        String passwordHash = PasswordHasher.hash(req.getPassword());
-
-        try {
-            UserDTO created = userDAO.insert(req, passwordHash);
-            if (created == null) {
-                throw new ValidationException("CREATE_USER_FAILED");
-            }
-            return created;
-        } catch (SQLIntegrityConstraintViolationException ex) {
-            throw new DuplicateResourceException("EMAIL_EXISTS");
-        } catch (SQLException ex) {
-            throw new RuntimeException("Unable to create user.", ex);
-        }
     }
 
     private UserDTO toDTO(User user) {
@@ -188,30 +147,6 @@ public class UserServiceImpl implements UserService {
             return UserStatus.valueOf(status.trim().toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException ex) {
             return fallback;
-        }
-    }
-
-    private void validateCreateRequest(CreateUserRequest req) throws ValidationException {
-        if (req == null) {
-            throw new ValidationException("REQUEST_REQUIRED");
-        }
-        if (req.getCreatedByUserId() == null) {
-            throw new ValidationException("ADMIN_ONLY");
-        }
-        if (req.getName() == null || req.getName().isBlank()) {
-            throw new ValidationException("NAME_REQUIRED");
-        }
-        if (req.getEmail() == null || !EMAIL_PATTERN.matcher(req.getEmail().trim()).matches()) {
-            throw new ValidationException("INVALID_EMAIL");
-        }
-        if (req.getPhone() == null || !PHONE_PATTERN.matcher(req.getPhone().trim()).matches()) {
-            throw new ValidationException("INVALID_PHONE");
-        }
-        if (req.getRole() == null) {
-            throw new ValidationException("INVALID_ROLE");
-        }
-        if (req.getPassword() == null || req.getPassword().length() < 8) {
-            throw new ValidationException("PASSWORD_TOO_SHORT");
         }
     }
 }

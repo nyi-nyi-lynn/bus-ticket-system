@@ -1,10 +1,7 @@
 package com.busticket.dao;
 
-import com.busticket.dto.CreateUserRequest;
-import com.busticket.dto.UserDTO;
 import com.busticket.model.User;
 
-import java.sql.SQLException;
 import java.util.List;
 
 public interface UserDAO {
@@ -19,8 +16,4 @@ public interface UserDAO {
     boolean deactivate(Long userId);
 
     List<User> findAll();
-
-    boolean existsByEmail(String email);
-
-    UserDTO insert(CreateUserRequest req, String passwordHash) throws SQLException;
 }
