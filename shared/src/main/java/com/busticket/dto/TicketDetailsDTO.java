@@ -1,77 +1,31 @@
 package com.busticket.dto;
 
-import java.io.Serial;
-import java.io.Serializable;
 import com.busticket.enums.BookingStatus;
 import com.busticket.enums.PaymentStatus;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.LocalDate;
-import java.time.LocalDateTime; // ADDED
 import java.time.LocalTime;
 import java.util.List;
 
-public class BookingDTO implements Serializable {
+public class TicketDetailsDTO implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private Long bookingId;
-    private Long userId;
-    private Long tripId;
-
-    private List<String> seatNumbers;
-
-    private Double totalPrice;
     private String ticketCode;
-    private String status;
-    private LocalDateTime bookingDate; // ADDED
+    private String passengerName;
     private String originCity;
     private String destinationCity;
     private LocalDate travelDate;
     private LocalTime departureTime;
     private LocalTime arrivalTime;
-    private String passengerName;
+    private String busNumber;
+    private String busType;
+    private List<String> seatNumbers;
+    private Double totalPrice;
     private BookingStatus bookingStatus;
     private PaymentStatus paymentStatus;
-
-    public Long getBookingId() {
-        return bookingId;
-    }
-
-    public void setBookingId(Long bookingId) {
-        this.bookingId = bookingId;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public Long getTripId() {
-        return tripId;
-    }
-
-    public void setTripId(Long tripId) {
-        this.tripId = tripId;
-    }
-
-    public List<String> getSeatNumbers() {
-        return seatNumbers;
-    }
-
-    public void setSeatNumbers(List<String> seatNumbers) {
-        this.seatNumbers = seatNumbers;
-    }
-
-    public Double getTotalPrice() {
-        return totalPrice;
-    }
-
-    public void setTotalPrice(Double totalPrice) {
-        this.totalPrice = totalPrice;
-    }
 
     public String getTicketCode() {
         return ticketCode;
@@ -81,12 +35,12 @@ public class BookingDTO implements Serializable {
         this.ticketCode = ticketCode;
     }
 
-    public String getStatus() {
-        return status;
+    public String getPassengerName() {
+        return passengerName;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setPassengerName(String passengerName) {
+        this.passengerName = passengerName;
     }
 
     public String getOriginCity() {
@@ -129,12 +83,36 @@ public class BookingDTO implements Serializable {
         this.arrivalTime = arrivalTime;
     }
 
-    public String getPassengerName() {
-        return passengerName;
+    public String getBusNumber() {
+        return busNumber;
     }
 
-    public void setPassengerName(String passengerName) {
-        this.passengerName = passengerName;
+    public void setBusNumber(String busNumber) {
+        this.busNumber = busNumber;
+    }
+
+    public String getBusType() {
+        return busType;
+    }
+
+    public void setBusType(String busType) {
+        this.busType = busType;
+    }
+
+    public List<String> getSeatNumbers() {
+        return seatNumbers;
+    }
+
+    public void setSeatNumbers(List<String> seatNumbers) {
+        this.seatNumbers = seatNumbers;
+    }
+
+    public Double getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(Double totalPrice) {
+        this.totalPrice = totalPrice;
     }
 
     public BookingStatus getBookingStatus() {
@@ -151,15 +129,5 @@ public class BookingDTO implements Serializable {
 
     public void setPaymentStatus(PaymentStatus paymentStatus) {
         this.paymentStatus = paymentStatus;
-    }
-
-    // ADDED
-    public LocalDateTime getBookingDate() {
-        return bookingDate;
-    }
-
-    // ADDED
-    public void setBookingDate(LocalDateTime bookingDate) {
-        this.bookingDate = bookingDate;
     }
 }

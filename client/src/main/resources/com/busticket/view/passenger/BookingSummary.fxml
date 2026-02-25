@@ -3,29 +3,98 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.busticket.controller.passenger.BookingSummaryController" spacing="16" stylesheets="@../theme.css">
-    <HBox spacing="10" alignment="CENTER_LEFT">
-        <Label text="Booking Summary" styleClass="page-title" />
+<VBox spacing="16" xmlns:fx="http://javafx.com/fxml" fx:controller="com.busticket.controller.passenger.BookingSummaryController" stylesheets="@../theme.css">
+    <HBox alignment="CENTER_LEFT" spacing="10">
+        <Label styleClass="page-title" text="Booking Summary" />
     </HBox>
-    <VBox styleClass="card" spacing="10">
-        <Label text="Route" styleClass="page-subtitle" />
-        <Label fx:id="routeLabel" text="-" />
-        <Label text="Selected Seats" styleClass="page-subtitle" />
-        <Label fx:id="seatsLabel" text="-" />
-        <Label text="Price per Seat" styleClass="page-subtitle" />
-        <Label fx:id="perSeatPriceLabel" text="0.00" />
-        <Label text="Total" styleClass="page-subtitle" />
-        <Label fx:id="totalPriceLabel" text="0.00" styleClass="badge" />
-        <HBox spacing="10">
-            <Button text="Back" onAction="#onBack" styleClass="ghost-button" />
-            <Button text="Confirm Booking" onAction="#onConfirmBooking" styleClass="primary-button" />
-        </HBox>
-    </VBox>
+
+    <HBox spacing="16">
+        <VBox spacing="12" styleClass="card" HBox.hgrow="ALWAYS">
+            <Label styleClass="section-title" text="Trip Information" />
+
+            <GridPane hgap="12" vgap="10">
+                <columnConstraints>
+                    <ColumnConstraints minWidth="130" prefWidth="130" />
+                    <ColumnConstraints hgrow="ALWAYS" />
+                </columnConstraints>
+
+                <Label styleClass="page-subtitle" text="Route" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                <Label fx:id="routeLabel" text="-" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                <Label styleClass="page-subtitle" text="Travel Date" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                <Label fx:id="travelDateLabel" text="-" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                <Label styleClass="page-subtitle" text="Departure Time" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                <Label fx:id="departureTimeLabel" text="-" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                <Label styleClass="page-subtitle" text="Arrival Time" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                <Label fx:id="arrivalTimeLabel" text="-" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                <Label styleClass="page-subtitle" text="Bus Number" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                <Label fx:id="busNumberLabel" text="-" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+
+                <Label styleClass="page-subtitle" text="Bus Type" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                <Label fx:id="busTypeLabel" text="-" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+            </GridPane>
+        </VBox>
+
+        <VBox spacing="12" styleClass="card" prefWidth="360" minWidth="320">
+            <Label styleClass="section-title" text="Seats &amp; Payment" />
+
+            <Label styleClass="page-subtitle" text="Selected Seats List" />
+            <ListView fx:id="selectedSeatsListView" prefHeight="120" />
+
+            <GridPane hgap="12" vgap="10">
+                <columnConstraints>
+                    <ColumnConstraints minWidth="130" prefWidth="130" />
+                    <ColumnConstraints hgrow="ALWAYS" />
+                </columnConstraints>
+
+                <Label styleClass="page-subtitle" text="Seat Count" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                <Label fx:id="seatCountLabel" text="0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                <Label styleClass="page-subtitle" text="Seat Numbers" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                <Label fx:id="seatNumbersLabel" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                <Label styleClass="page-subtitle" text="Price / Seat" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                <Label fx:id="perSeatPriceLabel" text="0.00" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                <Label styleClass="page-subtitle" text="Total Price" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                <Label fx:id="totalPriceLabel" styleClass="badge" text="0.00" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+            </GridPane>
+
+            <Separator />
+
+            <Label styleClass="page-subtitle" text="Payment Method" />
+            <HBox alignment="CENTER_LEFT" spacing="14">
+                <RadioButton fx:id="mobileBankingRadio" text="Mobile Banking">
+                    <toggleGroup>
+                        <ToggleGroup fx:id="paymentToggleGroup" />
+                    </toggleGroup>
+                </RadioButton>
+                <RadioButton fx:id="cardRadio" text="Card" toggleGroup="$paymentToggleGroup" />
+            </HBox>
+        </VBox>
+    </HBox>
+
+    <HBox alignment="CENTER_RIGHT" spacing="10">
+        <Region HBox.hgrow="ALWAYS" />
+        <Button onAction="#onBack" styleClass="ghost-button" text="Back" />
+        <Button fx:id="confirmPayButton" onAction="#onConfirmAndPay" styleClass="primary-button" text="Confirm &amp; Pay" />
+    </HBox>
+
     <padding>
-        <Insets top="4" right="4" bottom="4" left="4" />
+        <Insets bottom="4" left="4" right="4" top="4" />
     </padding>
 </VBox>
 

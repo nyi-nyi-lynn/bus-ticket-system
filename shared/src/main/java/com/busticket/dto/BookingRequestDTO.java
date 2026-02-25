@@ -2,6 +2,7 @@ package com.busticket.dto;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class BookingRequestDTO implements Serializable {
@@ -14,6 +15,10 @@ public class BookingRequestDTO implements Serializable {
     private Long tripId;
     // MODIFIED
     private List<String> seatNumbers;
+    // ADDED
+    private List<Long> seatIds;
+    // ADDED
+    private String paymentMethod;
 
     public Long getUserId() {
         return userId;
@@ -36,6 +41,22 @@ public class BookingRequestDTO implements Serializable {
     }
 
     public void setSeatNumbers(List<String> seatNumbers) {
-        this.seatNumbers = seatNumbers;
+        this.seatNumbers = seatNumbers == null ? new ArrayList<>() : new ArrayList<>(seatNumbers);
+    }
+
+    public List<Long> getSeatIds() {
+        return seatIds;
+    }
+
+    public void setSeatIds(List<Long> seatIds) {
+        this.seatIds = seatIds == null ? new ArrayList<>() : new ArrayList<>(seatIds);
+    }
+
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
     }
 }

@@ -17,6 +17,7 @@ import javafx.scene.layout.GridPane;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -149,7 +150,14 @@ public class SeatSelectionController {
         }
 
         List<String> seatNumbers = new ArrayList<>(selectedSeats);
-        Session.setPendingSelection(selectedTrip, seatNumbers);
+        seatNumbers.sort(Comparator.naturalOrder());
+
+        List<SeatDTO> selectedSeatDTOs = busSeats.stream()
+                .filter(seat -> selectedSeats.contains(seat.getSeatNumber()))
+                .sorted(Comparator.comparing(SeatDTO::getSeatNumber))
+                .toList();
+
+        Session.setPendingSelection(selectedTrip, selectedSeatDTOs, seatNumbers);
 
         if (Session.isGuest()) {
             SceneSwitcher.switchContent("/com/busticket/view/guest/GuestInfoView.fxml");

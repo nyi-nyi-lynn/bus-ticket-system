@@ -2,6 +2,7 @@ package com.busticket.session;
 
 import com.busticket.dto.UserDTO;
 import com.busticket.dto.TripDTO;
+import com.busticket.dto.SeatDTO;
 import com.busticket.enums.Role;
 
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ public final class Session {
     private static boolean guest = true;
     private static TripDTO pendingTrip;
     private static List<String> pendingSeatNumbers = new ArrayList<>();
+    private static List<SeatDTO> pendingSeats = new ArrayList<>();
     private static Long currentBookingId;
     private static String currentTicketCode;
     private static Double currentBookingAmount;
@@ -56,6 +58,13 @@ public final class Session {
     public static void setPendingSelection(TripDTO trip, List<String> seatNumbers) {
         pendingTrip = trip;
         pendingSeatNumbers = seatNumbers == null ? new ArrayList<>() : new ArrayList<>(seatNumbers);
+        pendingSeats = new ArrayList<>();
+    }
+
+    public static void setPendingSelection(TripDTO trip, List<SeatDTO> seats, List<String> seatNumbers) {
+        pendingTrip = trip;
+        pendingSeats = seats == null ? new ArrayList<>() : new ArrayList<>(seats);
+        pendingSeatNumbers = seatNumbers == null ? new ArrayList<>() : new ArrayList<>(seatNumbers);
     }
 
     // ADDED
@@ -68,10 +77,15 @@ public final class Session {
         return new ArrayList<>(pendingSeatNumbers);
     }
 
+    public static List<SeatDTO> getPendingSeats() {
+        return new ArrayList<>(pendingSeats);
+    }
+
     // ADDED
     public static void clearPendingSelection() {
         pendingTrip = null;
         pendingSeatNumbers = new ArrayList<>();
+        pendingSeats = new ArrayList<>();
     }
 
     // ADDED

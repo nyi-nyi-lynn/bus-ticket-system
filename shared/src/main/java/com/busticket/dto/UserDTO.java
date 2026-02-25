@@ -2,7 +2,7 @@ package com.busticket.dto;
 
 import java.io.Serializable;
 
-public class UserDTO  implements Serializable {
+public class UserDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Long userId;
@@ -11,8 +11,31 @@ public class UserDTO  implements Serializable {
     private String password;
     private String phone;
     private String role;
+    private String status;
+    private String createdAt;
+    private String updatedAt;
 
     public UserDTO() {
+    }
+
+    public UserDTO(Long userId, String name, String email, String phone, String role, String status) {
+        this.userId = userId;
+        this.name = name;
+        this.email = email;
+        this.phone = phone;
+        this.role = role;
+        this.status = status;
+    }
+
+    public UserDTO(Long userId, String name, String email, String phone, String role, String status, String createdAt, String updatedAt) {
+        this.userId = userId;
+        this.name = name;
+        this.email = email;
+        this.phone = phone;
+        this.role = role;
+        this.status = status;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
     public Long getUserId() {
@@ -71,14 +94,19 @@ public class UserDTO  implements Serializable {
         this.status = status;
     }
 
-    private String status;
+    public String getCreatedAt() {
+        return createdAt;
+    }
 
-    public UserDTO(Long userId, String name, String email, String phone, String role, String status) {
-        this.userId = userId;
-        this.name = name;
-        this.email = email;
-        this.phone = phone;
-        this.role = role;
-        this.status = status;
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public String getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(String updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

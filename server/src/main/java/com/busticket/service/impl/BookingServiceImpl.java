@@ -121,18 +121,10 @@ public class BookingServiceImpl implements BookingService {
         if (request == null || request.getUserId() == null || request.getTripId() == null) {
             throw new IllegalArgumentException("Invalid booking request.");
         }
-        if (request.getSeatNumbers() == null || request.getSeatNumbers().isEmpty()) {
+        boolean hasSeatNumbers = request.getSeatNumbers() != null && !request.getSeatNumbers().isEmpty();
+        boolean hasSeatIds = request.getSeatIds() != null && !request.getSeatIds().isEmpty();
+        if (!hasSeatNumbers && !hasSeatIds) {
             throw new IllegalArgumentException("At least one seat is required.");
-        }
-
-        List<String> requestedSeatNumbers = request.getSeatNumbers().stream()
-                .filter(Objects::nonNull)
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
-                .distinct()
-                .toList();
-        if (requestedSeatNumbers.size() != request.getSeatNumbers().size()) {
-            throw new IllegalArgumentException("Duplicate or invalid seat numbers.");
         }
 
         boolean originalAutoCommit = true;
@@ -148,9 +140,34 @@ public class BookingServiceImpl implements BookingService {
                 throw new IllegalStateException("Trip is not OPEN.");
             }
 
-            List<Long> requestedSeatIds = findSeatIds(request.getTripId(), requestedSeatNumbers);
-            if (requestedSeatIds.size() != requestedSeatNumbers.size()) {
-                throw new IllegalStateException("One or more seats do not belong to this trip.");
+            List<Long> requestedSeatIds;
+            if (hasSeatIds) {
+                requestedSeatIds = request.getSeatIds().stream()
+                        .filter(Objects::nonNull)
+                        .distinct()
+                        .toList();
+                if (requestedSeatIds.size() != request.getSeatIds().size()) {
+                    throw new IllegalArgumentException("Duplicate or invalid seat ids.");
+                }
+                List<Long> seatsInBus = findSeatIdsForBusForUpdate(trip.busId, requestedSeatIds);
+                if (seatsInBus.size() != requestedSeatIds.size()) {
+                    throw new IllegalStateException("One or more seat ids do not belong to this trip.");
+                }
+            } else {
+                List<String> requestedSeatNumbers = request.getSeatNumbers().stream()
+                        .filter(Objects::nonNull)
+                        .map(String::trim)
+                        .filter(s -> !s.isEmpty())
+                        .distinct()
+                        .toList();
+                if (requestedSeatNumbers.size() != request.getSeatNumbers().size()) {
+                    throw new IllegalArgumentException("Duplicate or invalid seat numbers.");
+                }
+
+                requestedSeatIds = findSeatIds(request.getTripId(), requestedSeatNumbers);
+                if (requestedSeatIds.size() != requestedSeatNumbers.size()) {
+                    throw new IllegalStateException("One or more seats do not belong to this trip.");
+                }
             }
 
             List<Long> bookedSeatIds = bookingDAO.findBookedSeatIdsByTrip(request.getTripId());

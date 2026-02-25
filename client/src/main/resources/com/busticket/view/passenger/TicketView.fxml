@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+
+<BorderPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.busticket.controller.passenger.TicketViewController"
+            prefWidth="900" prefHeight="650"
+            styleClass="ticket-root"
+            stylesheets="@../theme.css">
+
+    <top>
+        <VBox alignment="CENTER" spacing="6" BorderPane.alignment="CENTER">
+            <BorderPane.margin>
+                <Insets top="20" right="20" bottom="10" left="20"/>
+            </BorderPane.margin>
+            <Label text="E-Ticket" styleClass="ticket-title" />
+        </VBox>
+    </top>
+
+    <center>
+        <StackPane BorderPane.alignment="CENTER">
+            <BorderPane.margin>
+                <Insets top="5" right="20" bottom="5" left="20"/>
+            </BorderPane.margin>
+            <VBox fx:id="ticketCard" spacing="14" alignment="TOP_LEFT"
+                  styleClass="ticket-card">
+                <padding>
+                    <Insets top="22" right="24" bottom="22" left="24"/>
+                </padding>
+
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <VBox spacing="2">
+                        <Label fx:id="companyNameLabel" text="Myanmar Express Bus" styleClass="ticket-company" />
+                        <Label text="Official E-Ticket" styleClass="ticket-subtitle" />
+                    </VBox>
+                    <Region HBox.hgrow="ALWAYS" />
+                    <VBox alignment="CENTER_RIGHT" spacing="2">
+                        <Label text="Ticket Code" styleClass="ticket-subtitle" />
+                        <Label fx:id="ticketCodeLabel" text="TCK-000000"
+                               styleClass="ticket-code" />
+                    </VBox>
+                </HBox>
+
+                <Separator />
+
+                <Label fx:id="routeLabel" text="Yangon &#x2192; Mandalay" styleClass="ticket-route" />
+
+                <VBox spacing="6">
+                    <Label text="Trip Details" styleClass="ticket-section-title" />
+                    <GridPane hgap="16" vgap="8">
+                        <columnConstraints>
+                            <ColumnConstraints minWidth="140" halignment="LEFT" />
+                            <ColumnConstraints hgrow="ALWAYS" halignment="LEFT" />
+                        </columnConstraints>
+                        <Label text="Travel Date" GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="ticket-field-title" />
+                        <Label fx:id="travelDateLabel" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+                        <Label text="Departure Time" GridPane.rowIndex="1" GridPane.columnIndex="0" styleClass="ticket-field-title" />
+                        <Label fx:id="departureTimeLabel" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+                        <Label text="Arrival Time" GridPane.rowIndex="2" GridPane.columnIndex="0" styleClass="ticket-field-title" />
+                        <Label fx:id="arrivalTimeLabel" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+                        <Label text="Bus" GridPane.rowIndex="3" GridPane.columnIndex="0" styleClass="ticket-field-title" />
+                        <Label fx:id="busInfoLabel" GridPane.rowIndex="3" GridPane.columnIndex="1" />
+                    </GridPane>
+                </VBox>
+
+                <VBox spacing="6">
+                    <Label text="Passenger Details" styleClass="ticket-section-title" />
+                    <GridPane hgap="16" vgap="8">
+                        <columnConstraints>
+                            <ColumnConstraints minWidth="140" halignment="LEFT" />
+                            <ColumnConstraints hgrow="ALWAYS" halignment="LEFT" />
+                        </columnConstraints>
+                        <Label text="Passenger Name" GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="ticket-field-title" />
+                        <Label fx:id="passengerNameLabel" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+                        <Label text="Seat Numbers" GridPane.rowIndex="1" GridPane.columnIndex="0" styleClass="ticket-field-title" />
+                        <Label fx:id="seatNumbersLabel" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+                    </GridPane>
+                </VBox>
+
+                <VBox spacing="6">
+                    <Label text="Payment Details" styleClass="ticket-section-title" />
+                    <GridPane hgap="16" vgap="8">
+                        <columnConstraints>
+                            <ColumnConstraints minWidth="140" halignment="LEFT" />
+                            <ColumnConstraints hgrow="ALWAYS" halignment="LEFT" />
+                        </columnConstraints>
+                        <Label text="Total Price" GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="ticket-field-title" />
+                        <Label fx:id="totalPriceLabel" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+                        <Label text="Booking Status" GridPane.rowIndex="1" GridPane.columnIndex="0" styleClass="ticket-field-title" />
+                        <Label fx:id="bookingStatusLabel" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+                        <Label text="Payment Status" GridPane.rowIndex="2" GridPane.columnIndex="0" styleClass="ticket-field-title" />
+                        <Label fx:id="paymentStatusLabel" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+                    </GridPane>
+                </VBox>
+            </VBox>
+        </StackPane>
+    </center>
+
+    <bottom>
+        <HBox spacing="12" alignment="CENTER" BorderPane.alignment="CENTER">
+            <BorderPane.margin>
+                <Insets top="10" right="20" bottom="20" left="20"/>
+            </BorderPane.margin>
+            <Button text="Download PDF" onAction="#downloadPdf" styleClass="ghost-button" />
+            <Button text="Print" onAction="#printTicket" styleClass="ghost-button" />
+            <Button text="Back" onAction="#onBack" styleClass="primary-button" />
+        </HBox>
+    </bottom>
+</BorderPane>

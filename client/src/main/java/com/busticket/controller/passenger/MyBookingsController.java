@@ -125,14 +125,9 @@ public class MyBookingsController {
         viewTicketButton.getStyleClass().add("ghost-button");
         viewTicketButton.setOnAction(event -> onViewTicket(booking));
 
-        Button cancelButton = new Button("Cancel Booking");
-        cancelButton.getStyleClass().add("ghost-button");
-        cancelButton.setDisable(booking == null || booking.getBookingId() == null || "CANCELLED".equalsIgnoreCase(booking.getStatus()));
-        cancelButton.setOnAction(event -> onCancelBooking(booking));
-
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
-        actionRow.getChildren().addAll(viewTicketButton, cancelButton, spacer);
+        actionRow.getChildren().addAll(viewTicketButton, spacer);
 
         card.getChildren().addAll(routeLabel, seatsLabel, dateLabel, statusLabel, ticketLabel, totalLabel, actionRow);
         return card;
@@ -148,7 +143,7 @@ public class MyBookingsController {
             return;
         }
         Session.setCurrentBookingContext(booking.getBookingId(), booking.getTicketCode(), booking.getTotalPrice());
-        SceneSwitcher.switchContent("/com/busticket/view/passenger/TicketSuccessView.fxml");
+        SceneSwitcher.switchContent("/com/busticket/view/passenger/TicketView.fxml");
     }
 
     private void onCancelBooking(BookingDTO booking) {

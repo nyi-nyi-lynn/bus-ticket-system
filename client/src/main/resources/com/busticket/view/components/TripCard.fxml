@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane fx:id="cardRoot" maxWidth="1.7976931348623157E308" minWidth="300.0" prefHeight="173.0" prefWidth="910.0" styleClass="trip-card" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.busticket.controller.components.TripCardController" stylesheets="@../theme.css">
+<StackPane fx:id="cardRoot" maxWidth="1.7976931348623157E308" minWidth="300.0" prefHeight="173.0" prefWidth="910.0" styleClass="trip-card" stylesheets="@../theme.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.busticket.controller.components.TripCardController">
     <VBox spacing="12">
         <HBox alignment="CENTER_LEFT" spacing="8">
             <Label fx:id="routeLabel" styleClass="trip-route" />
@@ -22,7 +22,7 @@
                     <Label styleClass="trip-meta-title" text="Departure" />
                 </VBox>
                 <VBox alignment="CENTER">
-                    <Label fx:id="arrowIconLabel" styleClass="trip-arrow" text="&#x2192;" />
+                    <Label fx:id="arrowIconLabel" styleClass="trip-arrow" text="→" />
                 </VBox>
                 <VBox spacing="3">
                     <Label fx:id="arrivalTimeLabel" styleClass="trip-time-value" />
@@ -43,7 +43,7 @@
                 <Label fx:id="seatsLeftLabel" styleClass="trip-seats" />
             </VBox>
             <Region HBox.hgrow="ALWAYS" />
-            <Button fx:id="bookNowButton" onAction="#handleBookNow" styleClass="primary-button trip-book-button" text="Book Now" />
+            <Button fx:id="bookNowButton" onAction="#handleBookNow" styleClass="primary-button" text="Book Now" />
         </HBox>
     </VBox>
 </StackPane>
