@@ -9,6 +9,7 @@ public class PaymentDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Long paymentId;
+    private Long userId;
     private Long bookingId;
 
     private String paymentMethod;
@@ -21,6 +22,14 @@ public class PaymentDTO implements Serializable {
 
     public void setPaymentId(Long paymentId) {
         this.paymentId = paymentId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public Long getBookingId() {

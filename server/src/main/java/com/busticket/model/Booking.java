@@ -1,6 +1,7 @@
 package com.busticket.model;
 
 import com.busticket.enums.BookingStatus;
+import com.busticket.enums.PaymentStatus;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ public class Booking {
     private double totalPrice;
     private String ticketCode;
     private BookingStatus status;
+    private PaymentStatus paymentStatus;
     private List<String> seatNumbers = new ArrayList<>();
 
     public Long getBookingId() {
@@ -78,5 +80,13 @@ public class Booking {
 
     public void setSeatNumbers(List<String> seatNumbers) {
         this.seatNumbers = seatNumbers;
+    }
+
+    public PaymentStatus getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public void setPaymentStatus(PaymentStatus paymentStatus) {
+        this.paymentStatus = paymentStatus;
     }
 }

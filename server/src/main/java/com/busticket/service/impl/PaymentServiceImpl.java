@@ -4,6 +4,7 @@ import com.busticket.dao.PaymentDAO;
 import com.busticket.dao.impl.PaymentDAOImpl;
 import com.busticket.database.DatabaseConnection;
 import com.busticket.dto.PaymentDTO;
+import com.busticket.dto.PaymentRequestDTO;
 import com.busticket.enums.PaymentMethod;
 import com.busticket.enums.PaymentStatus;
 import com.busticket.model.Payment;
@@ -13,97 +14,92 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Locale;
 
 public class PaymentServiceImpl implements PaymentService {
+    private static final int BOOKING_EXPIRY_MINUTES = 15;
+    private static final double AMOUNT_EPSILON = 0.0001;
 
     private final PaymentDAO paymentDAO;
     private final Connection connection;
 
-    public PaymentServiceImpl(){
+    public PaymentServiceImpl() {
         connection = DatabaseConnection.getConnection();
         paymentDAO = new PaymentDAOImpl(connection);
     }
 
     @Override
     public PaymentDTO createPayment(PaymentDTO dto) {
-        // Validate required fields.
-        if (dto == null || dto.getBookingId() == null) {
-            return null;
-        }
+        return processPayment(toRequest(dto));
+    }
+
+    @Override
+    public PaymentDTO processPayment(PaymentRequestDTO request) {
+        validateRequest(request);
 
         boolean originalAutoCommit = true;
         try {
-            // Transaction boundary: validate booking and create payment atomically.
             originalAutoCommit = connection.getAutoCommit();
             connection.setAutoCommit(false);
 
-            String bookingSql = "SELECT status FROM bookings WHERE booking_id = ? FOR UPDATE";
-            String existingPaymentSql = "SELECT payment_id FROM payments WHERE booking_id = ? FOR UPDATE";
-
-            try (PreparedStatement ps = connection.prepareStatement(bookingSql)) {
-                ps.setLong(1, dto.getBookingId());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (!rs.next()) {
-                        connection.rollback();
-                        return null;
-                    }
-                    String status = rs.getString("status");
-                    if (!"PENDING".equalsIgnoreCase(status) && !"CONFIRMED".equalsIgnoreCase(status)) {
-                        connection.rollback();
-                        return null;
-                    }
-                }
+            BookingPaymentContext context = findBookingForPayment(request.getBookingId());
+            if (context == null) {
+                throw new IllegalStateException("Booking does not exist.");
             }
-
-            try (PreparedStatement ps = connection.prepareStatement(existingPaymentSql)) {
-                ps.setLong(1, dto.getBookingId());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        Payment existing = paymentDAO.findByBookingId(dto.getBookingId());
-                        connection.rollback();
-                        return toDTO(existing);
-                    }
-                }
+            if (!context.userId.equals(request.getUserId())) {
+                throw new SecurityException("Only the booking owner can pay this booking.");
+            }
+            if (!"PENDING".equalsIgnoreCase(context.status)) {
+                throw new IllegalStateException("Only PENDING bookings can be paid.");
+            }
+            if (isExpired(context.createdAt)) {
+                throw new IllegalStateException("Booking has expired.");
+            }
+            if (hasExistingPayment(context.bookingId)) {
+                throw new IllegalStateException("Booking has already been paid.");
+            }
+            if (Math.abs(request.getAmount() - context.totalPrice) > AMOUNT_EPSILON) {
+                throw new IllegalArgumentException("Paid amount does not match booking total.");
             }
 
             Payment payment = new Payment();
-            payment.setBookingId(dto.getBookingId());
-            payment.setPaymentMethod(parseMethod(dto.getPaymentMethod()));
-            payment.setPaymentStatus(parseStatus(dto.getPaymentStatus()));
-            payment.setPaidAmount(dto.getPaidAmount());
+            payment.setBookingId(context.bookingId);
+            payment.setPaymentMethod(parseMethod(request.getPaymentMethod()));
+            payment.setPaymentStatus(PaymentStatus.PAID);
+            payment.setPaidAmount(context.totalPrice);
 
-            Long id = paymentDAO.create(payment);
-            if (id == null) {
-                connection.rollback();
-                return null;
+            Long paymentId = paymentDAO.create(payment);
+            if (paymentId == null) {
+                throw new IllegalStateException("Failed to insert payment.");
             }
 
-            if (payment.getPaymentStatus() == PaymentStatus.PAID) {
-                String updateBookingSql = "UPDATE bookings SET status = 'CONFIRMED' WHERE booking_id = ?";
-                try (PreparedStatement ps = connection.prepareStatement(updateBookingSql)) {
-                    ps.setLong(1, dto.getBookingId());
-                    ps.executeUpdate();
-                }
+            int updated = markBookingPaid(context.bookingId);
+            if (updated != 1) {
+                throw new IllegalStateException("Failed to confirm booking after payment.");
             }
 
             connection.commit();
 
             PaymentDTO result = new PaymentDTO();
-            result.setPaymentId(id);
-            result.setBookingId(payment.getBookingId());
+            result.setPaymentId(paymentId);
+            result.setUserId(context.userId);
+            result.setBookingId(context.bookingId);
             result.setPaymentMethod(payment.getPaymentMethod());
-            result.setPaymentStatus(payment.getPaymentStatus().name());
-            result.setPaidAmount(payment.getPaidAmount());
+            result.setPaymentStatus(PaymentStatus.PAID.name());
+            result.setPaidAmount(context.totalPrice);
             return result;
-        } catch (SQLException e) {
+        } catch (Exception ex) {
             try {
                 connection.rollback();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
+            } catch (SQLException rollbackEx) {
+                rollbackEx.printStackTrace();
             }
-            e.printStackTrace();
-            return null;
+            if (ex instanceof RuntimeException runtimeException) {
+                throw runtimeException;
+            }
+            throw new RuntimeException(ex);
         } finally {
             try {
                 connection.setAutoCommit(originalAutoCommit);
@@ -115,13 +111,11 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public PaymentDTO processPayment(PaymentDTO dto) {
-        // ADDED
-        return createPayment(dto);
+        return processPayment(toRequest(dto));
     }
 
     @Override
     public PaymentDTO getPaymentById(Long paymentId) {
-        // Validate required identifier.
         if (paymentId == null) {
             return null;
         }
@@ -131,12 +125,106 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public PaymentDTO getPaymentByBookingId(Long bookingId) {
-        // Validate required identifier.
         if (bookingId == null) {
             return null;
         }
         Payment payment = paymentDAO.findByBookingId(bookingId);
         return toDTO(payment);
+    }
+
+    private void validateRequest(PaymentRequestDTO request) {
+        if (request == null) {
+            throw new IllegalArgumentException("Payment request is required.");
+        }
+        if (request.getUserId() == null) {
+            throw new IllegalArgumentException("User id is required.");
+        }
+        if (request.getBookingId() == null) {
+            throw new IllegalArgumentException("Booking id is required.");
+        }
+        if (request.getAmount() == null || request.getAmount() <= 0) {
+            throw new IllegalArgumentException("Paid amount must be greater than zero.");
+        }
+        parseMethod(request.getPaymentMethod());
+    }
+
+    private BookingPaymentContext findBookingForPayment(Long bookingId) throws SQLException {
+        String sql = """
+            SELECT booking_id, user_id, total_price, status, created_at
+            FROM bookings
+            WHERE booking_id = ?
+            FOR UPDATE
+        """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setLong(1, bookingId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) {
+                    return null;
+                }
+                BookingPaymentContext context = new BookingPaymentContext();
+                context.bookingId = rs.getLong("booking_id");
+                context.userId = rs.getLong("user_id");
+                context.totalPrice = rs.getDouble("total_price");
+                context.status = rs.getString("status");
+                context.createdAt = rs.getTimestamp("created_at");
+                return context;
+            }
+        }
+    }
+
+    private boolean hasExistingPayment(Long bookingId) throws SQLException {
+        String sql = "SELECT payment_id FROM payments WHERE booking_id = ? FOR UPDATE";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setLong(1, bookingId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    private int markBookingPaid(Long bookingId) throws SQLException {
+        String sql = """
+            UPDATE bookings
+            SET status = 'CONFIRMED'
+            WHERE booking_id = ?
+              AND status = 'PENDING'
+        """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setLong(1, bookingId);
+            return ps.executeUpdate();
+        }
+    }
+
+    private boolean isExpired(Timestamp createdAt) {
+        if (createdAt == null) {
+            return true;
+        }
+        LocalDateTime expiry = createdAt.toLocalDateTime().plusMinutes(BOOKING_EXPIRY_MINUTES);
+        return LocalDateTime.now().isAfter(expiry);
+    }
+
+    private String parseMethod(String method) {
+        if (method == null || method.isBlank()) {
+            throw new IllegalArgumentException("Payment method is required.");
+        }
+        try {
+            return PaymentMethod.valueOf(method.trim().toUpperCase(Locale.ROOT)).name();
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("Unsupported payment method.");
+        }
+    }
+
+    private PaymentRequestDTO toRequest(PaymentDTO dto) {
+        if (dto == null) {
+            throw new IllegalArgumentException("Payment payload is required.");
+        }
+        PaymentRequestDTO request = new PaymentRequestDTO();
+        request.setUserId(dto.getUserId());
+        request.setBookingId(dto.getBookingId());
+        request.setAmount(dto.getPaidAmount());
+        request.setPaymentMethod(dto.getPaymentMethod());
+        return request;
     }
 
     private PaymentDTO toDTO(Payment payment) {
@@ -152,25 +240,11 @@ public class PaymentServiceImpl implements PaymentService {
         return dto;
     }
 
-    private String parseMethod(String method) {
-        if (method == null || method.isBlank()) {
-            return PaymentMethod.CARD.name();
-        }
-        try {
-            return PaymentMethod.valueOf(method.trim().toUpperCase(Locale.ROOT)).name();
-        } catch (IllegalArgumentException ex) {
-            return PaymentMethod.CARD.name();
-        }
-    }
-
-    private PaymentStatus parseStatus(String status) {
-        if (status == null || status.isBlank()) {
-            return PaymentStatus.PENDING;
-        }
-        try {
-            return PaymentStatus.valueOf(status.trim().toUpperCase(Locale.ROOT));
-        } catch (IllegalArgumentException ex) {
-            return PaymentStatus.PENDING;
-        }
+    private static final class BookingPaymentContext {
+        private Long bookingId;
+        private Long userId;
+        private double totalPrice;
+        private String status;
+        private Timestamp createdAt;
     }
 }

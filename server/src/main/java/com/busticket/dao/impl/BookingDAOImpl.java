@@ -4,6 +4,7 @@ import com.busticket.dao.BookingDAO;
 import com.busticket.dto.RecentBookingDTO;
 import com.busticket.dto.UpcomingTripDTO;
 import com.busticket.enums.BookingStatus;
+import com.busticket.enums.PaymentStatus;
 import com.busticket.model.Booking;
 
 import java.sql.Connection;
@@ -31,30 +32,52 @@ public class BookingDAOImpl implements BookingDAO {
 
     @Override
     public Long createBooking(Booking booking) {
-        String sql = """
-            INSERT INTO bookings(user_id, trip_id, total_price, ticket_code, status)
-            VALUES(?,?,?,?,?)
+        String sqlWithPaymentStatus = """
+            INSERT INTO bookings(user_id, trip_id, total_price, ticket_code, status, payment_status)
+            VALUES(?,?,?,?,?,?)
         """;
-
-        try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement ps = connection.prepareStatement(sqlWithPaymentStatus, Statement.RETURN_GENERATED_KEYS)) {
             ps.setLong(1, booking.getUserId());
             ps.setLong(2, booking.getTripId());
             ps.setDouble(3, booking.getTotalPrice());
             ps.setString(4, booking.getTicketCode());
             ps.setString(5, booking.getStatus().name());
+            ps.setString(6, "PENDING");
 
             int affected = ps.executeUpdate();
             if (affected == 0) {
                 return null;
             }
-
             try (ResultSet rs = ps.getGeneratedKeys()) {
                 if (rs.next()) {
                     return rs.getLong(1);
                 }
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+            return null;
+        } catch (SQLException withPaymentStatusEx) {
+            String sql = """
+                INSERT INTO bookings(user_id, trip_id, total_price, ticket_code, status)
+                VALUES(?,?,?,?,?)
+            """;
+            try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                ps.setLong(1, booking.getUserId());
+                ps.setLong(2, booking.getTripId());
+                ps.setDouble(3, booking.getTotalPrice());
+                ps.setString(4, booking.getTicketCode());
+                ps.setString(5, booking.getStatus().name());
+
+                int affected = ps.executeUpdate();
+                if (affected == 0) {
+                    return null;
+                }
+                try (ResultSet rs = ps.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        return rs.getLong(1);
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         return null;
     }
@@ -89,12 +112,14 @@ public class BookingDAOImpl implements BookingDAO {
 
         String sql = """
             SELECT b.booking_id, b.user_id, b.trip_id, b.booking_date, b.total_price, b.ticket_code, b.status,
+                   COALESCE(p.payment_status, 'PENDING') AS payment_status,
                    GROUP_CONCAT(s.seat_number ORDER BY s.seat_number SEPARATOR ',') AS seat_numbers
             FROM bookings b
+            LEFT JOIN payments p ON p.booking_id = b.booking_id
             LEFT JOIN booking_seat bs ON bs.booking_id = b.booking_id
             LEFT JOIN seats s ON s.seat_id = bs.seat_id
             WHERE b.user_id = ?
-            GROUP BY b.booking_id, b.user_id, b.trip_id, b.booking_date, b.total_price, b.ticket_code, b.status
+            GROUP BY b.booking_id, b.user_id, b.trip_id, b.booking_date, b.total_price, b.ticket_code, b.status, p.payment_status
             ORDER BY b.booking_date DESC
         """;
 
@@ -114,6 +139,7 @@ public class BookingDAOImpl implements BookingDAO {
                     booking.setTotalPrice(rs.getDouble("total_price"));
                     booking.setTicketCode(rs.getString("ticket_code"));
                     booking.setStatus(BookingStatus.valueOf(rs.getString("status")));
+                    booking.setPaymentStatus(parsePaymentStatus(rs.getString("payment_status")));
                     String seats = rs.getString("seat_numbers");
                     if (seats == null || seats.isBlank()) {
                         booking.setSeatNumbers(List.of());
@@ -130,6 +156,17 @@ public class BookingDAOImpl implements BookingDAO {
             e.printStackTrace();
         }
         return bookings;
+    }
+
+    private PaymentStatus parsePaymentStatus(String rawStatus) {
+        if (rawStatus == null || rawStatus.isBlank()) {
+            return PaymentStatus.PENDING;
+        }
+        try {
+            return PaymentStatus.valueOf(rawStatus.trim().toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            return PaymentStatus.PENDING;
+        }
     }
 
     @Override
@@ -278,7 +315,7 @@ public class BookingDAOImpl implements BookingDAO {
             UPDATE bookings
             SET status = 'CANCELLED'
             WHERE status = 'PENDING'
-              AND booking_date < (NOW() - INTERVAL ? MINUTE)
+              AND created_at < (NOW() - INTERVAL ? MINUTE)
         """;
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, minutes);

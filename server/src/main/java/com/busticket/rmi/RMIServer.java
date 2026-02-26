@@ -21,7 +21,7 @@ public class RMIServer {
         Naming.rebind("rmi://localhost/DashboardService", new DashboardRemoteImpl());
         Naming.rebind("rmi://localhost/PassengerService", new PassengerRemoteImpl());
 
-        new BookingExpiryJob(new BookingServiceImpl(), 20).start();
+        new BookingExpiryJob(new BookingServiceImpl(), 15).start();
 
         System.out.println("RMI Server Running on port 1099...");
     }

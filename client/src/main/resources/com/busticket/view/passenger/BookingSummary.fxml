@@ -4,16 +4,14 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
-<?import javafx.scene.control.RadioButton?>
-<?import javafx.scene.control.Separator?>
-<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox spacing="16" xmlns:fx="http://javafx.com/fxml" fx:controller="com.busticket.controller.passenger.BookingSummaryController" stylesheets="@../theme.css">
+<VBox spacing="16" stylesheets="@../theme.css" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/25" fx:controller="com.busticket.controller.passenger.BookingSummaryController">
     <HBox alignment="CENTER_LEFT" spacing="10">
         <Label styleClass="page-title" text="Booking Summary" />
     </HBox>
@@ -45,11 +43,19 @@
 
                 <Label styleClass="page-subtitle" text="Bus Type" GridPane.columnIndex="0" GridPane.rowIndex="5" />
                 <Label fx:id="busTypeLabel" text="-" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+            <rowConstraints>
+               <RowConstraints />
+               <RowConstraints />
+               <RowConstraints />
+               <RowConstraints />
+               <RowConstraints />
+               <RowConstraints />
+            </rowConstraints>
             </GridPane>
         </VBox>
 
-        <VBox spacing="12" styleClass="card" prefWidth="360" minWidth="320">
-            <Label styleClass="section-title" text="Seats &amp; Payment" />
+        <VBox minWidth="320" prefWidth="360" spacing="12" styleClass="card">
+            <Label styleClass="section-title" text="Seat Summary" />
 
             <Label styleClass="page-subtitle" text="Selected Seats List" />
             <ListView fx:id="selectedSeatsListView" prefHeight="120" />
@@ -71,30 +77,24 @@
 
                 <Label styleClass="page-subtitle" text="Total Price" GridPane.columnIndex="0" GridPane.rowIndex="3" />
                 <Label fx:id="totalPriceLabel" styleClass="badge" text="0.00" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+            <rowConstraints>
+               <RowConstraints />
+               <RowConstraints />
+               <RowConstraints />
+               <RowConstraints />
+            </rowConstraints>
             </GridPane>
 
-            <Separator />
-
-            <Label styleClass="page-subtitle" text="Payment Method" />
-            <HBox alignment="CENTER_LEFT" spacing="14">
-                <RadioButton fx:id="mobileBankingRadio" text="Mobile Banking">
-                    <toggleGroup>
-                        <ToggleGroup fx:id="paymentToggleGroup" />
-                    </toggleGroup>
-                </RadioButton>
-                <RadioButton fx:id="cardRadio" text="Card" toggleGroup="$paymentToggleGroup" />
-            </HBox>
         </VBox>
     </HBox>
 
     <HBox alignment="CENTER_RIGHT" spacing="10">
         <Region HBox.hgrow="ALWAYS" />
         <Button onAction="#onBack" styleClass="ghost-button" text="Back" />
-        <Button fx:id="confirmPayButton" onAction="#onConfirmAndPay" styleClass="primary-button" text="Confirm &amp; Pay" />
+        <Button fx:id="confirmPayButton" onAction="#onConfirmAndPay" styleClass="primary-button" text="Confirm Booking" />
     </HBox>
 
     <padding>
         <Insets bottom="4" left="4" right="4" top="4" />
     </padding>
 </VBox>
-

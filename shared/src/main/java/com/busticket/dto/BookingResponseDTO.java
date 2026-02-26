@@ -15,6 +15,7 @@ public class BookingResponseDTO implements Serializable {
     private Double totalAmount;
     // ADDED
     private String status;
+    private String paymentStatus;
 
     public Long getBookingId() {
         return bookingId;
@@ -46,5 +47,13 @@ public class BookingResponseDTO implements Serializable {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public void setPaymentStatus(String paymentStatus) {
+        this.paymentStatus = paymentStatus;
     }
 }

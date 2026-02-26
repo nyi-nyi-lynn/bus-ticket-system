@@ -75,7 +75,7 @@ public class GuestInfoController {
                 return;
             }
 
-            Session.setCurrentBookingContext(booking.getBookingId(), booking.getTicketCode(), booking.getTotalPrice());
+            Session.setCurrentBookingContext(booking.getBookingId(), createdUser.getUserId(), booking.getTicketCode(), booking.getTotalPrice());
             SceneSwitcher.switchContent("/com/busticket/view/passenger/PaymentView.fxml");
         } catch (Exception ex) {
             showAlert(Alert.AlertType.ERROR, "Guest Booking Failed", "Unable to continue booking.", ex.getMessage());

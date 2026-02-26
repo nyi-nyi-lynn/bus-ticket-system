@@ -1,20 +1,14 @@
 package com.busticket.controller.passenger;
 
 import com.busticket.dto.BookingDTO;
-import com.busticket.dto.PaymentDTO;
 import com.busticket.dto.PaymentRequestDTO;
 import com.busticket.dto.TripDTO;
 import com.busticket.enums.PaymentMethod;
-import com.busticket.enums.PaymentStatus;
 import com.busticket.remote.PaymentRemote;
 import com.busticket.remote.TripRemote;
 import com.busticket.rmi.RMIClient;
 import com.busticket.session.Session;
 import com.busticket.util.SceneSwitcher;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.WriterException;
-import com.google.zxing.common.BitMatrix;
-import com.google.zxing.qrcode.QRCodeWriter;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -28,9 +22,8 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.time.format.DateTimeFormatter;
+import java.lang.reflect.Method;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -117,6 +110,12 @@ public class PaymentController {
             return;
         }
 
+        Long payerUserId = resolvePayerUserId();
+        if (payerUserId == null) {
+            showAlert(Alert.AlertType.WARNING, "Owner Missing", "Booking owner could not be resolved.", "Please restart booking and try again.");
+            return;
+        }
+
         String selectedMethod = resolveSelectedMethod();
         if (selectedMethod == null) {
             showAlert(Alert.AlertType.WARNING, "Payment Method", "Please choose a payment method.", "Select KBZPay, WavePay, or Credit/Debit Card.");
@@ -124,6 +123,7 @@ public class PaymentController {
         }
 
         PaymentRequestDTO request = new PaymentRequestDTO();
+        request.setUserId(payerUserId);
         request.setBookingId(bookingId);
         request.setAmount(totalAmount);
         request.setPaymentMethod(toBackendPaymentMethod(selectedMethod));
@@ -133,13 +133,14 @@ public class PaymentController {
         }
 
         try {
-            Object result = processPayment(request);
-            if (!isPaymentSuccess(result)) {
+            var payment = paymentRemote.processPayment(request);
+            if (payment == null || payment.getPaymentId() == null) {
                 showAlert(Alert.AlertType.ERROR, "Payment Failed", "Unable to process payment.", "Please verify payment and try again.");
                 return;
             }
 
-            Session.setCurrentBookingContext(bookingId, Session.getCurrentTicketCode(), totalAmount);
+            Session.setCurrentBookingContext(bookingId, payerUserId, Session.getCurrentTicketCode(), totalAmount);
+            Session.clearPendingSelection();
             navigateToTicketView();
         } catch (Exception ex) {
             showAlert(Alert.AlertType.ERROR, "Payment Failed", "Unable to process payment.", ex.getMessage());
@@ -256,6 +257,16 @@ public class PaymentController {
         return Session.getCurrentBookingId();
     }
 
+    private Long resolvePayerUserId() {
+        if (Session.getCurrentUser() != null && Session.getCurrentUser().getUserId() != null) {
+            return Session.getCurrentUser().getUserId();
+        }
+        if (bookingDTO != null && bookingDTO.getUserId() != null) {
+            return bookingDTO.getUserId();
+        }
+        return Session.getCurrentBookingUserId();
+    }
+
     private String resolveSelectedMethod() {
         if (paymentMethodToggle == null || paymentMethodToggle.getSelectedToggle() == null) {
             return null;
@@ -290,11 +301,12 @@ public class PaymentController {
         instructionLabel.setText("Scan to pay");
 
         String payload = buildQrPayload(selectedMethod);
-        try {
-            qrImageView.setImage(generateQrCodeImage(payload, 220, 220));
-        } catch (WriterException ex) {
+        Image qrImage = tryGenerateQrCodeImage(payload, 220, 220);
+        if (qrImage == null) {
             qrImageView.setImage(null);
-            showAlert(Alert.AlertType.WARNING, "QR Generation Error", "Unable to generate QR code.", ex.getMessage());
+            instructionLabel.setText("Use account name and phone for manual transfer.");
+        } else {
+            qrImageView.setImage(qrImage);
         }
     }
 
@@ -304,44 +316,6 @@ public class PaymentController {
         return "bookingId=" + bookingPart
                 + "|amount=" + String.format(Locale.ENGLISH, "%.2f", totalAmount)
                 + "|method=" + selectedMethod;
-    }
-
-    private Object processPayment(PaymentRequestDTO request) throws Exception {
-        try {
-            Method processPaymentMethod = paymentRemote.getClass().getMethod("processPayment", PaymentRequestDTO.class);
-            return processPaymentMethod.invoke(paymentRemote, request);
-        } catch (NoSuchMethodException ignored) {
-            PaymentDTO fallbackRequest = new PaymentDTO();
-            fallbackRequest.setBookingId(request.getBookingId());
-            fallbackRequest.setPaidAmount(request.getAmount());
-            fallbackRequest.setPaymentMethod(request.getPaymentMethod());
-            fallbackRequest.setPaymentStatus(PaymentStatus.PAID.name());
-            return paymentRemote.processPayment(fallbackRequest);
-        } catch (InvocationTargetException ex) {
-            Throwable cause = ex.getTargetException();
-            if (cause instanceof Exception exception) {
-                throw exception;
-            }
-            throw new RuntimeException(cause);
-        }
-    }
-
-    private boolean isPaymentSuccess(Object response) {
-        if (response == null) {
-            return false;
-        }
-
-        if (response instanceof Boolean result) {
-            return result;
-        }
-
-        if (response instanceof PaymentDTO paymentResponse) {
-            String status = paymentResponse.getPaymentStatus();
-            boolean paid = status == null || PaymentStatus.PAID.name().equalsIgnoreCase(status);
-            return paymentResponse.getPaymentId() != null && paid;
-        }
-
-        return false;
     }
 
     private String toBackendPaymentMethod(String selectedMethod) {
@@ -359,17 +333,31 @@ public class PaymentController {
         }
     }
 
-    private Image generateQrCodeImage(String payload, int width, int height) throws WriterException {
-        BitMatrix bitMatrix = new QRCodeWriter().encode(payload, BarcodeFormat.QR_CODE, width, height);
-        WritableImage image = new WritableImage(width, height);
-        PixelWriter writer = image.getPixelWriter();
+    private Image tryGenerateQrCodeImage(String payload, int width, int height) {
+        try {
+            Class<?> writerClass = Class.forName("com.google.zxing.qrcode.QRCodeWriter");
+            Class<?> formatClass = Class.forName("com.google.zxing.BarcodeFormat");
+            Class<?> matrixClass = Class.forName("com.google.zxing.common.BitMatrix");
 
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                writer.setColor(x, y, bitMatrix.get(x, y) ? Color.BLACK : Color.WHITE);
+            Object writer = writerClass.getDeclaredConstructor().newInstance();
+            @SuppressWarnings("unchecked")
+            Object qrFormat = Enum.valueOf((Class<Enum>) formatClass.asSubclass(Enum.class), "QR_CODE");
+            Method encodeMethod = writerClass.getMethod("encode", String.class, formatClass, int.class, int.class);
+            Object matrix = encodeMethod.invoke(writer, payload, qrFormat, width, height);
+            Method getMethod = matrixClass.getMethod("get", int.class, int.class);
+
+            WritableImage image = new WritableImage(width, height);
+            PixelWriter pixelWriter = image.getPixelWriter();
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    boolean isBlack = (Boolean) getMethod.invoke(matrix, x, y);
+                    pixelWriter.setColor(x, y, isBlack ? Color.BLACK : Color.WHITE);
+                }
             }
+            return image;
+        } catch (Throwable ignored) {
+            return null;
         }
-        return image;
     }
 
     private String safe(String value) {

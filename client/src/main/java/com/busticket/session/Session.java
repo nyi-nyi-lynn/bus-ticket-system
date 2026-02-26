@@ -16,6 +16,7 @@ public final class Session {
     private static List<String> pendingSeatNumbers = new ArrayList<>();
     private static List<SeatDTO> pendingSeats = new ArrayList<>();
     private static Long currentBookingId;
+    private static Long currentBookingUserId;
     private static String currentTicketCode;
     private static Double currentBookingAmount;
 
@@ -90,7 +91,12 @@ public final class Session {
 
     // ADDED
     public static void setCurrentBookingContext(Long bookingId, String ticketCode, Double totalAmount) {
+        setCurrentBookingContext(bookingId, null, ticketCode, totalAmount);
+    }
+
+    public static void setCurrentBookingContext(Long bookingId, Long bookingUserId, String ticketCode, Double totalAmount) {
         currentBookingId = bookingId;
+        currentBookingUserId = bookingUserId;
         currentTicketCode = ticketCode;
         currentBookingAmount = totalAmount;
     }
@@ -98,6 +104,10 @@ public final class Session {
     // ADDED
     public static Long getCurrentBookingId() {
         return currentBookingId;
+    }
+
+    public static Long getCurrentBookingUserId() {
+        return currentBookingUserId;
     }
 
     // ADDED
@@ -113,6 +123,7 @@ public final class Session {
     // ADDED
     public static void clearBookingContext() {
         currentBookingId = null;
+        currentBookingUserId = null;
         currentTicketCode = null;
         currentBookingAmount = null;
     }

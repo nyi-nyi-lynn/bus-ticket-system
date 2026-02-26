@@ -1,10 +1,8 @@
 package com.busticket.controller.passenger;
 
-import com.busticket.dto.BookingRequestDTO;
-import com.busticket.dto.BookingResponseDTO;
+import com.busticket.dto.BookingDTO;
 import com.busticket.dto.SeatDTO;
 import com.busticket.dto.TripDTO;
-import com.busticket.enums.PaymentMethod;
 import com.busticket.remote.BookingRemote;
 import com.busticket.remote.BusRemote;
 import com.busticket.rmi.RMIClient;
@@ -16,8 +14,6 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.ToggleGroup;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -37,9 +33,6 @@ public class BookingSummaryController {
     @FXML private Label seatNumbersLabel;
     @FXML private Label perSeatPriceLabel;
     @FXML private Label totalPriceLabel;
-    @FXML private RadioButton mobileBankingRadio;
-    @FXML private RadioButton cardRadio;
-    @FXML private ToggleGroup paymentToggleGroup;
     @FXML private Button confirmPayButton;
 
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.ENGLISH);
@@ -52,8 +45,6 @@ public class BookingSummaryController {
     private void initialize() {
         trip = Session.getPendingTrip();
         selectedSeats = normalizeSelectedSeats();
-
-        cardRadio.setSelected(true);
         selectedSeatsListView.setFocusTraversable(false);
 
         renderSummary();
@@ -77,39 +68,57 @@ public class BookingSummaryController {
             return;
         }
 
-        PaymentMethod method = resolvePaymentMethod();
-        if (method == null) {
-            showAlert(Alert.AlertType.WARNING, "Payment Method Required", "Select a payment method.", "Choose Mobile Banking or Card.");
+        List<String> seatNumbers = selectedSeats.stream()
+                .map(SeatDTO::getSeatNumber)
+                .filter(Objects::nonNull)
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .distinct()
+                .sorted()
+                .toList();
+        if (seatNumbers.isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "Invalid Seats", "Selected seats are invalid.", "Please reselect your seats.");
             return;
         }
 
+        BookingDTO booking;
         try {
             confirmPayButton.setDisable(true);
 
             BookingRemote bookingRemote = RMIClient.getBookingRemote();
-            BookingRequestDTO request = new BookingRequestDTO();
+            BookingDTO request = new BookingDTO();
             request.setUserId(Session.getCurrentUser().getUserId());
             request.setTripId(trip.getTripId());
-            request.setPaymentMethod(method.name());
-            request.setSeatIds(selectedSeats.stream().map(SeatDTO::getSeatId).filter(Objects::nonNull).toList());
-            request.setSeatNumbers(selectedSeats.stream().map(SeatDTO::getSeatNumber).filter(Objects::nonNull).toList());
-
-            BookingResponseDTO response = bookingRemote.createBooking(request);
-            if (response == null || response.getBookingId() == null) {
+            request.setSeatNumbers(seatNumbers);
+            booking = bookingRemote.createBooking(request);
+            if (booking == null || booking.getBookingId() == null) {
                 showAlert(Alert.AlertType.ERROR, "Booking Failed", "Unable to create booking.", "Please try again.");
                 return;
             }
-
-            boolean confirmed = bookingRemote.confirmBooking(response.getBookingId());
-            if (!confirmed) {
-                showAlert(Alert.AlertType.ERROR, "Payment Failed", "Unable to confirm payment.", "Please try again.");
-                return;
-            }
-
-            Session.setCurrentBookingContext(response.getBookingId(), response.getTicketCode(), response.getTotalAmount());
-            SceneSwitcher.switchContent("/com/busticket/view/passenger/TicketView.fxml");
         } catch (Exception ex) {
-            showAlert(Alert.AlertType.ERROR, "Confirm & Pay Failed", "Unable to complete booking.", ex.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Booking Failed", "Unable to create pending booking.", ex.getMessage());
+            confirmPayButton.setDisable(false);
+            return;
+        }
+
+        Session.setCurrentBookingContext(
+                booking.getBookingId(),
+                Session.getCurrentUser().getUserId(),
+                booking.getTicketCode(),
+                booking.getTotalPrice()
+        );
+
+        try {
+            SceneSwitcher.switchContent("/com/busticket/view/passenger/PaymentView.fxml");
+        } catch (Exception ex) {
+            try {
+                BookingRemote bookingRemote = RMIClient.getBookingRemote();
+                bookingRemote.cancelBooking(booking.getBookingId(), Session.getCurrentUser().getUserId());
+            } catch (Exception ignored) {
+                // Best-effort cleanup to avoid leaving seats locked if payment view cannot open.
+            }
+            Session.clearBookingContext();
+            showAlert(Alert.AlertType.ERROR, "Navigation Failed", "Booking was created but payment screen failed to open.", ex.getMessage());
         } finally {
             confirmPayButton.setDisable(false);
         }
@@ -133,16 +142,6 @@ public class BookingSummaryController {
             mapped.add(seat);
         }
         return mapped;
-    }
-
-    private PaymentMethod resolvePaymentMethod() {
-        if (mobileBankingRadio.isSelected()) {
-            return PaymentMethod.MOBILE_BANKING;
-        }
-        if (cardRadio.isSelected()) {
-            return PaymentMethod.CARD;
-        }
-        return null;
     }
 
     private void renderSummary() {

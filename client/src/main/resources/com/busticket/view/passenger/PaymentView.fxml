@@ -1,9 +1,10 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.image.ImageView?>
@@ -13,96 +14,101 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.busticket.controller.passenger.PaymentController"
-      spacing="14"
-      stylesheets="@../theme.css">
+<ScrollPane fitToWidth="true"
+            hbarPolicy="NEVER"
+            stylesheets="@../theme.css"
+            xmlns="http://javafx.com/javafx/25"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.busticket.controller.passenger.PaymentController">
+    <content>
+        <VBox spacing="14">
+            <padding>
+                <Insets bottom="6" left="6" right="6" top="6" />
+            </padding>
 
-    <padding>
-        <Insets top="6" right="6" bottom="6" left="6"/>
-    </padding>
+            <Label styleClass="page-title" text="Payment" />
 
-    <Label text="Payment" styleClass="page-title"/>
+            <VBox spacing="10" styleClass="card">
+                <Label styleClass="section-title" text="Booking Summary" />
 
-    <VBox spacing="10" styleClass="card">
-        <Label text="Booking Summary" styleClass="section-title"/>
+                <GridPane hgap="12" vgap="8">
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="130" prefWidth="130" />
+                        <ColumnConstraints hgrow="ALWAYS" />
+                    </columnConstraints>
 
-        <GridPane hgap="12" vgap="8">
-            <columnConstraints>
-                <ColumnConstraints minWidth="130" prefWidth="130"/>
-                <ColumnConstraints hgrow="ALWAYS"/>
-            </columnConstraints>
+                    <Label styleClass="page-subtitle" text="Route" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                    <Label fx:id="routeValueLabel" text="-" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-            <Label text="Route" styleClass="page-subtitle" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-            <Label fx:id="routeValueLabel" text="-" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                    <Label styleClass="page-subtitle" text="Travel Date" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                    <Label fx:id="travelDateValueLabel" text="-" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-            <Label text="Travel Date" styleClass="page-subtitle" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-            <Label fx:id="travelDateValueLabel" text="-" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                    <Label styleClass="page-subtitle" text="Departure Time" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                    <Label fx:id="departureTimeValueLabel" text="-" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
-            <Label text="Departure Time" styleClass="page-subtitle" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
-            <Label fx:id="departureTimeValueLabel" text="-" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                    <Label styleClass="page-subtitle" text="Selected Seats" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                    <Label fx:id="selectedSeatsValueLabel" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                </GridPane>
 
-            <Label text="Selected Seats" styleClass="page-subtitle" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
-            <Label fx:id="selectedSeatsValueLabel" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
-        </GridPane>
+                <Separator />
 
-        <Separator/>
+                <HBox alignment="CENTER_LEFT" spacing="12">
+                    <Label minWidth="130" styleClass="page-subtitle" text="Total Price" />
+                    <Label fx:id="totalPriceValueLabel"
+                           text="0.00"
+                           style="-fx-font-size: 19px; -fx-font-weight: 700; -fx-text-fill: #1f8f48;" />
+                </HBox>
+            </VBox>
 
-        <HBox alignment="CENTER_LEFT" spacing="12">
-            <Label text="Total Price" styleClass="page-subtitle" minWidth="130"/>
-            <Label fx:id="totalPriceValueLabel"
-                   text="$0.00"
-                   style="-fx-font-size: 19px; -fx-font-weight: 700; -fx-text-fill: #1f8f48;"/>
-        </HBox>
-    </VBox>
+            <VBox spacing="8" styleClass="card">
+                <Label styleClass="section-title" text="Payment Method" />
 
-    <VBox spacing="8" styleClass="card">
-        <Label text="Payment Method" styleClass="section-title"/>
+                <fx:define>
+                    <ToggleGroup fx:id="paymentMethodToggle" />
+                </fx:define>
 
-        <fx:define>
-            <ToggleGroup fx:id="paymentMethodToggle"/>
-        </fx:define>
+                <RadioButton fx:id="kbzPayRadio"
+                             text="KBZPay"
+                             toggleGroup="$paymentMethodToggle"
+                             onAction="#onPaymentMethodChanged" />
 
-        <RadioButton fx:id="kbzPayRadio"
-                     text="KBZPay"
-                     toggleGroup="$paymentMethodToggle"
-                     onAction="#onPaymentMethodChanged"/>
+                <RadioButton fx:id="wavePayRadio"
+                             text="WavePay"
+                             toggleGroup="$paymentMethodToggle"
+                             onAction="#onPaymentMethodChanged" />
 
-        <RadioButton fx:id="wavePayRadio"
-                     text="WavePay"
-                     toggleGroup="$paymentMethodToggle"
-                     onAction="#onPaymentMethodChanged"/>
+                <RadioButton fx:id="cardRadio"
+                             text="Credit/Debit Card"
+                             toggleGroup="$paymentMethodToggle"
+                             onAction="#onPaymentMethodChanged" />
+            </VBox>
 
-        <RadioButton fx:id="cardRadio"
-                     text="Credit/Debit Card"
-                     toggleGroup="$paymentMethodToggle"
-                     onAction="#onPaymentMethodChanged"/>
-    </VBox>
+            <VBox fx:id="qrSection" spacing="8" managed="false" visible="false" styleClass="card">
+                <Label styleClass="section-title" text="QR Payment" />
 
-    <VBox fx:id="qrSection" spacing="8" visible="false" managed="false" styleClass="card">
-        <Label text="QR Payment" styleClass="section-title"/>
+                <ImageView fx:id="qrImageView" fitWidth="220" fitHeight="220" preserveRatio="true" smooth="true" />
 
-        <ImageView fx:id="qrImageView" fitWidth="220" fitHeight="220" preserveRatio="true" smooth="true"/>
+                <HBox spacing="8">
+                    <Label minWidth="110" styleClass="page-subtitle" text="Account Name:" />
+                    <Label fx:id="accountNameValueLabel" text="-" />
+                </HBox>
 
-        <HBox spacing="8">
-            <Label text="Account Name:" styleClass="page-subtitle" minWidth="110"/>
-            <Label fx:id="accountNameValueLabel" text="-"/>
-        </HBox>
+                <HBox spacing="8">
+                    <Label minWidth="110" styleClass="page-subtitle" text="Account Phone:" />
+                    <Label fx:id="accountPhoneValueLabel" text="-" />
+                </HBox>
 
-        <HBox spacing="8">
-            <Label text="Account Phone:" styleClass="page-subtitle" minWidth="110"/>
-            <Label fx:id="accountPhoneValueLabel" text="-"/>
-        </HBox>
+                <Label fx:id="instructionLabel" text="Scan to pay" />
+            </VBox>
 
-        <Label fx:id="instructionLabel" text="Scan to pay"/>
-    </VBox>
-
-    <HBox spacing="10" alignment="CENTER_RIGHT">
-        <Region HBox.hgrow="ALWAYS"/>
-        <Button text="Back" styleClass="ghost-button" onAction="#onBack"/>
-        <Button fx:id="confirmPaymentButton"
-                text="Confirm Payment"
-                styleClass="primary-button"
-                onAction="#onConfirmPayment"/>
-    </HBox>
-</VBox>
+            <HBox alignment="CENTER_RIGHT" spacing="10">
+                <Region HBox.hgrow="ALWAYS" />
+                <Button text="Back" styleClass="ghost-button" onAction="#onBack" />
+                <Button fx:id="confirmPaymentButton"
+                        text="Confirm Payment"
+                        styleClass="primary-button"
+                        onAction="#onConfirmPayment" />
+            </HBox>
+        </VBox>
+    </content>
+</ScrollPane>

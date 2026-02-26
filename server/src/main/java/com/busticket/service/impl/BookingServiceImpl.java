@@ -41,78 +41,29 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingDTO createBooking(BookingDTO dto) {
-        // Validate required fields and requested seats.
-        if (dto == null || dto.getUserId() == null || dto.getTripId() == null) {
-            return null;
-        }
-        if (dto.getSeatNumbers() == null || dto.getSeatNumbers().isEmpty()) {
+        if (dto == null || dto.getUserId() == null || dto.getTripId() == null || dto.getSeatNumbers() == null || dto.getSeatNumbers().isEmpty()) {
             return null;
         }
 
-        boolean originalAutoCommit = true;
-        try {
-            // Transaction boundary: lock seats and insert booking atomically.
-            originalAutoCommit = connection.getAutoCommit();
-            connection.setAutoCommit(false);
+        BookingRequestDTO request = new BookingRequestDTO();
+        request.setUserId(dto.getUserId());
+        request.setTripId(dto.getTripId());
+        request.setSeatNumbers(dto.getSeatNumbers());
 
-            lockSeatsForTrip(dto.getTripId());
-
-            List<Long> seatIds = findSeatIds(dto.getTripId(), dto.getSeatNumbers());
-            if (seatIds.size() != dto.getSeatNumbers().size()) {
-                connection.rollback();
-                return null;
-            }
-
-            // Prevent double-booking by rejecting already reserved seats.
-            List<Long> booked = bookingDAO.findBookedSeats(dto.getTripId());
-            Set<Long> bookedSet = new HashSet<>(booked);
-            for (Long seatId : seatIds) {
-                if (bookedSet.contains(seatId)) {
-                    connection.rollback();
-                    return null;
-                }
-            }
-
-            Booking booking = new Booking();
-            booking.setUserId(dto.getUserId());
-            booking.setTripId(dto.getTripId());
-            booking.setTotalPrice(dto.getTotalPrice() == null ? 0.0 : dto.getTotalPrice());
-            booking.setTicketCode(generateTicketCode());
-            booking.setStatus(BookingStatus.PENDING);
-
-            Long bookingId = bookingDAO.createBooking(booking);
-            if (bookingId == null) {
-                connection.rollback();
-                return null;
-            }
-
-            bookingDAO.insertBookingSeats(bookingId, seatIds);
-            connection.commit();
-
-            BookingDTO result = new BookingDTO();
-            result.setBookingId(bookingId);
-            result.setUserId(dto.getUserId());
-            result.setTripId(dto.getTripId());
-            result.setSeatNumbers(dto.getSeatNumbers());
-            result.setTotalPrice(booking.getTotalPrice());
-            result.setTicketCode(booking.getTicketCode());
-            result.setStatus(booking.getStatus().name());
-            return result;
-        } catch (SQLException e) {
-            try {
-                connection.rollback();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
-            e.printStackTrace();
+        BookingResponseDTO response = createBooking(request);
+        if (response == null || response.getBookingId() == null) {
             return null;
-        } finally {
-            try {
-                connection.setAutoCommit(originalAutoCommit);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
+
+        BookingDTO result = new BookingDTO();
+        result.setBookingId(response.getBookingId());
+        result.setUserId(dto.getUserId());
+        result.setTripId(dto.getTripId());
+        result.setSeatNumbers(dto.getSeatNumbers());
+        result.setTotalPrice(response.getTotalAmount());
+        result.setTicketCode(response.getTicketCode());
+        result.setStatus(response.getStatus());
+        return result;
     }
 
     @Override
@@ -203,6 +154,8 @@ public class BookingServiceImpl implements BookingService {
             response.setBookingId(bookingId);
             response.setTicketCode(booking.getTicketCode());
             response.setTotalAmount(totalPrice);
+            response.setStatus(BookingStatus.PENDING.name());
+            response.setPaymentStatus("PENDING");
             return response;
         } catch (Exception ex) {
             try {
@@ -225,11 +178,28 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public boolean confirmBooking(Long bookingId) {
-        // Validate required identifier.
         if (bookingId == null) {
             return false;
         }
-        return bookingDAO.updateStatus(bookingId, BookingStatus.CONFIRMED);
+        String sql = """
+            UPDATE bookings b
+            SET b.status = 'CONFIRMED'
+            WHERE b.booking_id = ?
+              AND b.status = 'PENDING'
+              AND EXISTS (
+                  SELECT 1
+                  FROM payments p
+                  WHERE p.booking_id = b.booking_id
+                    AND p.payment_status = 'PAID'
+              )
+        """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setLong(1, bookingId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     @Override
@@ -258,6 +228,7 @@ public class BookingServiceImpl implements BookingService {
             dto.setTotalPrice(booking.getTotalPrice());
             dto.setTicketCode(booking.getTicketCode());
             dto.setStatus(booking.getStatus() == null ? null : booking.getStatus().name());
+            dto.setPaymentStatus(booking.getPaymentStatus());
             dto.setBookingDate(booking.getBookingDate());
             result.add(dto);
         }

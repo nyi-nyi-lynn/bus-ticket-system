@@ -2,6 +2,7 @@ package com.busticket.controller.passenger;
 
 import com.busticket.dto.BookingDTO;
 import com.busticket.dto.TripDTO;
+import com.busticket.enums.PaymentStatus;
 import com.busticket.remote.BookingRemote;
 import com.busticket.remote.TripRemote;
 import com.busticket.rmi.RMIClient;
@@ -12,6 +13,7 @@ import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -21,6 +23,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class MyBookingsController {
     @FXML private VBox bookingsFlow; // MODIFIED
@@ -101,7 +104,7 @@ public class MyBookingsController {
         String date = booking == null || booking.getBookingDate() == null
                 ? "-"
                 : DATE_FORMAT.format(booking.getBookingDate());
-        String status = safe(booking == null ? null : booking.getStatus());
+        String status = safeStatus(booking == null ? null : booking.getStatus());
         String ticketCode = safe(booking == null ? null : booking.getTicketCode());
         String total = booking == null || booking.getTotalPrice() == null
                 ? "0.00"
@@ -121,13 +124,23 @@ public class MyBookingsController {
         totalLabel.getStyleClass().add("trip-price");
 
         HBox actionRow = new HBox(10);
+        Button payNowButton = new Button("Pay Now");
+        payNowButton.getStyleClass().add("primary-button");
+        boolean payable = isPayNowEnabled(booking);
+        payNowButton.setDisable(!payable);
+        if (!payable) {
+            payNowButton.setOpacity(0.55);
+        } else {
+            payNowButton.setOnAction(event -> onPayNow(booking, payNowButton));
+        }
+
         Button viewTicketButton = new Button("View Ticket");
         viewTicketButton.getStyleClass().add("ghost-button");
         viewTicketButton.setOnAction(event -> onViewTicket(booking));
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
-        actionRow.getChildren().addAll(viewTicketButton, spacer);
+        actionRow.getChildren().addAll(payNowButton, viewTicketButton, spacer);
 
         card.getChildren().addAll(routeLabel, seatsLabel, dateLabel, statusLabel, ticketLabel, totalLabel, actionRow);
         return card;
@@ -144,6 +157,62 @@ public class MyBookingsController {
         }
         Session.setCurrentBookingContext(booking.getBookingId(), booking.getTicketCode(), booking.getTotalPrice());
         SceneSwitcher.switchContent("/com/busticket/view/passenger/TicketView.fxml");
+    }
+
+    private boolean isPayNowEnabled(BookingDTO booking) {
+        if (booking == null) {
+            return false;
+        }
+        String bookingStatus = booking.getStatus();
+        PaymentStatus paymentStatus = booking.getPaymentStatus();
+        boolean bookingPending = bookingStatus != null && "PENDING".equalsIgnoreCase(bookingStatus.trim());
+        boolean paymentPending = paymentStatus == null || paymentStatus == PaymentStatus.PENDING;
+        return bookingPending && paymentPending;
+    }
+
+    private void onPayNow(BookingDTO booking, Button payNowButton) {
+        if (Session.isGuest() || Session.getCurrentUser() == null || Session.getCurrentUser().getUserId() == null) {
+            showAlert(Alert.AlertType.WARNING, "Login Required", "You are not logged in.", "Please login to continue payment.");
+            return;
+        }
+        if (booking == null || booking.getBookingId() == null) {
+            showAlert(Alert.AlertType.WARNING, "Invalid Booking", "Booking is missing.", "Please refresh and try again.");
+            return;
+        }
+
+        Long currentUserId = Session.getCurrentUser().getUserId();
+        if (booking.getUserId() == null || !Objects.equals(booking.getUserId(), currentUserId)) {
+            showAlert(Alert.AlertType.WARNING, "Unauthorized", "This booking does not belong to your account.", "Please refresh your bookings.");
+            return;
+        }
+        if (!isPayNowEnabled(booking)) {
+            showAlert(Alert.AlertType.INFORMATION, "Payment Unavailable", "This booking is not payable.", "Only pending and unpaid bookings can be paid.");
+            return;
+        }
+
+        payNowButton.setDisable(true);
+        payNowButton.setText("Loading...");
+        ProgressIndicator loadingIndicator = new ProgressIndicator();
+        loadingIndicator.setPrefSize(14, 14);
+        payNowButton.setGraphic(loadingIndicator);
+
+        TripDTO trip = tripById.get(booking.getTripId());
+        Session.setPendingSelection(trip, booking.getSeatNumbers());
+        Session.setCurrentBookingContext(
+                booking.getBookingId(),
+                currentUserId,
+                booking.getTicketCode(),
+                booking.getTotalPrice()
+        );
+
+        try {
+            SceneSwitcher.switchContent("/com/busticket/view/passenger/PaymentView.fxml");
+        } catch (Exception ex) {
+            payNowButton.setDisable(false);
+            payNowButton.setText("Pay Now");
+            payNowButton.setGraphic(null);
+            showAlert(Alert.AlertType.ERROR, "Navigation Failed", "Unable to open payment page.", ex.getMessage());
+        }
     }
 
     private void onCancelBooking(BookingDTO booking) {
@@ -170,6 +239,13 @@ public class MyBookingsController {
 
     private String safe(Object value) {
         return value == null ? "-" : String.valueOf(value);
+    }
+
+    private String safeStatus(String status) {
+        if (status == null || status.isBlank()) {
+            return "-";
+        }
+        return status.trim().toUpperCase();
     }
 
     private void showAlert(Alert.AlertType type, String title, String header, String content) {
