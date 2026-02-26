@@ -592,3 +592,35 @@
     -fx-font-size: 12px;
     -fx-font-weight: 600;
 }
+
+.action-card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 14;
+    -fx-padding: 14;
+    -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.1), 14, 0.2, 0, 4);
+}
+
+.action-title {
+    -fx-text-fill: #0f172a;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+}
+
+.meta-label {
+    -fx-text-fill: #64748b;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+}
+
+.meta-value {
+    -fx-text-fill: #0f172a;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+}
+
+.dashboard-table {
+    -fx-background-color: transparent;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+}

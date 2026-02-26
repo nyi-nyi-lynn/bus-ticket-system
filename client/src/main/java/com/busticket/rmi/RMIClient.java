@@ -44,4 +44,8 @@ public class RMIClient {
     public static DashboardRemote getDashboardRemote() throws Exception {
         return (DashboardRemote) Naming.lookup("rmi://localhost/DashboardService");
     }
+
+    public static PassengerRemote getPassengerRemote() throws Exception {
+        return (PassengerRemote) Naming.lookup("rmi://localhost/PassengerService");
+    }
 }

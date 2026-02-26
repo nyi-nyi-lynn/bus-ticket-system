@@ -1,6 +1,8 @@
 package com.busticket.dao.impl;
 
 import com.busticket.dao.BookingDAO;
+import com.busticket.dto.RecentBookingDTO;
+import com.busticket.dto.UpcomingTripDTO;
 import com.busticket.enums.BookingStatus;
 import com.busticket.model.Booking;
 
@@ -10,9 +12,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.sql.Date;
+import java.sql.Time;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.StringJoiner;
 
 public class BookingDAOImpl implements BookingDAO {
@@ -281,5 +287,204 @@ public class BookingDAOImpl implements BookingDAO {
             e.printStackTrace();
         }
         return 0;
+    }
+
+    @Override
+    public Map<String, Long> countBookingsByStatus(Long userId) {
+        if (userId == null) {
+            return Map.of();
+        }
+        String sql = """
+            SELECT status, COUNT(*) AS total
+            FROM bookings
+            WHERE user_id = ?
+            GROUP BY status
+        """;
+        Map<String, Long> counts = new HashMap<>();
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setLong(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    counts.put(rs.getString("status"), rs.getLong("total"));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return counts;
+    }
+
+    @Override
+    public long countUpcomingTrips(Long userId) {
+        if (userId == null) {
+            return 0L;
+        }
+        String sql = """
+            SELECT COUNT(*)
+            FROM bookings b
+            JOIN trips t ON t.trip_id = b.trip_id
+            WHERE b.user_id = ?
+              AND b.status = 'CONFIRMED'
+              AND TIMESTAMP(t.travel_date, t.departure_time) > NOW()
+        """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setLong(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getLong(1);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0L;
+    }
+
+    @Override
+    public long countCompletedTrips(Long userId) {
+        if (userId == null) {
+            return 0L;
+        }
+        String sql = """
+            SELECT COUNT(*)
+            FROM bookings b
+            JOIN trips t ON t.trip_id = b.trip_id
+            WHERE b.user_id = ?
+              AND b.status = 'CONFIRMED'
+              AND TIMESTAMP(t.travel_date, t.departure_time) <= NOW()
+        """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setLong(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getLong(1);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0L;
+    }
+
+    @Override
+    public UpcomingTripDTO findNextUpcomingTrip(Long userId) {
+        if (userId == null) {
+            return null;
+        }
+        String sql = """
+            SELECT b.booking_id, b.ticket_code,
+                   r.origin_city, r.destination_city,
+                   t.travel_date, t.departure_time,
+                   bu.bus_number,
+                   GROUP_CONCAT(s.seat_number ORDER BY s.seat_number SEPARATOR ',') AS seat_numbers
+            FROM bookings b
+            JOIN trips t ON t.trip_id = b.trip_id
+            JOIN routes r ON r.route_id = t.route_id
+            JOIN buses bu ON bu.bus_id = t.bus_id
+            LEFT JOIN booking_seat bs ON bs.booking_id = b.booking_id
+            LEFT JOIN seats s ON s.seat_id = bs.seat_id
+            WHERE b.user_id = ?
+              AND b.status = 'CONFIRMED'
+              AND TIMESTAMP(t.travel_date, t.departure_time) > NOW()
+            GROUP BY b.booking_id, b.ticket_code, r.origin_city, r.destination_city,
+                     t.travel_date, t.departure_time, bu.bus_number
+            ORDER BY t.travel_date ASC, t.departure_time ASC
+            LIMIT 1
+        """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setLong(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) {
+                    return null;
+                }
+                UpcomingTripDTO dto = new UpcomingTripDTO();
+                dto.setBookingId(rs.getLong("booking_id"));
+                dto.setBookingCode(rs.getString("ticket_code"));
+                dto.setOriginCity(rs.getString("origin_city"));
+                dto.setDestinationCity(rs.getString("destination_city"));
+                Date travelDate = rs.getDate("travel_date");
+                if (travelDate != null) {
+                    dto.setTravelDate(travelDate.toLocalDate());
+                }
+                Time departureTime = rs.getTime("departure_time");
+                if (departureTime != null) {
+                    dto.setDepartureTime(departureTime.toLocalTime());
+                }
+                dto.setBusNumber(rs.getString("bus_number"));
+                String seats = rs.getString("seat_numbers");
+                if (seats == null || seats.isBlank()) {
+                    dto.setSeatNumbers(List.of());
+                } else {
+                    dto.setSeatNumbers(Arrays.stream(seats.split(","))
+                            .map(String::trim)
+                            .filter(s -> !s.isEmpty())
+                            .toList());
+                }
+                return dto;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public List<RecentBookingDTO> findRecentBookings(Long userId, int limit) {
+        if (userId == null) {
+            return List.of();
+        }
+        String sql = """
+            SELECT b.booking_id, b.ticket_code, b.total_price, b.status,
+                   r.origin_city, r.destination_city,
+                   t.travel_date, t.departure_time,
+                   GROUP_CONCAT(s.seat_number ORDER BY s.seat_number SEPARATOR ',') AS seat_numbers
+            FROM bookings b
+            JOIN trips t ON t.trip_id = b.trip_id
+            JOIN routes r ON r.route_id = t.route_id
+            LEFT JOIN booking_seat bs ON bs.booking_id = b.booking_id
+            LEFT JOIN seats s ON s.seat_id = bs.seat_id
+            WHERE b.user_id = ?
+            GROUP BY b.booking_id, b.ticket_code, b.total_price, b.status,
+                     r.origin_city, r.destination_city, t.travel_date, t.departure_time
+            ORDER BY b.booking_date DESC
+            LIMIT ?
+        """;
+        List<RecentBookingDTO> bookings = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setLong(1, userId);
+            ps.setInt(2, Math.max(1, limit));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    RecentBookingDTO dto = new RecentBookingDTO();
+                    dto.setBookingId(rs.getLong("booking_id"));
+                    dto.setBookingCode(rs.getString("ticket_code"));
+                    dto.setTotalPrice(rs.getDouble("total_price"));
+                    dto.setStatus(rs.getString("status"));
+                    dto.setOriginCity(rs.getString("origin_city"));
+                    dto.setDestinationCity(rs.getString("destination_city"));
+                    Date travelDate = rs.getDate("travel_date");
+                    if (travelDate != null) {
+                        dto.setTravelDate(travelDate.toLocalDate());
+                    }
+                    Time departureTime = rs.getTime("departure_time");
+                    if (departureTime != null) {
+                        dto.setDepartureTime(departureTime.toLocalTime());
+                    }
+                    String seats = rs.getString("seat_numbers");
+                    if (seats == null || seats.isBlank()) {
+                        dto.setSeatNumbers(List.of());
+                    } else {
+                        dto.setSeatNumbers(Arrays.stream(seats.split(","))
+                                .map(String::trim)
+                                .filter(s -> !s.isEmpty())
+                                .toList());
+                    }
+                    bookings.add(dto);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return bookings;
     }
 }
