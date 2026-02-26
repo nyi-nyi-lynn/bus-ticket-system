@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.busticket.controller.admin.TripFormDialogController"
+      spacing="10"
+      prefWidth="450"
+      styleClass="card"
+      stylesheets="@../theme.css"
+      fx:id="dialogRoot">
+    <padding>
+        <Insets top="18" right="18" bottom="18" left="18" />
+    </padding>
+
+    <Label fx:id="titleLabel" text="Add Trip" styleClass="page-title" />
+    <Label fx:id="subtitleLabel" text="Create a new trip schedule." styleClass="page-subtitle" />
+
+    <Label fx:id="formErrorLabel" styleClass="form-error" managed="false" visible="false" wrapText="true" />
+
+    <VBox spacing="4">
+        <Label text="Bus" />
+        <ComboBox fx:id="busCombo" promptText="Select bus" styleClass="field" />
+        <Label fx:id="busErrorLabel" styleClass="field-error" managed="false" visible="false" wrapText="true" />
+    </VBox>
+
+    <VBox spacing="4">
+        <Label text="Route" />
+        <ComboBox fx:id="routeCombo" promptText="Select route" styleClass="field" />
+        <Label fx:id="routeErrorLabel" styleClass="field-error" managed="false" visible="false" wrapText="true" />
+    </VBox>
+
+    <VBox spacing="4">
+        <Label text="Travel Date" />
+        <DatePicker fx:id="travelDatePicker" />
+        <Label fx:id="travelDateErrorLabel" styleClass="field-error" managed="false" visible="false" wrapText="true" />
+    </VBox>
+
+    <HBox spacing="10">
+        <VBox spacing="4" HBox.hgrow="ALWAYS">
+            <Label text="Departure (HH:mm)" />
+            <TextField fx:id="departureTimeField" promptText="08:00" styleClass="field" />
+            <Label fx:id="departureErrorLabel" styleClass="field-error" managed="false" visible="false" wrapText="true" />
+        </VBox>
+        <VBox spacing="4" HBox.hgrow="ALWAYS">
+            <Label text="Arrival (HH:mm)" />
+            <TextField fx:id="arrivalTimeField" promptText="16:30" styleClass="field" />
+            <Label fx:id="arrivalErrorLabel" styleClass="field-error" managed="false" visible="false" wrapText="true" />
+        </VBox>
+    </HBox>
+
+    <VBox spacing="4">
+        <Label text="Price" />
+        <TextField fx:id="priceField" promptText="0.00" styleClass="field" />
+        <Label fx:id="priceErrorLabel" styleClass="field-error" managed="false" visible="false" wrapText="true" />
+    </VBox>
+
+    <VBox spacing="4">
+        <Label text="Status" />
+        <ComboBox fx:id="statusCombo" promptText="Select status" styleClass="field" />
+        <Label fx:id="statusErrorLabel" styleClass="field-error" managed="false" visible="false" wrapText="true" />
+    </VBox>
+
+    <HBox spacing="8" alignment="CENTER_RIGHT" styleClass="dialog-actions">
+        <ProgressIndicator fx:id="progressIndicator" prefHeight="20" prefWidth="20" visible="false" managed="false" />
+        <Region HBox.hgrow="ALWAYS" />
+        <Button text="Cancel" styleClass="ghost-button" onAction="#onCancel" />
+        <Button fx:id="saveButton" text="Create Trip" styleClass="primary-button" onAction="#onSave" />
+    </HBox>
+</VBox>

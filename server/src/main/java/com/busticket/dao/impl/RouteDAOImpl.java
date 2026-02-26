@@ -19,7 +19,7 @@ public class RouteDAOImpl implements RouteDAO {
     }
     @Override
     public boolean save(Route route) {
-        String sql = "INSERT INTO routes(origin_city, destination_city, distance_km, estimated_duration) VALUES (?,?,?,?)";
+        String sql = "INSERT INTO routes(origin_city, destination_city, distance_km, estimated_duration, is_active) VALUES (?,?,?,?,?)";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
@@ -27,6 +27,7 @@ public class RouteDAOImpl implements RouteDAO {
             ps.setString(2, route.getDestinationCity());
             ps.setDouble(3, route.getDistanceKm());
             ps.setString(4, route.getEstimatedDuration());
+            ps.setInt(5, route.isActive() ? 1 : 0);
 
             return ps.executeUpdate() > 0;
 
@@ -39,13 +40,14 @@ public class RouteDAOImpl implements RouteDAO {
 
     @Override
     public boolean update(Route route) {
-        String sql = "UPDATE routes SET origin_city = ?, destination_city = ?, distance_km = ?, estimated_duration = ? WHERE route_id = ?";
+        String sql = "UPDATE routes SET origin_city = ?, destination_city = ?, distance_km = ?, estimated_duration = ?, is_active = ? WHERE route_id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, route.getOriginCity());
             ps.setString(2, route.getDestinationCity());
             ps.setDouble(3, route.getDistanceKm());
             ps.setString(4, route.getEstimatedDuration());
-            ps.setLong(5, route.getRouteId());
+            ps.setInt(5, route.isActive() ? 1 : 0);
+            ps.setLong(6, route.getRouteId());
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -67,7 +69,7 @@ public class RouteDAOImpl implements RouteDAO {
 
     @Override
     public List<Route> findAll() {
-        String sql = "SELECT route_id, origin_city, destination_city, distance_km, estimated_duration FROM routes WHERE is_active = 1 ORDER BY route_id DESC";
+        String sql = "SELECT route_id, origin_city, destination_city, distance_km, estimated_duration, is_active FROM routes ORDER BY route_id DESC";
         List<Route> routes = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -78,6 +80,7 @@ public class RouteDAOImpl implements RouteDAO {
                 route.setDestinationCity(rs.getString("destination_city"));
                 route.setDistanceKm(rs.getDouble("distance_km"));
                 route.setEstimatedDuration(rs.getString("estimated_duration"));
+                route.setActive(rs.getInt("is_active") == 1);
                 routes.add(route);
             }
         } catch (SQLException e) {

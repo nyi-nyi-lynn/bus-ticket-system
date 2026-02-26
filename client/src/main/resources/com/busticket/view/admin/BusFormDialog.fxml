@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.busticket.controller.admin.BusFormDialogController"
+      spacing="10"
+      prefWidth="430"
+      styleClass="card"
+      stylesheets="@../theme.css"
+      fx:id="dialogRoot">
+    <padding>
+        <Insets top="18" right="18" bottom="18" left="18" />
+    </padding>
+
+    <Label fx:id="titleLabel" text="Add Bus" styleClass="page-title" />
+    <Label fx:id="subtitleLabel" text="Create a new bus profile." styleClass="page-subtitle" />
+
+    <Label fx:id="formErrorLabel" styleClass="form-error" managed="false" visible="false" wrapText="true" />
+
+    <VBox spacing="4">
+        <Label text="Bus Number" />
+        <TextField fx:id="busNumberField" promptText="e.g. BUS-001" styleClass="field" />
+        <Label fx:id="busNumberErrorLabel" styleClass="field-error" managed="false" visible="false" wrapText="true" />
+    </VBox>
+
+    <VBox spacing="4">
+        <Label text="Bus Name" />
+        <TextField fx:id="busNameField" promptText="e.g. Golden Express" styleClass="field" />
+        <Label fx:id="busNameErrorLabel" styleClass="field-error" managed="false" visible="false" wrapText="true" />
+    </VBox>
+
+    <VBox spacing="4">
+        <Label text="Total Seats" />
+        <TextField fx:id="totalSeatsField" promptText="Positive integer" styleClass="field" />
+        <Label fx:id="totalSeatsErrorLabel" styleClass="field-error" managed="false" visible="false" wrapText="true" />
+    </VBox>
+
+    <VBox spacing="4">
+        <Label text="Bus Type" />
+        <ComboBox fx:id="busTypeCombo" promptText="Select type" styleClass="field" />
+        <Label fx:id="busTypeErrorLabel" styleClass="field-error" managed="false" visible="false" wrapText="true" />
+    </VBox>
+
+    <VBox spacing="4">
+        <Label text="Status" />
+        <ComboBox fx:id="statusCombo" promptText="Select status" styleClass="field" />
+        <Label fx:id="statusErrorLabel" styleClass="field-error" managed="false" visible="false" wrapText="true" />
+    </VBox>
+
+    <HBox spacing="8" alignment="CENTER_RIGHT" styleClass="dialog-actions">
+        <ProgressIndicator fx:id="progressIndicator" prefHeight="20" prefWidth="20" visible="false" managed="false" />
+        <Region HBox.hgrow="ALWAYS" />
+        <Button text="Cancel" styleClass="ghost-button" onAction="#onCancel" />
+        <Button fx:id="saveButton" text="Create Bus" styleClass="primary-button" onAction="#onSave" />
+    </HBox>
+</VBox>

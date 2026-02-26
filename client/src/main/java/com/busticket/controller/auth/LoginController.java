@@ -7,6 +7,7 @@ import com.busticket.session.Session;
 import com.busticket.util.SceneSwitcher;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -14,9 +15,13 @@ import javafx.scene.control.TextField;
 public class LoginController {
     @FXML private TextField emailField;
     @FXML private PasswordField passwordField;
+    @FXML private TextField passwordVisibleField;
+    @FXML private Button passwordToggleButton;
     @FXML private Hyperlink guestButton;
 
     private UserRemote userRemote;
+    private static final String EYE_ICON = "\uD83D\uDC41";
+    private static final String EYE_SLASH_ICON = "\uD83D\uDC41\u0336";
 
     @FXML
     private void initialize() {
@@ -25,6 +30,12 @@ public class LoginController {
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
+        setupPasswordToggle(passwordField, passwordVisibleField, passwordToggleButton);
+    }
+
+    @FXML
+    private void onTogglePasswordVisibility() {
+        togglePasswordField(passwordField, passwordVisibleField, passwordToggleButton);
     }
 
     @FXML
@@ -82,5 +93,30 @@ public class LoginController {
         alert.setHeaderText(header);
         alert.setContentText(content);
         alert.showAndWait();
+    }
+
+    private void setupPasswordToggle(PasswordField hiddenField, TextField visibleField, Button toggleButton) {
+        visibleField.textProperty().bindBidirectional(hiddenField.textProperty());
+        visibleField.setVisible(false);
+        visibleField.setManaged(false);
+        hiddenField.setVisible(true);
+        hiddenField.setManaged(true);
+        toggleButton.setText("Show " + EYE_ICON);
+    }
+
+    private void togglePasswordField(PasswordField hiddenField, TextField visibleField, Button toggleButton) {
+        boolean isShowing = visibleField.isVisible();
+        visibleField.setVisible(!isShowing);
+        visibleField.setManaged(!isShowing);
+        hiddenField.setVisible(isShowing);
+        hiddenField.setManaged(isShowing);
+        toggleButton.setText(isShowing ? "Show " + EYE_ICON : "Hide " + EYE_SLASH_ICON);
+        if (isShowing) {
+            hiddenField.requestFocus();
+            hiddenField.positionCaret(hiddenField.getText() == null ? 0 : hiddenField.getText().length());
+        } else {
+            visibleField.requestFocus();
+            visibleField.positionCaret(visibleField.getText() == null ? 0 : visibleField.getText().length());
+        }
     }
 }

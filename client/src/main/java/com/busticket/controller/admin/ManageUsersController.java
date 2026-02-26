@@ -4,6 +4,10 @@ import com.busticket.dto.UserDTO;
 import com.busticket.remote.UserRemote;
 import com.busticket.rmi.RMIClient;
 import com.busticket.session.Session;
+import javafx.concurrent.Task;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -13,7 +17,10 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.List;
 import java.util.Locale;
@@ -25,6 +32,7 @@ public class ManageUsersController {
     @FXML private ComboBox<String> statusFilter;
 
     @FXML private TableView<UserDTO> usersTable;
+    @FXML private TableColumn<UserDTO, String> noColumn;
     @FXML private TableColumn<UserDTO, String> nameColumn;
     @FXML private TableColumn<UserDTO, String> emailColumn;
     @FXML private TableColumn<UserDTO, String> phoneColumn;
@@ -57,6 +65,19 @@ public class ManageUsersController {
 
     private void setupTable() {
         usersTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+        noColumn.setCellValueFactory(data -> new ReadOnlyStringWrapper(""));
+        noColumn.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setText(null);
+                    return;
+                }
+                setText(String.valueOf(getIndex() + 1));
+            }
+        });
 
         nameColumn.setCellValueFactory(data -> new ReadOnlyStringWrapper(safeText(data.getValue().getName())));
         emailColumn.setCellValueFactory(data -> new ReadOnlyStringWrapper(safeText(data.getValue().getEmail())));
@@ -176,16 +197,72 @@ public class ManageUsersController {
     }
 
     private void loadUsers() {
-        try {
-            List<UserDTO> users = userRemote.getAllUsers();
+        loadUsers(null);
+    }
+
+    private void loadUsers(Runnable onSuccess) {
+        Task<List<UserDTO>> loadTask = new Task<>() {
+            @Override
+            protected List<UserDTO> call() throws Exception {
+                return userRemote.getAllUsers();
+            }
+        };
+
+        loadTask.setOnSucceeded(event -> {
+            List<UserDTO> users = loadTask.getValue();
             masterData.setAll(users == null ? List.of() : users);
-        } catch (RemoteException ex) {
-            showAlert(Alert.AlertType.ERROR, "Load Failed", "Unable to load users.", ex.getMessage());
-        }
+            applyFilters();
+            if (onSuccess != null) {
+                onSuccess.run();
+            }
+        });
+
+        loadTask.setOnFailed(event ->
+                showAlert(Alert.AlertType.ERROR, "Load Failed", "Unable to load users.", loadTask.getException() == null
+                        ? "Unexpected error."
+                        : loadTask.getException().getMessage()));
+
+        startBackgroundTask(loadTask, "manage-users-load-task");
     }
 
     @FXML
     private void onAddUser() {
+        if (userRemote == null) {
+            showAlert(Alert.AlertType.ERROR, "Unavailable", "User service is unavailable.", "Please reconnect and try again.");
+            return;
+        }
+        if (currentAdminUserId == null) {
+            showAlert(Alert.AlertType.ERROR, "Unauthorized", "You must be logged in as ADMIN.", "Please sign in again.");
+            return;
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/busticket/view/admin/AddUserDialog.fxml"));
+            Parent root = loader.load();
+
+            AddUserDialogController controller = loader.getController();
+            controller.configure(userRemote, currentAdminUserId, createdUser ->
+                    loadUsers(() -> showAlert(
+                            Alert.AlertType.INFORMATION,
+                            "User Created",
+                            "New user created successfully.",
+                            createdUser == null || createdUser.getEmail() == null
+                                    ? "The users list has been refreshed."
+                                    : createdUser.getEmail() + " has been added."
+                    )));
+
+            Stage dialog = new Stage();
+            dialog.setTitle("Add User");
+            dialog.initModality(Modality.APPLICATION_MODAL);
+            if (usersTable.getScene() != null && usersTable.getScene().getWindow() != null) {
+                dialog.initOwner(usersTable.getScene().getWindow());
+            }
+            dialog.setResizable(false);
+            dialog.setScene(new Scene(root));
+            dialog.showAndWait();
+        } catch (IOException ex) {
+            showAlert(Alert.AlertType.ERROR, "Dialog Error", "Unable to open Add User dialog.", ex.getMessage());
+        }
     }
 
     @FXML
@@ -197,6 +274,41 @@ public class ManageUsersController {
     }
 
     private void onEditUser(UserDTO user) {
+        if (user == null) {
+            return;
+        }
+        if (userRemote == null) {
+            showAlert(Alert.AlertType.ERROR, "Unavailable", "User service is unavailable.", "Please reconnect and try again.");
+            return;
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/busticket/view/admin/EditUserDialog.fxml"));
+            Parent root = loader.load();
+
+            EditUserDialogController controller = loader.getController();
+            controller.configure(userRemote, user, updatedUser ->
+                    loadUsers(() -> showAlert(
+                            Alert.AlertType.INFORMATION,
+                            "User Updated",
+                            "User details updated successfully.",
+                            updatedUser == null || updatedUser.getEmail() == null
+                                    ? "The users list has been refreshed."
+                                    : updatedUser.getEmail() + " has been updated."
+                    )));
+
+            Stage dialog = new Stage();
+            dialog.setTitle("Edit User");
+            dialog.initModality(Modality.APPLICATION_MODAL);
+            if (usersTable.getScene() != null && usersTable.getScene().getWindow() != null) {
+                dialog.initOwner(usersTable.getScene().getWindow());
+            }
+            dialog.setResizable(false);
+            dialog.setScene(new Scene(root));
+            dialog.showAndWait();
+        } catch (IOException ex) {
+            showAlert(Alert.AlertType.ERROR, "Dialog Error", "Unable to open Edit User dialog.", ex.getMessage());
+        }
     }
 
     private void onToggleBlock(UserDTO user) {
@@ -283,6 +395,12 @@ public class ManageUsersController {
         alert.setHeaderText(header);
         alert.setContentText(content);
         alert.showAndWait();
+    }
+
+    private void startBackgroundTask(Task<?> task, String threadName) {
+        Thread worker = new Thread(task, threadName);
+        worker.setDaemon(true);
+        worker.start();
     }
 
     private static class BadgeCell extends TableCell<UserDTO, String> {

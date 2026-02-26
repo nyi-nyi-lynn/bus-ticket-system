@@ -22,14 +22,15 @@ public class TripServiceImpl implements TripService {
 
     @Override
     public boolean save(TripDTO dto) {
-        // Validate required fields.
+        if (!isValid(dto, false)) {
+            return false;
+        }
         return tripDAO.save(toModel(dto));
     }
 
     @Override
     public boolean update(TripDTO dto) {
-        // Validate required fields and identifiers.
-        if (dto == null || dto.getTripId() == null) {
+        if (!isValid(dto, true)) {
             return false;
         }
         return tripDAO.update(toModel(dto));
@@ -107,5 +108,31 @@ public class TripServiceImpl implements TripService {
         } catch (IllegalArgumentException ex) {
             return TripStatus.OPEN;
         }
+    }
+
+    private boolean isValid(TripDTO dto, boolean requireId) {
+        if (dto == null) {
+            return false;
+        }
+        if (requireId && dto.getTripId() == null) {
+            return false;
+        }
+        if (dto.getBusId() == null || dto.getBusId() <= 0) {
+            return false;
+        }
+        if (dto.getRouteId() == null || dto.getRouteId() <= 0) {
+            return false;
+        }
+        if (dto.getTravelDate() == null) {
+            return false;
+        }
+        if (dto.getDepartureTime() == null || dto.getArrivalTime() == null) {
+            return false;
+        }
+        if (dto.getPrice() <= 0) {
+            return false;
+        }
+        String status = dto.getStatus() == null ? TripStatus.OPEN.name() : dto.getStatus().trim().toUpperCase(Locale.ROOT);
+        return TripStatus.OPEN.name().equals(status) || TripStatus.CLOSED.name().equals(status);
     }
 }

@@ -10,6 +10,7 @@ public class RouteDTO implements Serializable {
     private String destinationCity;
     private double distanceKm;
     private String estimatedDuration;
+    private String status;
 
     public RouteDTO() {
     }
@@ -60,5 +61,13 @@ public class RouteDTO implements Serializable {
 
     public void setEstimatedDuration(String estimatedDuration) {
         this.estimatedDuration = estimatedDuration;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

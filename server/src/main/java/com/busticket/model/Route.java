@@ -6,6 +6,7 @@ public class Route {
     private String destinationCity;
     private double distanceKm;
     private String estimatedDuration;
+    private boolean active = true;
 
     public Long getRouteId() {
         return routeId;
@@ -45,5 +46,13 @@ public class Route {
 
     public void setEstimatedDuration(String estimatedDuration) {
         this.estimatedDuration = estimatedDuration;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }

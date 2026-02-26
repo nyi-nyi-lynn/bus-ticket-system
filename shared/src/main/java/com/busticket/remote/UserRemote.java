@@ -1,6 +1,9 @@
 package com.busticket.remote;
 
+import com.busticket.dto.CreateUserRequest;
 import com.busticket.dto.UserDTO;
+import com.busticket.exception.DuplicateResourceException;
+import com.busticket.exception.ValidationException;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -18,4 +21,7 @@ public interface UserRemote extends Remote {
     boolean deactivateUser(Long userId) throws RemoteException;
 
     List<UserDTO> getAllUsers() throws RemoteException;
+
+    UserDTO createUser(CreateUserRequest request)
+            throws DuplicateResourceException, ValidationException, RemoteException;
 }

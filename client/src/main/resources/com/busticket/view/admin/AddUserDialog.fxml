@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.busticket.controller.admin.AddUserDialogController"
+      spacing="10"
+      prefWidth="430"
+      styleClass="card"
+      stylesheets="@../theme.css"
+      fx:id="dialogRoot">
+    <padding>
+        <Insets top="18" right="18" bottom="18" left="18" />
+    </padding>
+
+    <Label text="Add User" styleClass="page-title" />
+    <Label text="Create a new system user account." styleClass="page-subtitle" />
+
+    <Label fx:id="formErrorLabel" styleClass="form-error" managed="false" visible="false" wrapText="true" />
+
+    <VBox spacing="4">
+        <Label text="Name" />
+        <TextField fx:id="nameField" promptText="Full name" styleClass="field" />
+        <Label fx:id="nameErrorLabel" styleClass="field-error" managed="false" visible="false" wrapText="true" />
+    </VBox>
+
+    <VBox spacing="4">
+        <Label text="Email" />
+        <TextField fx:id="emailField" promptText="user@domain.com" styleClass="field" />
+        <Label fx:id="emailErrorLabel" styleClass="field-error" managed="false" visible="false" wrapText="true" />
+    </VBox>
+
+    <VBox spacing="4">
+        <Label text="Phone" />
+        <TextField fx:id="phoneField" promptText="Phone number" styleClass="field" />
+        <Label fx:id="phoneErrorLabel" styleClass="field-error" managed="false" visible="false" wrapText="true" />
+    </VBox>
+
+    <VBox spacing="4">
+        <Label text="Role" />
+        <ComboBox fx:id="roleCombo" promptText="Select role" styleClass="field" />
+        <Label fx:id="roleErrorLabel" styleClass="field-error" managed="false" visible="false" wrapText="true" />
+    </VBox>
+
+    <VBox spacing="4">
+        <Label text="Status" />
+        <ComboBox fx:id="statusCombo" promptText="Select status" styleClass="field" />
+        <Label fx:id="statusErrorLabel" styleClass="field-error" managed="false" visible="false" wrapText="true" />
+    </VBox>
+
+    <VBox spacing="4">
+        <Label text="Password" />
+        <HBox spacing="8" alignment="CENTER_LEFT">
+            <StackPane HBox.hgrow="ALWAYS" styleClass="password-field-stack">
+                <PasswordField fx:id="passwordField" promptText="Minimum 8 characters" styleClass="field" maxWidth="1.7976931348623157E308" />
+                <TextField fx:id="passwordVisibleField" promptText="Minimum 8 characters" styleClass="field" maxWidth="1.7976931348623157E308" visible="false" managed="false" />
+            </StackPane>
+            <Button fx:id="passwordToggleButton" text="Show" styleClass="password-toggle-button" onAction="#onTogglePasswordVisibility" />
+        </HBox>
+        <Label fx:id="passwordErrorLabel" styleClass="field-error" managed="false" visible="false" wrapText="true" />
+    </VBox>
+
+    <VBox spacing="4">
+        <Label text="Confirm Password" />
+        <HBox spacing="8" alignment="CENTER_LEFT">
+            <StackPane HBox.hgrow="ALWAYS" styleClass="password-field-stack">
+                <PasswordField fx:id="confirmPasswordField" promptText="Retype password" styleClass="field" maxWidth="1.7976931348623157E308" />
+                <TextField fx:id="confirmPasswordVisibleField" promptText="Retype password" styleClass="field" maxWidth="1.7976931348623157E308" visible="false" managed="false" />
+            </StackPane>
+            <Button fx:id="confirmPasswordToggleButton" text="Show" styleClass="password-toggle-button" onAction="#onToggleConfirmPasswordVisibility" />
+        </HBox>
+        <Label fx:id="confirmPasswordErrorLabel" styleClass="field-error" managed="false" visible="false" wrapText="true" />
+    </VBox>
+
+    <HBox spacing="8" alignment="CENTER_RIGHT" styleClass="dialog-actions">
+        <ProgressIndicator fx:id="progressIndicator" prefHeight="20" prefWidth="20" visible="false" managed="false" />
+        <Region HBox.hgrow="ALWAYS" />
+        <Button text="Cancel" styleClass="ghost-button" onAction="#onCancel" />
+        <Button fx:id="createUserButton" text="Create User" styleClass="primary-button" onAction="#onCreateUser" />
+    </HBox>
+</VBox>

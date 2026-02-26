@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.busticket.controller.admin.RouteFormDialogController"
+      spacing="10"
+      prefWidth="430"
+      styleClass="card"
+      stylesheets="@../theme.css"
+      fx:id="dialogRoot">
+    <padding>
+        <Insets top="18" right="18" bottom="18" left="18" />
+    </padding>
+
+    <Label fx:id="titleLabel" text="Add Route" styleClass="page-title" />
+    <Label fx:id="subtitleLabel" text="Create a new route profile." styleClass="page-subtitle" />
+
+    <Label fx:id="formErrorLabel" styleClass="form-error" managed="false" visible="false" wrapText="true" />
+
+    <VBox spacing="4">
+        <Label text="Origin City" />
+        <TextField fx:id="originField" promptText="e.g. Yangon" styleClass="field" />
+        <Label fx:id="originErrorLabel" styleClass="field-error" managed="false" visible="false" wrapText="true" />
+    </VBox>
+
+    <VBox spacing="4">
+        <Label text="Destination City" />
+        <TextField fx:id="destinationField" promptText="e.g. Mandalay" styleClass="field" />
+        <Label fx:id="destinationErrorLabel" styleClass="field-error" managed="false" visible="false" wrapText="true" />
+    </VBox>
+
+    <VBox spacing="4">
+        <Label text="Distance (km)" />
+        <TextField fx:id="distanceField" promptText="e.g. 620.0" styleClass="field" />
+        <Label fx:id="distanceErrorLabel" styleClass="field-error" managed="false" visible="false" wrapText="true" />
+    </VBox>
+
+    <VBox spacing="4">
+        <Label text="Estimated Duration" />
+        <TextField fx:id="durationField" promptText="e.g. 8h 30m" styleClass="field" />
+        <Label fx:id="durationErrorLabel" styleClass="field-error" managed="false" visible="false" wrapText="true" />
+    </VBox>
+
+    <VBox spacing="4">
+        <Label text="Status" />
+        <ComboBox fx:id="statusCombo" promptText="Select status" styleClass="field" />
+        <Label fx:id="statusErrorLabel" styleClass="field-error" managed="false" visible="false" wrapText="true" />
+    </VBox>
+
+    <HBox spacing="8" alignment="CENTER_RIGHT" styleClass="dialog-actions">
+        <ProgressIndicator fx:id="progressIndicator" prefHeight="20" prefWidth="20" visible="false" managed="false" />
+        <Region HBox.hgrow="ALWAYS" />
+        <Button text="Cancel" styleClass="ghost-button" onAction="#onCancel" />
+        <Button fx:id="saveButton" text="Create Route" styleClass="primary-button" onAction="#onSave" />
+    </HBox>
+</VBox>

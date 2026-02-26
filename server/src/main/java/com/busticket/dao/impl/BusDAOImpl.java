@@ -2,11 +2,14 @@ package com.busticket.dao.impl;
 
 import com.busticket.dao.BusDAO;
 import com.busticket.enums.BusType;
+import com.busticket.exception.DuplicateResourceException;
 import com.busticket.model.Bus;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -14,54 +17,197 @@ import java.util.List;
 
 public class BusDAOImpl implements BusDAO {
     private final Connection connection;
+    private volatile Boolean hasBusNameColumnCache;
 
     public BusDAOImpl(Connection connection) {
         this.connection = connection;
     }
 
     @Override
-    public boolean save(Bus bus) {
-        String sql = "INSERT INTO buses(bus_number, type, total_seats) VALUES(?,?,?)";
-
-        try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-
-            ps.setString(1, bus.getBusNumber());
-            ps.setString(2, bus.getType().name());
-            ps.setInt(3, bus.getTotalSeats());
-
-            int affected = ps.executeUpdate();
-            if (affected == 0) {
-                return false;
+    public boolean existsByBusNumber(String busNumber) {
+        String sql = "SELECT 1 FROM buses WHERE bus_number = ? LIMIT 1";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, busNumber);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
-            try (ResultSet rs = ps.getGeneratedKeys()) {
+    @Override
+    public boolean existsByBusNumberExceptId(String busNumber, Long busId) {
+        String sql = "SELECT 1 FROM buses WHERE bus_number = ? AND bus_id <> ? LIMIT 1";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, busNumber);
+            ps.setLong(2, busId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public Bus findById(Long busId) {
+        String sql = hasBusNameColumn()
+                ? "SELECT bus_id, bus_number, bus_name, type, total_seats, is_active FROM buses WHERE bus_id = ?"
+                : "SELECT bus_id, bus_number, bus_number AS bus_name, type, total_seats, is_active FROM buses WHERE bus_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setLong(1, busId);
+            try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    generateSeats(rs.getLong(1), bus.getTotalSeats());
+                    return mapBus(rs);
                 }
             }
-
-            return true;
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return null;
+    }
 
-        return false;
+    @Override
+    public boolean hasTrips(Long busId) {
+        String sql = "SELECT 1 FROM trips WHERE bus_id = ? LIMIT 1";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setLong(1, busId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public Bus insert(Bus bus) throws DuplicateResourceException {
+        String sql = hasBusNameColumn()
+                ? "INSERT INTO buses(bus_number, bus_name, type, total_seats, is_active) VALUES(?,?,?,?,?)"
+                : "INSERT INTO buses(bus_number, type, total_seats, is_active) VALUES(?,?,?,?)";
+        try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, bus.getBusNumber());
+            int index = 2;
+            if (hasBusNameColumn()) {
+                ps.setString(index++, bus.getBusName());
+            }
+            ps.setString(index++, bus.getType().name());
+            ps.setInt(index++, bus.getTotalSeats());
+            ps.setInt(index, bus.isActive() ? 1 : 0);
+
+            int affected = ps.executeUpdate();
+            if (affected == 0) {
+                return null;
+            }
+
+            Long busId = null;
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                if (keys.next()) {
+                    busId = keys.getLong(1);
+                }
+            }
+            if (busId != null) {
+                generateSeats(busId, bus.getTotalSeats());
+                return findById(busId);
+            }
+            return null;
+        } catch (SQLIntegrityConstraintViolationException ex) {
+            throw new DuplicateResourceException("BUS_NUMBER_EXISTS");
+        } catch (SQLException ex) {
+            if ("23000".equals(ex.getSQLState())) {
+                throw new DuplicateResourceException("BUS_NUMBER_EXISTS");
+            }
+            throw new RuntimeException("Failed to insert bus.", ex);
+        }
+    }
+
+    @Override
+    public Bus updateRecord(Bus bus) throws DuplicateResourceException {
+        String sql = hasBusNameColumn()
+                ? "UPDATE buses SET bus_number = ?, bus_name = ?, type = ?, total_seats = ?, is_active = ? WHERE bus_id = ?"
+                : "UPDATE buses SET bus_number = ?, type = ?, total_seats = ?, is_active = ? WHERE bus_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, bus.getBusNumber());
+            int index = 2;
+            if (hasBusNameColumn()) {
+                ps.setString(index++, bus.getBusName());
+            }
+            ps.setString(index++, bus.getType().name());
+            ps.setInt(index++, bus.getTotalSeats());
+            ps.setInt(index++, bus.isActive() ? 1 : 0);
+            ps.setLong(index, bus.getBusId());
+
+            int affected = ps.executeUpdate();
+            if (affected <= 0) {
+                return null;
+            }
+            return findById(bus.getBusId());
+        } catch (SQLIntegrityConstraintViolationException ex) {
+            throw new DuplicateResourceException("BUS_NUMBER_EXISTS");
+        } catch (SQLException ex) {
+            if ("23000".equals(ex.getSQLState())) {
+                throw new DuplicateResourceException("BUS_NUMBER_EXISTS");
+            }
+            throw new RuntimeException("Failed to update bus.", ex);
+        }
+    }
+
+    @Override
+    public boolean deleteById(Long id) {
+        try {
+            connection.setAutoCommit(false);
+            try (PreparedStatement deleteSeats = connection.prepareStatement("DELETE FROM seats WHERE bus_id = ?")) {
+                deleteSeats.setLong(1, id);
+                deleteSeats.executeUpdate();
+            }
+            int affected;
+            try (PreparedStatement deleteBus = connection.prepareStatement("DELETE FROM buses WHERE bus_id = ?")) {
+                deleteBus.setLong(1, id);
+                affected = deleteBus.executeUpdate();
+            }
+            connection.commit();
+            return affected > 0;
+        } catch (SQLException ex) {
+            try {
+                connection.rollback();
+            } catch (SQLException ignored) {
+            }
+            ex.printStackTrace();
+            return false;
+        } finally {
+            try {
+                connection.setAutoCommit(true);
+            } catch (SQLException ignored) {
+            }
+        }
+    }
+
+    @Override
+    public boolean save(Bus bus) {
+        try {
+            return insert(bus) != null;
+        } catch (DuplicateResourceException ex) {
+            return false;
+        } catch (RuntimeException ex) {
+            ex.printStackTrace();
+            return false;
+        }
     }
 
     @Override
     public boolean update(Bus bus) {
-        String sql = "UPDATE buses SET bus_number = ?, type = ?, total_seats = ? WHERE bus_id = ?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, bus.getBusNumber());
-            ps.setString(2, bus.getType().name());
-            ps.setInt(3, bus.getTotalSeats());
-            ps.setLong(4, bus.getBusId());
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
+        try {
+            return updateRecord(bus) != null;
+        } catch (DuplicateResourceException ex) {
+            return false;
+        } catch (RuntimeException ex) {
+            ex.printStackTrace();
+            return false;
         }
-        return false;
     }
 
     @Override
@@ -78,17 +224,14 @@ public class BusDAOImpl implements BusDAO {
 
     @Override
     public List<Bus> findAll() {
-        String sql = "SELECT bus_id, bus_number, type, total_seats FROM buses WHERE is_active = 1 ORDER BY bus_id DESC";
+        String sql = hasBusNameColumn()
+                ? "SELECT bus_id, bus_number, bus_name, type, total_seats, is_active FROM buses ORDER BY bus_id DESC"
+                : "SELECT bus_id, bus_number, bus_number AS bus_name, type, total_seats, is_active FROM buses ORDER BY bus_id DESC";
         List<Bus> buses = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
-                Bus bus = new Bus();
-                bus.setBusId(rs.getLong("bus_id"));
-                bus.setBusNumber(rs.getString("bus_number"));
-                bus.setType(BusType.valueOf(rs.getString("type")));
-                bus.setTotalSeats(rs.getInt("total_seats"));
-                buses.add(bus);
+                buses.add(mapBus(rs));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -96,31 +239,58 @@ public class BusDAOImpl implements BusDAO {
         return buses;
     }
 
+    private Bus mapBus(ResultSet rs) throws SQLException {
+        Bus bus = new Bus();
+        bus.setBusId(rs.getLong("bus_id"));
+        bus.setBusNumber(rs.getString("bus_number"));
+        bus.setBusName(rs.getString("bus_name"));
+        String typeValue = rs.getString("type");
+        try {
+            bus.setType(BusType.valueOf(typeValue));
+        } catch (IllegalArgumentException ex) {
+            bus.setType(BusType.NORMAL);
+        }
+        bus.setTotalSeats(rs.getInt("total_seats"));
+        bus.setActive(rs.getInt("is_active") == 1);
+        return bus;
+    }
 
-    /**
-     * Helper Methods
-     */
+    private boolean hasBusNameColumn() {
+        if (hasBusNameColumnCache != null) {
+            return hasBusNameColumnCache;
+        }
+        synchronized (this) {
+            if (hasBusNameColumnCache != null) {
+                return hasBusNameColumnCache;
+            }
+            try {
+                DatabaseMetaData metaData = connection.getMetaData();
+                try (ResultSet rs = metaData.getColumns(connection.getCatalog(), null, "buses", "bus_name")) {
+                    if (rs.next()) {
+                        hasBusNameColumnCache = true;
+                        return true;
+                    }
+                }
+                try (ResultSet rs = metaData.getColumns(connection.getCatalog(), null, "BUSES", "BUS_NAME")) {
+                    hasBusNameColumnCache = rs.next();
+                    return hasBusNameColumnCache;
+                }
+            } catch (SQLException ex) {
+                hasBusNameColumnCache = false;
+                return false;
+            }
+        }
+    }
 
-    /**
-     * Auto Generate seat with bus id
-     * @param busId
-     * @param totalSeats
-     */
     private void generateSeats(Long busId, int totalSeats) {
-
-        String sql = "INSERT INTO seats(bus_id, seat_number) VALUES(?,?)";
-
+        String sql = "INSERT INTO seats(bus_id, seat_number) VALUES(?, ?)";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-
-            for(int i = 1; i <= totalSeats; i++) {
-
+            for (int i = 1; i <= totalSeats; i++) {
                 ps.setLong(1, busId);
                 ps.setString(2, "S" + i);
                 ps.addBatch();
             }
-
             ps.executeBatch();
-
         } catch (SQLException e) {
             e.printStackTrace();
         }

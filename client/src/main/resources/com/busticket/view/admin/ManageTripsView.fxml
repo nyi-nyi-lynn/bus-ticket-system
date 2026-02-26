@@ -1,31 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.busticket.controller.admin.ManageTripsController" spacing="16" stylesheets="@../theme.css">
-    <HBox spacing="10" alignment="CENTER_LEFT">
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.busticket.controller.admin.ManageTripsController"
+      spacing="16"
+      maxWidth="1.7976931348623157E308"
+      stylesheets="@../theme.css">
+    <padding>
+        <Insets top="16" right="16" bottom="16" left="16" />
+    </padding>
+
+    <HBox spacing="12" alignment="CENTER_LEFT">
         <Label text="Manage Trips" styleClass="page-title" />
+        <Region HBox.hgrow="ALWAYS" />
+        <Button text="+ Add Trip" styleClass="primary-button" onAction="#onAddTrip" />
     </HBox>
-    <VBox styleClass="card" spacing="12">
-        <TableView fx:id="tripsTable" prefHeight="420">
-            <columns>
-                <TableColumn fx:id="colTripId" text="ID" />
-                <TableColumn fx:id="colRoute" text="Route" />
-                <TableColumn fx:id="colBus" text="Bus" />
-                <TableColumn fx:id="colDeparture" text="Departure" />
-                <TableColumn fx:id="colStatus" text="Status" />
-            </columns>
-        </TableView>
-        <HBox spacing="10">
-            <Button fx:id="addButton" text="Add" onAction="#onAdd" styleClass="primary-button" />
-            <Button fx:id="updateButton" text="Update" onAction="#onUpdate" styleClass="ghost-button" />
-            <Button fx:id="blockButton" text="Block" onAction="#onBlock" styleClass="ghost-button" />
-        </HBox>
-    </VBox>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <TextField fx:id="globalSearchField" promptText="Search all..." HBox.hgrow="ALWAYS" />
+        <ComboBox fx:id="statusFilter" prefWidth="140" />
+        <Button text="Reset" styleClass="ghost-button" onAction="#onResetFilters" />
+    </HBox>
+
+    <TableView fx:id="tripsTable" VBox.vgrow="ALWAYS" maxWidth="1.7976931348623157E308">
+        <columns>
+            <TableColumn fx:id="noColumn" text="No." />
+            <TableColumn fx:id="routeColumn" text="Route" />
+            <TableColumn fx:id="busColumn" text="Bus" />
+            <TableColumn fx:id="travelDateColumn" text="Travel Date" />
+            <TableColumn fx:id="departureColumn" text="Departure" />
+            <TableColumn fx:id="arrivalColumn" text="Arrival" />
+            <TableColumn fx:id="priceColumn" text="Price" />
+            <TableColumn fx:id="statusColumn" text="Status" />
+            <TableColumn fx:id="actionsColumn" text="Actions" sortable="false" />
+        </columns>
+    </TableView>
 </VBox>
 

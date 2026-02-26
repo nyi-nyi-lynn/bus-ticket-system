@@ -17,6 +17,7 @@ public class RMIServer {
         Naming.rebind("rmi://localhost/BookingService", new BookingRemoteImpl());
         Naming.rebind("rmi://localhost/PaymentService", new PaymentRemoteImpl());
         Naming.rebind("rmi://localhost/TicketService", new TicketRemoteImpl());
+        Naming.rebind("rmi://localhost/ReportService", new ReportRemoteImpl());
 
         new BookingExpiryJob(new BookingServiceImpl(), 20).start();
 

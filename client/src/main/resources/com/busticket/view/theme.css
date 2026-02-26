@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿/* Theme: Fluent-inspired */
+﻿﻿﻿﻿﻿﻿﻿﻿/* Theme: Fluent-inspired */
 .root {
     -fx-font-family: "Segoe UI", "Poppins", "Arial";
     -fx-base: #f6f7fb;
@@ -92,6 +92,30 @@
     -fx-background-radius: 16;
     -fx-padding: 20;
     -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.12), 18, 0.2, 0, 6);
+}
+
+.kpi-card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 16;
+    -fx-padding: 16 18;
+    -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.08), 16, 0.2, 0, 4);
+}
+
+.kpi-title {
+    -fx-text-fill: #64748b;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+}
+
+.kpi-value {
+    -fx-text-fill: #0f172a;
+    -fx-font-size: 20px;
+    -fx-font-weight: 700;
+}
+
+.kpi-subtitle {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 11px;
 }
 
 .field {
@@ -198,6 +222,56 @@
     -fx-font-size: 12px;
 }
 
+.badge-role {
+    -fx-background-color: #e0f2fe;
+    -fx-text-fill: #075985;
+}
+
+.badge-status {
+    -fx-background-color: #ecfeff;
+    -fx-text-fill: #0f766e;
+}
+
+.badge-status-pill {
+    -fx-font-weight: 700;
+}
+
+.badge-status-active {
+    -fx-background-color: #dcfce7;
+    -fx-text-fill: #166534;
+}
+
+.badge-status-inactive {
+    -fx-background-color: #fee2e2;
+    -fx-text-fill: #991b1b;
+}
+
+.action-button {
+    -fx-background-color: #eff6ff;
+    -fx-text-fill: #1d4ed8;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #bfdbfe;
+    -fx-padding: 6 10;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+}
+
+.action-button:hover {
+    -fx-background-color: #dbeafe;
+}
+
+.action-button-danger {
+    -fx-background-color: #fef2f2;
+    -fx-text-fill: #b91c1c;
+    -fx-border-color: #fecaca;
+}
+
+.action-button-danger:hover {
+    -fx-background-color: #fee2e2;
+}
+
 .link-button {
     -fx-background-color: transparent;
     -fx-text-fill: #2f6bff;
@@ -249,6 +323,14 @@
     -fx-pref-width: 0;
     -fx-max-width: 0;
     -fx-padding: 0;
+}
+
+.report-table-scroll {
+    -fx-background-color: transparent;
+}
+
+.report-table-scroll > .viewport {
+    -fx-background-color: transparent;
 }
 
 /* ADDED: MyBookings scroll pane background and scrollbar hidden */
@@ -451,4 +533,40 @@
 .ticket-field-title {
     -fx-font-weight: 600;
     -fx-text-fill: #334155;
+}
+
+.field-error {
+    -fx-text-fill: #c81e1e;
+    -fx-font-size: 12px;
+}
+
+.form-error {
+    -fx-text-fill: #9f1239;
+    -fx-background-color: #ffe4e6;
+    -fx-background-radius: 8;
+    -fx-padding: 8 10;
+}
+
+.dialog-actions {
+    -fx-padding: 6 0 0 0;
+}
+
+.password-field-stack {
+    -fx-alignment: CENTER_LEFT;
+}
+
+.password-toggle-button {
+    -fx-background-color: #eef2ff;
+    -fx-text-fill: #1e40af;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-color: #c7d2fe;
+    -fx-padding: 8 10;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+}
+
+.password-toggle-button:hover {
+    -fx-background-color: #e0e7ff;
 }

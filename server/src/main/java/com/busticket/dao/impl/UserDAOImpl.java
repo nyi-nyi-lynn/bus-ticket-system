@@ -3,12 +3,15 @@ package com.busticket.dao.impl;
 import com.busticket.dao.UserDAO;
 import com.busticket.enums.Role;
 import com.busticket.enums.UserStatus;
+import com.busticket.exception.DuplicateResourceException;
 import com.busticket.model.User;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,20 +56,76 @@ public class UserDAOImpl implements UserDAO {
     }
 
     @Override
-    public boolean save(User user) {
-        String sql = "INSERT INTO users(name, email, password, phone, role, status) VALUES(?,?,?,?,?,?)";
+    public boolean existsByEmail(String email) {
+        String sql = "SELECT 1 FROM users WHERE email = ? LIMIT 1";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, email);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean existsByEmailExcludingUserId(Long userId, String email) {
+        String sql = "SELECT 1 FROM users WHERE email = ? AND user_id <> ? LIMIT 1";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, email);
+            ps.setLong(2, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public User insert(User user) throws DuplicateResourceException {
+        String sql = "INSERT INTO users(name, email, password, phone, role, status) VALUES(?,?,?,?,?,?)";
+        try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, user.getName());
             ps.setString(2, user.getEmail());
             ps.setString(3, user.getPassword());
             ps.setString(4, user.getPhone());
             ps.setString(5, user.getRole().name());
             ps.setString(6, user.getStatus().name());
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
+
+            int affected = ps.executeUpdate();
+            if (affected == 0) {
+                return null;
+            }
+
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                if (keys.next()) {
+                    return findById(keys.getLong(1));
+                }
+            }
+            return findByEmail(user.getEmail());
+        } catch (SQLIntegrityConstraintViolationException ex) {
+            throw new DuplicateResourceException("EMAIL_EXISTS");
+        } catch (SQLException ex) {
+            if ("23000".equals(ex.getSQLState())) {
+                throw new DuplicateResourceException("EMAIL_EXISTS");
+            }
+            throw new RuntimeException("Failed to insert user.", ex);
         }
-        return false;
+    }
+
+    @Override
+    public boolean save(User user) {
+        try {
+            return insert(user) != null;
+        } catch (DuplicateResourceException ex) {
+            return false;
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     @Override
