@@ -40,4 +40,8 @@ public class RMIClient {
     public static ReportRemote getReportRemote() throws Exception {
         return (ReportRemote) Naming.lookup("rmi://localhost/ReportService");
     }
+
+    public static DashboardRemote getDashboardRemote() throws Exception {
+        return (DashboardRemote) Naming.lookup("rmi://localhost/DashboardService");
+    }
 }

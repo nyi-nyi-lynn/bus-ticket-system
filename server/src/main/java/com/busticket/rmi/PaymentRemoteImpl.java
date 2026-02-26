@@ -12,7 +12,7 @@ public class PaymentRemoteImpl extends UnicastRemoteObject implements PaymentRem
     public PaymentRemoteImpl() throws RemoteException{
     }
 
-    // FIXED
+
     private PaymentService paymentService() {
         return new PaymentServiceImpl();
     }

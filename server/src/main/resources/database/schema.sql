@@ -102,6 +102,7 @@ CREATE INDEX idx_bookings_user_id ON bookings (user_id);
 CREATE INDEX idx_bookings_trip_id ON bookings (trip_id);
 CREATE INDEX idx_booking_seat_seat_id ON booking_seat (seat_id);
 CREATE INDEX idx_bookings_status_date ON bookings (status, booking_date);
+CREATE INDEX idx_payments_paid_at ON payments (paid_at);
 
 INSERT INTO users(name, email, password, phone, role, status)
 SELECT 'System Admin', 'admin@busticket.com', SHA2('admin123', 256), '0000000000', 'ADMIN', 'ACTIVE'

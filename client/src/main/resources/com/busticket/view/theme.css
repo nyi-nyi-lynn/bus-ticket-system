@@ -570,3 +570,25 @@
 .password-toggle-button:hover {
     -fx-background-color: #e0e7ff;
 }
+
+.dashboard-scroll {
+    -fx-background-color: transparent;
+}
+
+.dashboard-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.loading-overlay {
+    -fx-background-color: rgba(246, 247, 251, 0.75);
+    -fx-alignment: center;
+}
+
+.alert-item {
+    -fx-background-color: #fff7ed;
+    -fx-text-fill: #9a3412;
+    -fx-background-radius: 10;
+    -fx-padding: 8 12;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+}
