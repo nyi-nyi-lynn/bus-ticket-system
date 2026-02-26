@@ -144,7 +144,7 @@ public class AppShellController {
     @FXML
     private void onProfile() {
         setActiveNav(navProfile);
-        SceneSwitcher.switchContent("/com/busticket/view/passenger/ProfileView.fxml");
+        SceneSwitcher.switchContent("/com/busticket/view/passenger/PassengerProfile.fxml");
     }
 
     @FXML

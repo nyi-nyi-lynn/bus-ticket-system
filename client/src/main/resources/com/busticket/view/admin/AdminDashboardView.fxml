@@ -11,13 +11,15 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.busticket.controller.admin.AdminDashboardController" stylesheets="@../theme.css">
+<StackPane stylesheets="@../theme.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.busticket.controller.admin.AdminDashboardController">
     <ScrollPane fitToWidth="true" styleClass="dashboard-scroll">
         <content>
             <VBox spacing="16">
@@ -25,48 +27,59 @@
                     <Insets bottom="6" left="4" right="4" top="4" />
                 </padding>
                 <HBox alignment="CENTER_LEFT" spacing="12">
-                    <Label text="Admin Dashboard" styleClass="page-title" />
+                    <Label styleClass="page-title" text="Admin Dashboard" />
                     <Region HBox.hgrow="ALWAYS" />
                     <Label fx:id="generatedAtLabel" styleClass="page-subtitle" text="-" />
-                    <Button fx:id="refreshButton" text="Refresh" onAction="#onRefresh" styleClass="primary-button" />
+                    <Button fx:id="refreshButton" onAction="#onRefresh" styleClass="primary-button" text="Refresh" />
                 </HBox>
 
                 <GridPane hgap="12" vgap="12">
-                    <VBox styleClass="kpi-card" spacing="6">
-                        <Label fx:id="kpiTitle1" text="Total Revenue (Today)" styleClass="kpi-title" />
-                        <Label fx:id="kpiValue1" text="-" styleClass="kpi-value" />
-                        <Label fx:id="kpiSubtitle1" text="Paid revenue" styleClass="kpi-subtitle" />
+                    <VBox spacing="6" styleClass="kpi-card">
+                        <Label fx:id="kpiTitle1" styleClass="kpi-title" text="Total Revenue (Today)" />
+                        <Label fx:id="kpiValue1" styleClass="kpi-value" text="-" />
+                        <Label fx:id="kpiSubtitle1" styleClass="kpi-subtitle" text="Paid revenue" />
                     </VBox>
-                    <VBox styleClass="kpi-card" spacing="6" GridPane.columnIndex="1">
-                        <Label fx:id="kpiTitle2" text="Total Revenue (This Month)" styleClass="kpi-title" />
-                        <Label fx:id="kpiValue2" text="-" styleClass="kpi-value" />
-                        <Label fx:id="kpiSubtitle2" text="Paid revenue" styleClass="kpi-subtitle" />
+                    <VBox spacing="6" styleClass="kpi-card" GridPane.columnIndex="1">
+                        <Label fx:id="kpiTitle2" styleClass="kpi-title" text="Total Revenue (This Month)" />
+                        <Label fx:id="kpiValue2" styleClass="kpi-value" text="-" />
+                        <Label fx:id="kpiSubtitle2" styleClass="kpi-subtitle" text="Paid revenue" />
                     </VBox>
-                    <VBox styleClass="kpi-card" spacing="6" GridPane.columnIndex="2">
-                        <Label fx:id="kpiTitle3" text="Total Bookings (Today)" styleClass="kpi-title" />
-                        <Label fx:id="kpiValue3" text="-" styleClass="kpi-value" />
-                        <Label fx:id="kpiSubtitle3" text="All statuses" styleClass="kpi-subtitle" />
+                    <VBox spacing="6" styleClass="kpi-card" GridPane.columnIndex="2">
+                        <Label fx:id="kpiTitle3" styleClass="kpi-title" text="Total Bookings (Today)" />
+                        <Label fx:id="kpiValue3" styleClass="kpi-value" text="-" />
+                        <Label fx:id="kpiSubtitle3" styleClass="kpi-subtitle" text="All statuses" />
                     </VBox>
-                    <VBox styleClass="kpi-card" spacing="6" GridPane.columnIndex="3">
-                        <Label fx:id="kpiTitle4" text="Active Trips" styleClass="kpi-title" />
-                        <Label fx:id="kpiValue4" text="-" styleClass="kpi-value" />
-                        <Label fx:id="kpiSubtitle4" text="Open trips" styleClass="kpi-subtitle" />
+                    <VBox prefHeight="110.0" prefWidth="135.0" spacing="6" styleClass="kpi-card" GridPane.columnIndex="3">
+                        <Label fx:id="kpiTitle4" styleClass="kpi-title" text="Active Trips" />
+                        <Label fx:id="kpiValue4" styleClass="kpi-value" text="-" />
+                        <Label fx:id="kpiSubtitle4" styleClass="kpi-subtitle" text="Open trips" />
                     </VBox>
-                    <VBox styleClass="kpi-card" spacing="6" GridPane.columnIndex="4">
-                        <Label fx:id="kpiTitle5" text="Active Buses" styleClass="kpi-title" />
-                        <Label fx:id="kpiValue5" text="-" styleClass="kpi-value" />
-                        <Label fx:id="kpiSubtitle5" text="In service" styleClass="kpi-subtitle" />
+                    <VBox prefHeight="110.0" prefWidth="121.0" spacing="6" styleClass="kpi-card" GridPane.columnIndex="4">
+                        <Label fx:id="kpiTitle5" styleClass="kpi-title" text="Active Buses" />
+                        <Label fx:id="kpiValue5" styleClass="kpi-value" text="-" />
+                        <Label fx:id="kpiSubtitle5" styleClass="kpi-subtitle" text="In service" />
                     </VBox>
-                    <VBox styleClass="kpi-card" spacing="6" GridPane.columnIndex="5">
-                        <Label fx:id="kpiTitle6" text="Total Users" styleClass="kpi-title" />
-                        <Label fx:id="kpiValue6" text="-" styleClass="kpi-value" />
-                        <Label fx:id="kpiSubtitle6" text="All accounts" styleClass="kpi-subtitle" />
+                    <VBox prefHeight="110.0" prefWidth="119.0" spacing="6" styleClass="kpi-card" GridPane.columnIndex="5">
+                        <Label fx:id="kpiTitle6" styleClass="kpi-title" text="Total Users" />
+                        <Label fx:id="kpiValue6" styleClass="kpi-value" text="-" />
+                        <Label fx:id="kpiSubtitle6" styleClass="kpi-subtitle" text="All accounts" />
                     </VBox>
+               <columnConstraints>
+                  <ColumnConstraints />
+                  <ColumnConstraints />
+                  <ColumnConstraints />
+                  <ColumnConstraints />
+                  <ColumnConstraints />
+                  <ColumnConstraints />
+               </columnConstraints>
+               <rowConstraints>
+                  <RowConstraints />
+               </rowConstraints>
                 </GridPane>
 
                 <HBox spacing="16">
-                    <VBox styleClass="card" spacing="10" HBox.hgrow="ALWAYS">
-                        <Label text="Revenue Trend (Last 30 Days)" styleClass="section-title" />
+                    <VBox spacing="10" styleClass="card" HBox.hgrow="ALWAYS">
+                        <Label styleClass="section-title" text="Revenue Trend (Last 30 Days)" />
                         <LineChart fx:id="revenueChart" prefHeight="260">
                             <xAxis>
                                 <CategoryAxis fx:id="revenueXAxis" />
@@ -76,26 +89,26 @@
                             </yAxis>
                         </LineChart>
                     </VBox>
-                    <VBox styleClass="card" spacing="10" prefWidth="320">
-                        <Label text="Booking Status Distribution" styleClass="section-title" />
+                    <VBox prefWidth="320" spacing="10" styleClass="card">
+                        <Label styleClass="section-title" text="Booking Status Distribution" />
                         <PieChart fx:id="bookingStatusChart" prefHeight="260" />
                     </VBox>
                 </HBox>
 
                 <HBox spacing="16">
-                    <VBox styleClass="card" spacing="10" HBox.hgrow="ALWAYS">
-                        <Label text="Top 5 Routes" styleClass="section-title" />
+                    <VBox spacing="10" styleClass="card" HBox.hgrow="ALWAYS">
+                        <Label styleClass="section-title" text="Top 5 Routes" />
                         <TableView fx:id="topRoutesTable" prefHeight="240">
                             <columns>
-                                <TableColumn fx:id="topRouteNoColumn" text="No." prefWidth="45" />
+                                <TableColumn fx:id="topRouteNoColumn" prefWidth="45" text="No." />
                                 <TableColumn fx:id="topRouteLabelColumn" text="Route" />
                                 <TableColumn fx:id="topRouteBookingsColumn" text="Bookings" />
                                 <TableColumn fx:id="topRouteRevenueColumn" text="Revenue" />
                             </columns>
                         </TableView>
                     </VBox>
-                    <VBox styleClass="card" spacing="10" HBox.hgrow="ALWAYS">
-                        <Label text="Recent Bookings" styleClass="section-title" />
+                    <VBox spacing="10" styleClass="card" HBox.hgrow="ALWAYS">
+                        <Label styleClass="section-title" text="Recent Bookings" />
                         <TableView fx:id="recentBookingsTable" prefHeight="240">
                             <columns>
                                 <TableColumn fx:id="bookingIdColumn" text="Booking ID" />
@@ -110,18 +123,18 @@
                     </VBox>
                 </HBox>
 
-                <VBox styleClass="card" spacing="10">
-                    <Label text="Alerts" styleClass="section-title" />
+                <VBox spacing="10" styleClass="card">
+                    <Label styleClass="section-title" text="Alerts" />
                     <VBox fx:id="alertsBox" spacing="8" />
                 </VBox>
             </VBox>
         </content>
     </ScrollPane>
 
-    <StackPane fx:id="loadingOverlay" visible="false" managed="false" styleClass="loading-overlay">
+    <StackPane fx:id="loadingOverlay" managed="false" styleClass="loading-overlay" visible="false">
         <VBox alignment="CENTER" spacing="8">
             <ProgressIndicator />
-            <Label text="Loading dashboard..." styleClass="page-subtitle" />
+            <Label styleClass="page-subtitle" text="Loading dashboard..." />
         </VBox>
     </StackPane>
 </StackPane>

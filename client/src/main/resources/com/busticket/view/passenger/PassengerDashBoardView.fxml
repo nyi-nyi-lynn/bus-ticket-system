@@ -10,6 +10,8 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.shape.SVGPath?>
 
 <ScrollPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.busticket.controller.passenger.PassengerDashboardController"
@@ -19,26 +21,30 @@
             <VBox spacing="18" styleClass="content-area">
                 <Label fx:id="welcomeLabel" text="Welcome, -" styleClass="page-title"/>
 
-                <VBox spacing="12">
+                <VBox fx:id="quickActionsSection" spacing="12">
                     <Label text="Quick Actions" styleClass="section-title"/>
-                    <HBox spacing="16">
-                        <VBox styleClass="action-card" spacing="10">
-                            <Label text="Search Trips" styleClass="action-title"/>
-                            <Button fx:id="searchTripsButton" text="Search" onAction="#onSearchTrips" styleClass="primary-button"/>
+                    <FlowPane fx:id="quickActionsWrap" hgap="20" vgap="20">
+                        <VBox fx:id="searchTripsCard" styleClass="quick-action-card" onMouseClicked="#onSearchTrips">
+                            <SVGPath styleClass="quick-action-icon"
+                                     content="M15.5 14h-.8l-.3-.3A6.5 6.5 0 1 0 14 15.5l.3.3v.8L20 22l2-2-6.5-6zm-6 0A4.5 4.5 0 1 1 10 5a4.5 4.5 0 0 1-.5 9z"/>
+                            <Label text="Search Trips" styleClass="quick-action-title"/>
+                            <Label text="Find and book new trips" styleClass="quick-action-subtitle"/>
                         </VBox>
-                        <VBox styleClass="action-card" spacing="10">
-                            <Label text="My Bookings" styleClass="action-title"/>
-                            <Button fx:id="myBookingsButton" text="Open" onAction="#onMyBookings" styleClass="primary-button"/>
+
+                        <VBox fx:id="myBookingsCard" styleClass="quick-action-card" onMouseClicked="#onMyBookings">
+                            <SVGPath styleClass="quick-action-icon"
+                                     content="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a2 2 0 0 0 0-4V7zm4 1v8h2V8H7zm8 0v8h2V8h-2z"/>
+                            <Label text="My Bookings" styleClass="quick-action-title"/>
+                            <Label text="Manage your reservations" styleClass="quick-action-subtitle"/>
                         </VBox>
-                        <VBox styleClass="action-card" spacing="10">
-                            <Label text="Profile" styleClass="action-title"/>
-                            <Button fx:id="profileButton" text="Open" onAction="#onProfile" styleClass="primary-button"/>
+
+                        <VBox fx:id="profileCard" styleClass="quick-action-card" onMouseClicked="#onProfile">
+                            <SVGPath styleClass="quick-action-icon"
+                                     content="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5zm0 2c-4.4 0-8 2.2-8 5v2h16v-2c0-2.8-3.6-5-8-5z"/>
+                            <Label text="Profile" styleClass="quick-action-title"/>
+                            <Label text="View and update your info" styleClass="quick-action-subtitle"/>
                         </VBox>
-                        <VBox styleClass="action-card" spacing="10">
-                            <Label text="Support" styleClass="action-title"/>
-                            <Button fx:id="supportButton" text="Contact" onAction="#onSupport" styleClass="ghost-button"/>
-                        </VBox>
-                    </HBox>
+                    </FlowPane>
                 </VBox>
 
                 <VBox spacing="12" styleClass="card">

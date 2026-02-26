@@ -3,24 +3,24 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.busticket.controller.passenger.MyBookingsController" spacing="16" stylesheets="@../theme.css">
-    <HBox spacing="10" alignment="CENTER_LEFT">
-        <Label text="My Bookings" styleClass="page-title" />
-    </HBox>
+<VBox spacing="16" stylesheets="@../theme.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.busticket.controller.passenger.MyBookingsController">
+   <VBox styleClass="content-area">
+      <children>
+           <Label styleClass="page-title" text="My Bookings" />
+      </children>
+   </VBox>
 
-    <VBox spacing="12">
-        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" prefHeight="600" styleClass="mybooking-scroll">
+                <VBox spacing="12">
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="600" styleClass="mybooking-scroll" vbarPolicy="AS_NEEDED">
             <content>
-                <VBox fx:id="bookingsFlow" spacing="10" fillWidth="true">
+                <VBox fx:id="bookingsFlow" fillWidth="true" spacing="10">
                     <padding>
-                        <Insets top="8" right="8" bottom="8" left="8" />
+                        <Insets bottom="8" left="8" right="8" top="8" />
                     </padding>
                 </VBox>
             </content>
         </ScrollPane>
     </VBox>
 </VBox>
-

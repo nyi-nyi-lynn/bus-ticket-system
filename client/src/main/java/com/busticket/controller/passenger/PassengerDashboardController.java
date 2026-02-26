@@ -5,12 +5,14 @@ import com.busticket.dto.PassengerDashboardDTO;
 import com.busticket.dto.RecentBookingDTO;
 import com.busticket.dto.UpcomingTripDTO;
 import com.busticket.dto.UserSummaryDTO;
+import com.busticket.enums.Role;
 import com.busticket.exception.UnauthorizedException;
 import com.busticket.exception.ValidationException;
 import com.busticket.remote.PassengerRemote;
 import com.busticket.rmi.RMIClient;
 import com.busticket.session.Session;
 import com.busticket.util.SceneSwitcher;
+import javafx.animation.ScaleTransition;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
@@ -23,8 +25,11 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.Node;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 
 import java.text.DecimalFormat;
 import java.time.LocalDate;
@@ -39,11 +44,12 @@ public class PassengerDashboardController {
     private static final DateTimeFormatter DATE_TIME_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     @FXML private Label welcomeLabel;
-    @FXML private Button searchTripsButton;
-    @FXML private Button myBookingsButton;
-    @FXML private Button profileButton;
-    @FXML private Button supportButton;
     @FXML private Button viewTicketButton;
+    @FXML private VBox quickActionsSection;
+    @FXML private FlowPane quickActionsWrap;
+    @FXML private VBox searchTripsCard;
+    @FXML private VBox myBookingsCard;
+    @FXML private VBox profileCard;
 
     @FXML private Label upcomingRouteLabel;
     @FXML private Label upcomingDepartureLabel;
@@ -87,6 +93,7 @@ public class PassengerDashboardController {
         }
 
         currentUserId = Session.getCurrentUser() == null ? null : Session.getCurrentUser().getUserId();
+        setupQuickActions();
         setupTable();
         if (passengerRemote != null) {
             loadDashboard();
@@ -105,13 +112,7 @@ public class PassengerDashboardController {
 
     @FXML
     private void onProfile() {
-        SceneSwitcher.switchContent("/com/busticket/view/passenger/ProfileView.fxml");
-    }
-
-    @FXML
-    private void onSupport() {
-        showAlert(Alert.AlertType.INFORMATION, "Support", "Support is coming soon.",
-                "Please contact the terminal desk for urgent help.");
+        SceneSwitcher.switchContent("/com/busticket/view/passenger/PassengerProfile.fxml");
     }
 
     @FXML
@@ -286,20 +287,56 @@ public class PassengerDashboardController {
 
     private void setLoading(boolean value) {
         loading = value;
-        setButtonDisabled(searchTripsButton, value);
-        setButtonDisabled(myBookingsButton, value);
-        setButtonDisabled(profileButton, value);
-        setButtonDisabled(supportButton, value);
-        setButtonDisabled(viewTicketButton, value);
+        setNodeDisabled(searchTripsCard, value);
+        setNodeDisabled(myBookingsCard, value);
+        setNodeDisabled(profileCard, value);
+        setNodeDisabled(viewTicketButton, value);
         if (loadingOverlay != null) {
             loadingOverlay.setVisible(value);
             loadingOverlay.setManaged(value);
         }
     }
 
-    private void setButtonDisabled(Button button, boolean disabled) {
-        if (button != null) {
-            button.setDisable(disabled);
+    private void setupQuickActions() {
+        boolean passengerOnly = !Session.isGuest() && Session.getRole() == Role.PASSENGER;
+        if (quickActionsSection != null) {
+            quickActionsSection.setVisible(passengerOnly);
+            quickActionsSection.setManaged(passengerOnly);
+        }
+        if (!passengerOnly) {
+            return;
+        }
+
+        if (quickActionsWrap != null && quickActionsSection != null) {
+            quickActionsWrap.prefWidthProperty().bind(quickActionsSection.widthProperty());
+        }
+
+        setupCardHoverAnimation(searchTripsCard);
+        setupCardHoverAnimation(myBookingsCard);
+        setupCardHoverAnimation(profileCard);
+    }
+
+    private void setupCardHoverAnimation(Node card) {
+        if (card == null) {
+            return;
+        }
+        card.setOnMouseEntered(event -> animateScale(card, 1.05));
+        card.setOnMouseExited(event -> animateScale(card, 1.0));
+    }
+
+    private void animateScale(Node node, double scale) {
+        if (node == null) {
+            return;
+        }
+        ScaleTransition transition = new ScaleTransition(Duration.millis(140), node);
+        transition.setToX(scale);
+        transition.setToY(scale);
+        transition.play();
+    }
+
+    private void setNodeDisabled(Node node, boolean disabled) {
+        if (node != null) {
+            node.setDisable(disabled);
         }
     }
 
