@@ -12,6 +12,8 @@ public interface BusDAO {
 
     Bus findById(Long busId);
 
+    boolean hasBookedSeats(Long busId);
+
     boolean hasTrips(Long busId);
 
     Bus insert(Bus bus) throws DuplicateResourceException;

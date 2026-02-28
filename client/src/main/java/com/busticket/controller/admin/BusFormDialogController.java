@@ -349,6 +349,7 @@ public class BusFormDialogController {
             case "INVALID_STATUS" -> "Status is invalid.";
             case "BUS_NOT_FOUND" -> "Bus not found.";
             case "BUS_NUMBER_EXISTS" -> "Bus number already exists.";
+            case "SEATS_IN_USE_CANNOT_REDUCE" -> "Cannot reduce total seats because this bus already has booked seats.";
             case "CREATE_BUS_FAILED" -> "Could not create bus due to a server error.";
             case "UPDATE_BUS_FAILED" -> "Could not update bus due to a server error.";
             default -> "Validation failed. Please review the form.";

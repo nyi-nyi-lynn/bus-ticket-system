@@ -68,6 +68,9 @@ public class BusServiceImpl implements BusService {
         if (existing == null) {
             throw new ValidationException("BUS_NOT_FOUND");
         }
+        if (request.getTotalSeats() < existing.getTotalSeats() && busDAO.hasBookedSeats(existing.getBusId())) {
+            throw new ValidationException("SEATS_IN_USE_CANNOT_REDUCE");
+        }
 
         String busNumber = normalizeBusNumber(request.getBusNumber());
         BusType busType = parseTypeStrict(request.getBusType());
@@ -151,6 +154,13 @@ public class BusServiceImpl implements BusService {
 
             String busNumber = normalizeBusNumber(dto.getBusNumber());
             if (busDAO.existsByBusNumberExceptId(busNumber, dto.getBusId())) {
+                return false;
+            }
+            Bus existing = busDAO.findById(dto.getBusId());
+            if (existing == null) {
+                return false;
+            }
+            if (dto.getTotalSeats() < existing.getTotalSeats() && busDAO.hasBookedSeats(existing.getBusId())) {
                 return false;
             }
 

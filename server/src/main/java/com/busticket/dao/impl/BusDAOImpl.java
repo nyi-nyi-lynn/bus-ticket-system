@@ -67,6 +67,26 @@ public class BusDAOImpl implements BusDAO {
     }
 
     @Override
+    public boolean hasBookedSeats(Long busId) {
+        String sql = """
+                SELECT 1
+                FROM booking_seat bs
+                JOIN seats s ON s.seat_id = bs.seat_id
+                WHERE s.bus_id = ?
+                LIMIT 1
+                """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setLong(1, busId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
     public boolean hasTrips(Long busId) {
         String sql = "SELECT 1 FROM trips WHERE bus_id = ? LIMIT 1";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -119,26 +139,50 @@ public class BusDAOImpl implements BusDAO {
     @Override
     public Bus updateRecord(Bus bus) throws DuplicateResourceException {
         String sql = "UPDATE buses SET bus_number = ?, bus_name = ?, type = ?, total_seats = ?, is_active = ? WHERE bus_id = ?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, bus.getBusNumber());
-            ps.setString(2, bus.getBusName());
-            ps.setString(3, bus.getType().name());
-            ps.setInt(4, bus.getTotalSeats());
-            ps.setInt(5, bus.isActive() ? 1 : 0);
-            ps.setLong(6, bus.getBusId());
+        boolean originalAutoCommit;
+        try {
+            originalAutoCommit = connection.getAutoCommit();
+        } catch (SQLException ex) {
+            throw new RuntimeException("Failed to read transaction state.", ex);
+        }
 
-            int affected = ps.executeUpdate();
-            if (affected <= 0) {
-                return null;
+        try {
+            connection.setAutoCommit(false);
+            try (PreparedStatement ps = connection.prepareStatement(sql)) {
+                ps.setString(1, bus.getBusNumber());
+                ps.setString(2, bus.getBusName());
+                ps.setString(3, bus.getType().name());
+                ps.setInt(4, bus.getTotalSeats());
+                ps.setInt(5, bus.isActive() ? 1 : 0);
+                ps.setLong(6, bus.getBusId());
+
+                int affected = ps.executeUpdate();
+                if (affected <= 0) {
+                    connection.rollback();
+                    connection.setAutoCommit(originalAutoCommit);
+                    return null;
+                }
             }
+
+            syncSeats(bus.getBusId(), bus.getTotalSeats());
+
+            connection.commit();
+            connection.setAutoCommit(originalAutoCommit);
             return findById(bus.getBusId());
         } catch (SQLIntegrityConstraintViolationException ex) {
+            rollbackQuietly();
             throw new DuplicateResourceException("BUS_NUMBER_EXISTS");
         } catch (SQLException ex) {
+            rollbackQuietly();
             if ("23000".equals(ex.getSQLState())) {
                 throw new DuplicateResourceException("BUS_NUMBER_EXISTS");
             }
             throw new RuntimeException("Failed to update bus.", ex);
+        } finally {
+            try {
+                connection.setAutoCommit(originalAutoCommit);
+            } catch (SQLException ignored) {
+            }
         }
     }
 
@@ -250,6 +294,78 @@ public class BusDAOImpl implements BusDAO {
             ps.executeBatch();
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void syncSeats(Long busId, int targetTotalSeats) throws SQLException {
+        int currentSeats = countSeats(busId);
+        if (currentSeats < targetTotalSeats) {
+            addGeneratedSeats(busId, targetTotalSeats - currentSeats);
+            return;
+        }
+        if (currentSeats > targetTotalSeats) {
+            removeLatestSeats(busId, currentSeats - targetTotalSeats);
+        }
+    }
+
+    private int countSeats(Long busId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM seats WHERE bus_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setLong(1, busId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        }
+    }
+
+    private void addGeneratedSeats(Long busId, int seatsToAdd) throws SQLException {
+        if (seatsToAdd <= 0) {
+            return;
+        }
+        int nextSeatIndex = findMaxGeneratedSeatIndex(busId);
+        String sql = "INSERT INTO seats(bus_id, seat_number) VALUES(?, ?)";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            for (int i = 0; i < seatsToAdd; i++) {
+                nextSeatIndex++;
+                ps.setLong(1, busId);
+                ps.setString(2, "S" + nextSeatIndex);
+                ps.addBatch();
+            }
+            ps.executeBatch();
+        }
+    }
+
+    private int findMaxGeneratedSeatIndex(Long busId) throws SQLException {
+        String sql = """
+                SELECT COALESCE(MAX(CAST(SUBSTRING(seat_number, 2) AS UNSIGNED)), 0)
+                FROM seats
+                WHERE bus_id = ?
+                  AND seat_number REGEXP '^S[0-9]+$'
+                """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setLong(1, busId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        }
+    }
+
+    private void removeLatestSeats(Long busId, int seatsToRemove) throws SQLException {
+        if (seatsToRemove <= 0) {
+            return;
+        }
+        String sql = "DELETE FROM seats WHERE bus_id = ? ORDER BY seat_id DESC LIMIT ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setLong(1, busId);
+            ps.setInt(2, seatsToRemove);
+            ps.executeUpdate();
+        }
+    }
+
+    private void rollbackQuietly() {
+        try {
+            connection.rollback();
+        } catch (SQLException ignored) {
         }
     }
 }
