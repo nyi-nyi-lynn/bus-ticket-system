@@ -120,6 +120,14 @@
                         </HBox>
                     </graphic>
                 </Button>
+                <Button fx:id="navBackToLogin" contentDisplay="GRAPHIC_ONLY" onAction="#onLogout" prefHeight="49.0" prefWidth="162.0" styleClass="nav-button">
+                    <graphic>
+                        <HBox alignment="CENTER_LEFT" spacing="12">
+                            <SVGPath content="M10 17v-2h4V9h-4V7h6v10h-6zm-6-5 4-4v3h4v2H8v3l-4-4zm14-8h-6V2h8v20h-8v-2h6V4z" styleClass="nav-icon" />
+                            <Text styleClass="nav-text" text="Back To Login" />
+                        </HBox>
+                    </graphic>
+                </Button>
             </VBox>
          <Region prefHeight="117.0" prefWidth="200.0" />
             <HBox alignment="CENTER_LEFT" spacing="8">

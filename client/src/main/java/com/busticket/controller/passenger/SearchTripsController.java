@@ -1,9 +1,11 @@
 package com.busticket.controller.passenger;
 
 import com.busticket.dto.TripDTO;
+import com.busticket.exception.UnauthorizedException;
 import com.busticket.remote.BookingRemote; // ADDED
 import com.busticket.remote.TripRemote;
 import com.busticket.rmi.RMIClient;
+import com.busticket.session.Session;
 import com.busticket.util.SceneSwitcher; // ADDED
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -79,14 +81,22 @@ public class SearchTripsController {
             return;
         }
 
-        List<TripDTO> filtered = allTrips.stream()
-                .filter(t -> origin.equals(t.getOriginCity()))
-                .filter(t -> destination.equals(t.getDestinationCity()))
-                .filter(t -> date.equals(t.getTravelDate()))
-                .collect(Collectors.toList());
-
-        resultsTitleLabel.setText("Search Results");
-        displayTrips(filtered);
+        try {
+            List<TripDTO> filtered;
+            if (tripRemote != null) {
+                filtered = tripRemote.searchTrips(origin, destination, date);
+            } else {
+                filtered = allTrips.stream()
+                        .filter(t -> origin.equals(t.getOriginCity()))
+                        .filter(t -> destination.equals(t.getDestinationCity()))
+                        .filter(t -> date.equals(t.getTravelDate()))
+                        .collect(Collectors.toList());
+            }
+            resultsTitleLabel.setText("Search Results");
+            displayTrips(filtered == null ? List.of() : filtered);
+        } catch (Exception ex) {
+            showSimpleAlert(Alert.AlertType.ERROR, "Search Failed", "Unable to search trips", ex.getMessage());
+        }
     }
 
     private void populateCityLists() {
@@ -176,11 +186,21 @@ public class SearchTripsController {
     }
 
     private void navigateToBooking(TripDTO trip) {
-        // MODIFIED
+        try {
+            selectSeat(trip);
+        } catch (UnauthorizedException ex) {
+            showLoginRequiredAndRedirect(ex.getMessage());
+        }
+    }
+
+    private void selectSeat(TripDTO trip) throws UnauthorizedException {
         if (trip == null) {
             return;
         }
-        SceneSwitcher.switchToSeatSelection(trip); // ADDED
+        if (Session.getCurrentUser() == null || Session.getCurrentUser().getUserId() == null) {
+            throw new UnauthorizedException("Please login to continue booking");
+        }
+        SceneSwitcher.switchToSeatSelection(trip);
     }
 
     private boolean isBlank(String value) {
@@ -193,5 +213,17 @@ public class SearchTripsController {
         alert.setHeaderText(header);
         alert.setContentText(content);
         alert.showAndWait();
+    }
+
+    private void showLoginRequiredAndRedirect(String message) {
+        showSimpleAlert(
+                Alert.AlertType.WARNING,
+                "Login Required",
+                "Please login to continue booking",
+                message == null || message.isBlank() ? "Please login to continue booking" : message
+        );
+        Session.clearPendingSelection();
+        Session.clearBookingContext();
+        SceneSwitcher.resetToAuth("/com/busticket/view/auth/LoginView.fxml");
     }
 }

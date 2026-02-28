@@ -11,6 +11,7 @@ import com.busticket.dto.BookingDTO;
 import com.busticket.dto.BookingRequestDTO; // ADDED
 import com.busticket.dto.BookingResponseDTO; // ADDED
 import com.busticket.enums.BookingStatus;
+import com.busticket.exception.UnauthorizedException;
 import com.busticket.model.Booking;
 import com.busticket.service.BookingService;
 
@@ -40,9 +41,12 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public BookingDTO createBooking(BookingDTO dto) {
-        if (dto == null || dto.getUserId() == null || dto.getTripId() == null || dto.getSeatNumbers() == null || dto.getSeatNumbers().isEmpty()) {
+    public BookingDTO createBooking(BookingDTO dto) throws UnauthorizedException {
+        if (dto == null || dto.getTripId() == null || dto.getSeatNumbers() == null || dto.getSeatNumbers().isEmpty()) {
             return null;
+        }
+        if (dto.getUserId() == null) {
+            throw new UnauthorizedException("Please login to continue booking");
         }
 
         BookingRequestDTO request = new BookingRequestDTO();
@@ -67,9 +71,12 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public BookingResponseDTO createBooking(BookingRequestDTO request) {
+    public BookingResponseDTO createBooking(BookingRequestDTO request) throws UnauthorizedException {
         // MODIFIED
-        if (request == null || request.getUserId() == null || request.getTripId() == null) {
+        if (request == null || request.getUserId() == null) {
+            throw new UnauthorizedException("Please login to continue booking");
+        }
+        if (request.getTripId() == null) {
             throw new IllegalArgumentException("Invalid booking request.");
         }
         boolean hasSeatNumbers = request.getSeatNumbers() != null && !request.getSeatNumbers().isEmpty();

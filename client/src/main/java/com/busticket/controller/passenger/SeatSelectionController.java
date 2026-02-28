@@ -2,6 +2,7 @@ package com.busticket.controller.passenger;
 
 import com.busticket.dto.TripDTO;
 import com.busticket.dto.SeatDTO; // ADDED
+import com.busticket.exception.UnauthorizedException;
 import com.busticket.remote.BookingRemote;
 import com.busticket.remote.SeatRemote; // ADDED
 import com.busticket.rmi.RMIClient;
@@ -158,12 +159,13 @@ public class SeatSelectionController {
                 .toList();
 
         Session.setPendingSelection(selectedTrip, selectedSeatDTOs, seatNumbers);
-
-        if (Session.isGuest()) {
-            SceneSwitcher.switchContent("/com/busticket/view/guest/GuestInfoView.fxml");
+        try {
+            selectSeat();
+        } catch (UnauthorizedException ex) {
+            showLoginRequiredAndRedirect(ex.getMessage());
             return;
         }
-        SceneSwitcher.switchToBookingSummary(); // MODIFIED
+        SceneSwitcher.switchToBookingSummary();
     }
 
     // MODIFIED
@@ -173,5 +175,23 @@ public class SeatSelectionController {
         alert.setHeaderText(header);
         alert.setContentText(content);
         alert.showAndWait();
+    }
+
+    private void selectSeat() throws UnauthorizedException {
+        if (Session.getCurrentUser() == null || Session.getCurrentUser().getUserId() == null) {
+            throw new UnauthorizedException("Please login to continue booking");
+        }
+    }
+
+    private void showLoginRequiredAndRedirect(String message) {
+        showAlert(
+                Alert.AlertType.WARNING,
+                "Login Required",
+                "Please login to continue booking",
+                message == null || message.isBlank() ? "Please login to continue booking" : message
+        );
+        Session.clearPendingSelection();
+        Session.clearBookingContext();
+        SceneSwitcher.resetToAuth("/com/busticket/view/auth/LoginView.fxml");
     }
 }

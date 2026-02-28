@@ -3,6 +3,7 @@ package com.busticket.rmi;
 import com.busticket.dto.BookingDTO;
 import com.busticket.dto.BookingRequestDTO; // ADDED
 import com.busticket.dto.BookingResponseDTO; // ADDED
+import com.busticket.exception.UnauthorizedException;
 import com.busticket.remote.BookingRemote;
 import com.busticket.service.BookingService;
 import com.busticket.service.impl.BookingServiceImpl;
@@ -22,12 +23,12 @@ public class BookingRemoteImpl extends UnicastRemoteObject implements BookingRem
     }
 
     @Override
-    public BookingDTO createBooking(BookingDTO dto) throws RemoteException {
+    public BookingDTO createBooking(BookingDTO dto) throws UnauthorizedException, RemoteException {
         return bookingService().createBooking(dto);
     }
 
     @Override
-    public BookingResponseDTO createBooking(BookingRequestDTO request) throws RemoteException {
+    public BookingResponseDTO createBooking(BookingRequestDTO request) throws UnauthorizedException, RemoteException {
         // ADDED
         return bookingService().createBooking(request);
     }

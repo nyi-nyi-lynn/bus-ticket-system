@@ -2,6 +2,7 @@ package com.busticket.rmi;
 
 import com.busticket.dto.PaymentDTO;
 import com.busticket.dto.PaymentRequestDTO;
+import com.busticket.exception.UnauthorizedException;
 import com.busticket.remote.PaymentRemote;
 import com.busticket.service.PaymentService;
 import com.busticket.service.impl.PaymentServiceImpl;
@@ -19,17 +20,17 @@ public class PaymentRemoteImpl extends UnicastRemoteObject implements PaymentRem
     }
 
     @Override
-    public PaymentDTO createPayment(PaymentDTO dto) throws RemoteException {
+    public PaymentDTO createPayment(PaymentDTO dto) throws UnauthorizedException, RemoteException {
         return paymentService().createPayment(dto);
     }
 
     @Override
-    public PaymentDTO processPayment(PaymentRequestDTO request) throws RemoteException {
+    public PaymentDTO processPayment(PaymentRequestDTO request) throws UnauthorizedException, RemoteException {
         return paymentService().processPayment(request);
     }
 
     @Override
-    public PaymentDTO processPayment(PaymentDTO dto) throws RemoteException {
+    public PaymentDTO processPayment(PaymentDTO dto) throws UnauthorizedException, RemoteException {
         // ADDED
         return paymentService().processPayment(dto);
     }

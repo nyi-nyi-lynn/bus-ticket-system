@@ -7,6 +7,7 @@ import com.busticket.dto.PaymentDTO;
 import com.busticket.dto.PaymentRequestDTO;
 import com.busticket.enums.PaymentMethod;
 import com.busticket.enums.PaymentStatus;
+import com.busticket.exception.UnauthorizedException;
 import com.busticket.model.Payment;
 import com.busticket.service.PaymentService;
 
@@ -31,12 +32,12 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public PaymentDTO createPayment(PaymentDTO dto) {
+    public PaymentDTO createPayment(PaymentDTO dto) throws UnauthorizedException {
         return processPayment(toRequest(dto));
     }
 
     @Override
-    public PaymentDTO processPayment(PaymentRequestDTO request) {
+    public PaymentDTO processPayment(PaymentRequestDTO request) throws UnauthorizedException {
         validateRequest(request);
 
         boolean originalAutoCommit = true;
@@ -110,7 +111,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public PaymentDTO processPayment(PaymentDTO dto) {
+    public PaymentDTO processPayment(PaymentDTO dto) throws UnauthorizedException {
         return processPayment(toRequest(dto));
     }
 
@@ -132,12 +133,12 @@ public class PaymentServiceImpl implements PaymentService {
         return toDTO(payment);
     }
 
-    private void validateRequest(PaymentRequestDTO request) {
+    private void validateRequest(PaymentRequestDTO request) throws UnauthorizedException {
         if (request == null) {
             throw new IllegalArgumentException("Payment request is required.");
         }
         if (request.getUserId() == null) {
-            throw new IllegalArgumentException("User id is required.");
+            throw new UnauthorizedException("Please login to continue booking");
         }
         if (request.getBookingId() == null) {
             throw new IllegalArgumentException("Booking id is required.");

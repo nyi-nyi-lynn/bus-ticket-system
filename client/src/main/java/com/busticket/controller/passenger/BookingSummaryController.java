@@ -3,6 +3,7 @@ package com.busticket.controller.passenger;
 import com.busticket.dto.BookingDTO;
 import com.busticket.dto.SeatDTO;
 import com.busticket.dto.TripDTO;
+import com.busticket.exception.UnauthorizedException;
 import com.busticket.remote.BookingRemote;
 import com.busticket.remote.BusRemote;
 import com.busticket.rmi.RMIClient;
@@ -60,10 +61,6 @@ public class BookingSummaryController {
 
     @FXML
     private void onConfirmAndPay() {
-        if (Session.getCurrentUser() == null || Session.getCurrentUser().getUserId() == null) {
-            showAlert(Alert.AlertType.WARNING, "Login Required", "User session missing.", "Please login and try again.");
-            return;
-        }
         if (trip == null || trip.getTripId() == null || selectedSeats.isEmpty()) {
             showAlert(Alert.AlertType.WARNING, "Invalid Summary", "Trip or seats missing.", "Please reselect your seats.");
             return;
@@ -85,17 +82,15 @@ public class BookingSummaryController {
         BookingDTO booking;
         try {
             confirmPayButton.setDisable(true);
-
-            BookingRemote bookingRemote = RMIClient.getBookingRemote();
-            BookingDTO request = new BookingDTO();
-            request.setUserId(Session.getCurrentUser().getUserId());
-            request.setTripId(trip.getTripId());
-            request.setSeatNumbers(seatNumbers);
-            booking = bookingRemote.createBooking(request);
+            booking = createBooking(seatNumbers);
             if (booking == null || booking.getBookingId() == null) {
                 showAlert(Alert.AlertType.ERROR, "Booking Failed", "Unable to create booking.", "Please try again.");
                 return;
             }
+        } catch (UnauthorizedException unauthorizedException) {
+            showLoginRequiredAndRedirect(unauthorizedException.getMessage());
+            confirmPayButton.setDisable(false);
+            return;
         } catch (Exception ex) {
             showAlert(Alert.AlertType.ERROR, "Booking Failed", "Unable to create pending booking.", ex.getMessage());
             confirmPayButton.setDisable(false);
@@ -127,10 +122,6 @@ public class BookingSummaryController {
 
     @FXML
     private void onPaymentLater() {
-        if (Session.getCurrentUser() == null || Session.getCurrentUser().getUserId() == null) {
-            showAlert(Alert.AlertType.WARNING, "Login Required", "User session missing.", "Please login and try again.");
-            return;
-        }
         if (trip == null || trip.getTripId() == null || selectedSeats.isEmpty()) {
             showAlert(Alert.AlertType.WARNING, "Invalid Summary", "Trip or seats missing.", "Please reselect your seats.");
             return;
@@ -151,13 +142,7 @@ public class BookingSummaryController {
 
         try {
             paymentLaterButton.setDisable(true);
-
-            BookingRemote bookingRemote = RMIClient.getBookingRemote();
-            BookingDTO request = new BookingDTO();
-            request.setUserId(Session.getCurrentUser().getUserId());
-            request.setTripId(trip.getTripId());
-            request.setSeatNumbers(seatNumbers);
-            BookingDTO booking = bookingRemote.createBooking(request);
+            BookingDTO booking = createBooking(seatNumbers);
             if (booking == null || booking.getBookingId() == null) {
                 showAlert(Alert.AlertType.ERROR, "Booking Failed", "Unable to create booking.", "Please try again.");
                 return;
@@ -166,6 +151,8 @@ public class BookingSummaryController {
             Session.clearPendingSelection();
             Session.clearBookingContext();
             SceneSwitcher.switchContent("/com/busticket/view/passenger/SearchTripsView.fxml");
+        } catch (UnauthorizedException unauthorizedException) {
+            showLoginRequiredAndRedirect(unauthorizedException.getMessage());
         } catch (Exception ex) {
             showAlert(Alert.AlertType.ERROR, "Booking Failed", "Unable to create pending booking.", ex.getMessage());
         } finally {
@@ -263,5 +250,29 @@ public class BookingSummaryController {
         alert.setHeaderText(header);
         alert.setContentText(content);
         alert.showAndWait();
+    }
+
+    private BookingDTO createBooking(List<String> seatNumbers) throws Exception {
+        if (Session.getCurrentUser() == null || Session.getCurrentUser().getUserId() == null) {
+            throw new UnauthorizedException("Please login to continue booking");
+        }
+        BookingRemote bookingRemote = RMIClient.getBookingRemote();
+        BookingDTO request = new BookingDTO();
+        request.setUserId(Session.getCurrentUser().getUserId());
+        request.setTripId(trip.getTripId());
+        request.setSeatNumbers(seatNumbers);
+        return bookingRemote.createBooking(request);
+    }
+
+    private void showLoginRequiredAndRedirect(String message) {
+        showAlert(
+                Alert.AlertType.WARNING,
+                "Login Required",
+                "Please login to continue booking",
+                message == null || message.isBlank() ? "Please login to continue booking" : message
+        );
+        Session.clearPendingSelection();
+        Session.clearBookingContext();
+        SceneSwitcher.resetToAuth("/com/busticket/view/auth/LoginView.fxml");
     }
 }

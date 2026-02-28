@@ -27,6 +27,7 @@ public class AppShellController {
     @FXML private Button navStaffBookings;
     @FXML private Button navValidateTicket;
     @FXML private Button navLogout;
+    @FXML private Button navBackToLogin;
 
     @FXML private Text roleBadge;
     private List<Button> navButtons;
@@ -36,7 +37,7 @@ public class AppShellController {
         navButtons = List.of(
                 navDashboard, navSearchTrips, navMyBookings, navProfile,
                 navManageUsers, navManageBuses, navManageRoutes, navManageTrips,
-                navReports, navStaffTrips, navStaffBookings, navValidateTicket, navLogout
+                navReports, navStaffTrips, navStaffBookings, navValidateTicket, navLogout,navBackToLogin
         );
         applyRoleNavigation();
         setDefaultActiveNav();
@@ -51,11 +52,11 @@ public class AppShellController {
         boolean guest = Session.isGuest();
 
         setAllNavVisible(false);
-        setNavVisibility(navLogout, true);
+
 
         if (guest) {
-            setNavVisibility(navDashboard, true);
             setNavVisibility(navSearchTrips, true);
+            setNavVisibility(navBackToLogin, true);
             roleBadge.setText("Guest");
             return;
         }
@@ -65,6 +66,7 @@ public class AppShellController {
             setNavVisibility(navSearchTrips, true);
             setNavVisibility(navMyBookings, true);
             setNavVisibility(navProfile, true);
+            setNavVisibility(navLogout, true);
             roleBadge.setText("Passenger");
         } else if (role == Role.ADMIN) {
             setNavVisibility(navDashboard, true);
@@ -73,6 +75,7 @@ public class AppShellController {
             setNavVisibility(navManageRoutes, true);
             setNavVisibility(navManageTrips, true);
             setNavVisibility(navReports, true);
+            setNavVisibility(navLogout, true);
             roleBadge.setText("Admin");
         } else if (role == Role.STAFF) {
             setNavVisibility(navDashboard, true);
@@ -116,7 +119,7 @@ public class AppShellController {
     private void onDashboard() {
         setActiveNav(navDashboard);
         if (Session.isGuest()) {
-            SceneSwitcher.switchContent("/com/busticket/view/guest/GuestDashboardView.fxml");
+            SceneSwitcher.switchContent("/com/busticket/view/passenger/SearchTripsView.fxml");
             return;
         }
         Role role = Session.getRole();

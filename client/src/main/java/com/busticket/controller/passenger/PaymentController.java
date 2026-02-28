@@ -4,6 +4,7 @@ import com.busticket.dto.BookingDTO;
 import com.busticket.dto.PaymentRequestDTO;
 import com.busticket.dto.TripDTO;
 import com.busticket.enums.PaymentMethod;
+import com.busticket.exception.UnauthorizedException;
 import com.busticket.remote.PaymentRemote;
 import com.busticket.remote.TripRemote;
 import com.busticket.rmi.RMIClient;
@@ -85,10 +86,6 @@ public class PaymentController {
 
     @FXML
     private void onBack() {
-        if (Session.isGuest()) {
-            SceneSwitcher.switchContent("/com/busticket/view/guest/GuestInfoView.fxml");
-            return;
-        }
         SceneSwitcher.switchContent("/com/busticket/view/passenger/SearchTripsView.fxml");
     }
 
@@ -110,38 +107,22 @@ public class PaymentController {
             return;
         }
 
-        Long payerUserId = resolvePayerUserId();
-        if (payerUserId == null) {
-            showAlert(Alert.AlertType.WARNING, "Owner Missing", "Booking owner could not be resolved.", "Please restart booking and try again.");
-            return;
-        }
-
         String selectedMethod = resolveSelectedMethod();
         if (selectedMethod == null) {
             showAlert(Alert.AlertType.WARNING, "Payment Method", "Please choose a payment method.", "Select KBZPay, WavePay, or Credit/Debit Card.");
             return;
         }
 
-        PaymentRequestDTO request = new PaymentRequestDTO();
-        request.setUserId(payerUserId);
-        request.setBookingId(bookingId);
-        request.setAmount(totalAmount);
-        request.setPaymentMethod(toBackendPaymentMethod(selectedMethod));
-
         if (confirmPaymentButton != null) {
             confirmPaymentButton.setDisable(true);
         }
 
         try {
-            var payment = paymentRemote.processPayment(request);
-            if (payment == null || payment.getPaymentId() == null) {
-                showAlert(Alert.AlertType.ERROR, "Payment Failed", "Unable to process payment.", "Please verify payment and try again.");
-                return;
-            }
-
-            Session.setCurrentBookingContext(bookingId, payerUserId, Session.getCurrentTicketCode(), totalAmount);
+            payBooking(bookingId, totalAmount, selectedMethod);
             Session.clearPendingSelection();
             navigateToTicketView();
+        } catch (UnauthorizedException unauthorizedException) {
+            showLoginRequiredAndRedirect(unauthorizedException.getMessage());
         } catch (Exception ex) {
             showAlert(Alert.AlertType.ERROR, "Payment Failed", "Unable to process payment.", ex.getMessage());
         } finally {
@@ -257,16 +238,6 @@ public class PaymentController {
         return Session.getCurrentBookingId();
     }
 
-    private Long resolvePayerUserId() {
-        if (Session.getCurrentUser() != null && Session.getCurrentUser().getUserId() != null) {
-            return Session.getCurrentUser().getUserId();
-        }
-        if (bookingDTO != null && bookingDTO.getUserId() != null) {
-            return bookingDTO.getUserId();
-        }
-        return Session.getCurrentBookingUserId();
-    }
-
     private String resolveSelectedMethod() {
         if (paymentMethodToggle == null || paymentMethodToggle.getSelectedToggle() == null) {
             return null;
@@ -333,6 +304,27 @@ public class PaymentController {
         }
     }
 
+    private void payBooking(Long bookingId, double amount, String selectedMethod) throws Exception {
+        if (Session.getCurrentUser() == null || Session.getCurrentUser().getUserId() == null) {
+            throw new UnauthorizedException("Please login to continue booking");
+        }
+        PaymentRequestDTO request = new PaymentRequestDTO();
+        request.setUserId(Session.getCurrentUser().getUserId());
+        request.setBookingId(bookingId);
+        request.setAmount(amount);
+        request.setPaymentMethod(toBackendPaymentMethod(selectedMethod));
+        var payment = paymentRemote.processPayment(request);
+        if (payment == null || payment.getPaymentId() == null) {
+            throw new IllegalStateException("Unable to process payment.");
+        }
+        Session.setCurrentBookingContext(
+                bookingId,
+                Session.getCurrentUser().getUserId(),
+                Session.getCurrentTicketCode(),
+                amount
+        );
+    }
+
     private Image tryGenerateQrCodeImage(String payload, int width, int height) {
         try {
             Class<?> writerClass = Class.forName("com.google.zxing.qrcode.QRCodeWriter");
@@ -370,5 +362,17 @@ public class PaymentController {
         alert.setHeaderText(header);
         alert.setContentText(content);
         alert.showAndWait();
+    }
+
+    private void showLoginRequiredAndRedirect(String message) {
+        showAlert(
+                Alert.AlertType.WARNING,
+                "Login Required",
+                "Please login to continue booking",
+                message == null || message.isBlank() ? "Please login to continue booking" : message
+        );
+        Session.clearPendingSelection();
+        Session.clearBookingContext();
+        SceneSwitcher.resetToAuth("/com/busticket/view/auth/LoginView.fxml");
     }
 }

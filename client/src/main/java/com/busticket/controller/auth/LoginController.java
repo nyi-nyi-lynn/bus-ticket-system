@@ -73,7 +73,7 @@ public class LoginController {
     @FXML
     private void onGuest() {
         Session.loginAsGuest();
-        SceneSwitcher.showAppShell("/com/busticket/view/guest/GuestDashboardView.fxml");
+        SceneSwitcher.showAppShell("/com/busticket/view/passenger/SearchTripsView.fxml");
     }
 
     private String resolveDashboard() {

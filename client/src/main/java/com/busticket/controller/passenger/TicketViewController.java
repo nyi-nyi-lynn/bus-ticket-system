@@ -123,7 +123,7 @@ public class TicketViewController {
     @FXML
     private void onBack() {
         if (Session.isGuest()) {
-            SceneSwitcher.switchContent("/com/busticket/view/guest/GuestDashboardView.fxml");
+            SceneSwitcher.switchContent("/com/busticket/view/passenger/SearchTripsView.fxml");
         } else {
             SceneSwitcher.switchContent("/com/busticket/view/passenger/SearchTripsView.fxml");
         }
