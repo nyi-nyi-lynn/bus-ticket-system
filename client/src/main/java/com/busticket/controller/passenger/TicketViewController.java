@@ -7,6 +7,7 @@ import com.busticket.enums.PaymentStatus;
 import com.busticket.remote.TicketRemote;
 import com.busticket.rmi.RMIClient;
 import com.busticket.session.Session;
+import com.busticket.util.PdfExportSupport;
 import com.busticket.util.SceneSwitcher;
 import javafx.fxml.FXML;
 import javafx.print.PrinterJob;
@@ -14,7 +15,6 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -82,25 +82,16 @@ public class TicketViewController {
             return;
         }
 
-        FileChooser chooser = new FileChooser();
-        chooser.setTitle("Save Ticket PDF");
-        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
-
         String code = safe(getLabelText(ticketCodeLabel));
         String safeCode = sanitizeFilePart(code);
-        if (!"-".equals(safeCode)) {
-            chooser.setInitialFileName("Ticket_" + safeCode + ".pdf");
-        } else {
-            chooser.setInitialFileName("Ticket.pdf");
-        }
+        String initialFileName = !"-".equals(safeCode) ? "Ticket_" + safeCode : "Ticket";
 
         Window window = ticketCard != null && ticketCard.getScene() != null ? ticketCard.getScene().getWindow() : null;
-        File file = chooser.showSaveDialog(window);
-        if (file == null) {
+        File target = PdfExportSupport.chooseExportTarget(window, "Save Ticket PDF", "pdf", initialFileName);
+        if (target == null) {
             return;
         }
 
-        File target = file.getName().toLowerCase().endsWith(".pdf") ? file : new File(file.getParentFile(), file.getName() + ".pdf");
         try {
             writePdf(target);
             showAlert(Alert.AlertType.INFORMATION, "PDF Saved", "Ticket PDF generated successfully.", target.getAbsolutePath());
@@ -134,7 +125,7 @@ public class TicketViewController {
         if (Session.isGuest()) {
             SceneSwitcher.switchContent("/com/busticket/view/guest/GuestDashboardView.fxml");
         } else {
-            SceneSwitcher.switchContent("/com/busticket/view/passenger/PassengerDashboardView.fxml");
+            SceneSwitcher.switchContent("/com/busticket/view/passenger/SearchTripsView.fxml");
         }
     }
 
@@ -342,10 +333,10 @@ public class TicketViewController {
             PDType1Font fontRegular = new PDType1Font(Standard14Fonts.FontName.HELVETICA);
 
             try (PDPageContentStream content = new PDPageContentStream(document, page)) {
-                content.setNonStrokingColor(255, 255, 255);
+                content.setNonStrokingColor(1f, 1f, 1f);
                 content.addRect(cardX, cardY, cardWidth, cardHeight);
                 content.fill();
-                content.setStrokingColor(220, 220, 220);
+                content.setStrokingColor(220f / 255f, 220f / 255f, 220f / 255f);
                 content.addRect(cardX, cardY, cardWidth, cardHeight);
                 content.stroke();
 
@@ -353,31 +344,31 @@ public class TicketViewController {
                 float y = cardY + cardHeight - 36f;
 
                 content.setFont(fontBold, 18);
-                writeText(content, x, y, companyName);
+                PdfExportSupport.writeText(content, x, y, companyName);
 
                 y -= 18f;
                 content.setFont(fontRegular, 11);
-                writeText(content, x, y, "Official E-Ticket");
+                PdfExportSupport.writeText(content, x, y, "Official E-Ticket");
 
                 float codeBoxWidth = 200f;
                 float codeBoxHeight = 24f;
                 float codeX = cardX + cardWidth - codeBoxWidth - 24f;
                 float codeY = cardY + cardHeight - 52f;
 
-                content.setNonStrokingColor(255, 242, 204);
+                content.setNonStrokingColor(1f, 242f / 255f, 204f / 255f);
                 content.addRect(codeX, codeY, codeBoxWidth, codeBoxHeight);
                 content.fill();
-                content.setNonStrokingColor(0, 0, 0);
+                content.setNonStrokingColor(0f, 0f, 0f);
 
                 content.setFont(fontBold, 12);
-                writeText(content, codeX + 8f, codeY + 7f, "Ticket Code: " + code);
+                PdfExportSupport.writeText(content, codeX + 8f, codeY + 7f, "Ticket Code: " + code);
 
                 y -= 40f;
                 content.setFont(fontBold, 20);
-                writeText(content, x, y, route);
+                PdfExportSupport.writeText(content, x, y, route);
 
                 y -= 26f;
-                content.setStrokingColor(230, 230, 230);
+                content.setStrokingColor(230f / 255f, 230f / 255f, 230f / 255f);
                 content.moveTo(cardX + 16f, y);
                 content.lineTo(cardX + cardWidth - 16f, y);
                 content.stroke();
@@ -405,19 +396,12 @@ public class TicketViewController {
     private float writeKeyValue(PDPageContentStream content, PDType1Font fontBold, PDType1Font fontRegular,
                                 float x, float y, String label, String value) throws IOException {
         content.setFont(fontBold, 11);
-        writeText(content, x, y, label + ":");
+        PdfExportSupport.writeText(content, x, y, label + ":");
 
         content.setFont(fontRegular, 11);
-        writeText(content, x + 160f, y, value);
+        PdfExportSupport.writeText(content, x + 160f, y, value);
 
         return y - 18f;
-    }
-
-    private void writeText(PDPageContentStream content, float x, float y, String text) throws IOException {
-        content.beginText();
-        content.newLineAtOffset(x, y);
-        content.showText(text);
-        content.endText();
     }
 
     private void showAlert(Alert.AlertType type, String title, String header, String content) {

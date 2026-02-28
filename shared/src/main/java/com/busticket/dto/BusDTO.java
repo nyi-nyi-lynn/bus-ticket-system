@@ -8,18 +8,18 @@ public class BusDTO implements Serializable {
     private Long busId;
     private String busNumber;
     private String busName;
-    private String type;
+    private String busType;
     private String status;
     private int totalSeats;
 
     public BusDTO() {
     }
 
-    public BusDTO(Long busId, String busNumber, String busName, String type, String status, int totalSeats) {
+    public BusDTO(Long busId, String busNumber, String busName, String busType, String status, int totalSeats) {
         this.busId = busId;
         this.busNumber = busNumber;
         this.busName = busName;
-        this.type = type;
+        this.busType = busType;
         this.status = status;
         this.totalSeats = totalSeats;
     }
@@ -49,11 +49,19 @@ public class BusDTO implements Serializable {
     }
 
     public String getType() {
-        return type;
+        return busType;
     }
 
     public void setType(String type) {
-        this.type = type;
+        this.busType = type;
+    }
+
+    public String getBusType() {
+        return busType;
+    }
+
+    public void setBusType(String busType) {
+        this.busType = busType;
     }
 
     public String getStatus() {

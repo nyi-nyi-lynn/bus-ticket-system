@@ -40,7 +40,7 @@ public class BusServiceImpl implements BusService {
 
         String busNumber = normalizeBusNumber(request.getBusNumber());
         BusType busType = parseTypeStrict(request.getBusType());
-        boolean active = parseStatusStrictOrDefault(request.getStatus(), true);
+        boolean active = parseStatusStrict(request.getStatus());
         if (busDAO.existsByBusNumber(busNumber)) {
             throw new DuplicateResourceException("BUS_NUMBER_EXISTS");
         }
@@ -71,7 +71,7 @@ public class BusServiceImpl implements BusService {
 
         String busNumber = normalizeBusNumber(request.getBusNumber());
         BusType busType = parseTypeStrict(request.getBusType());
-        boolean active = parseStatusStrictOrDefault(request.getStatus(), existing.isActive());
+        boolean active = parseStatusStrict(request.getStatus());
         if (busDAO.existsByBusNumberExceptId(busNumber, request.getBusId())) {
             throw new DuplicateResourceException("BUS_NUMBER_EXISTS");
         }
@@ -117,19 +117,26 @@ public class BusServiceImpl implements BusService {
         if (dto == null) {
             return false;
         }
-        String busNumber = normalizeBusNumber(dto.getBusNumber());
-        if (busNumber.isBlank() || !BUS_NUMBER_PATTERN.matcher(busNumber).matches()) {
+        try {
+            validateBusNumber(dto.getBusNumber());
+            validateBusName(dto.getBusName());
+            validateSeats(dto.getTotalSeats());
+
+            String busNumber = normalizeBusNumber(dto.getBusNumber());
+            if (busDAO.existsByBusNumber(busNumber)) {
+                return false;
+            }
+
+            Bus bus = new Bus();
+            bus.setBusNumber(busNumber);
+            bus.setBusName(normalizeText(dto.getBusName()));
+            bus.setType(parseTypeStrict(dto.getBusType()));
+            bus.setTotalSeats(dto.getTotalSeats());
+            bus.setActive(parseStatusStrict(dto.getStatus()));
+            return busDAO.save(bus);
+        } catch (ValidationException ex) {
             return false;
         }
-        if (dto.getTotalSeats() <= 0) {
-            return false;
-        }
-        if (busDAO.existsByBusNumber(busNumber)) {
-            return false;
-        }
-        Bus bus = toModelLegacy(dto);
-        bus.setBusNumber(busNumber);
-        return busDAO.save(bus);
     }
 
     @Override
@@ -137,19 +144,27 @@ public class BusServiceImpl implements BusService {
         if (dto == null || dto.getBusId() == null) {
             return false;
         }
-        String busNumber = normalizeBusNumber(dto.getBusNumber());
-        if (busNumber.isBlank() || !BUS_NUMBER_PATTERN.matcher(busNumber).matches()) {
+        try {
+            validateBusNumber(dto.getBusNumber());
+            validateBusName(dto.getBusName());
+            validateSeats(dto.getTotalSeats());
+
+            String busNumber = normalizeBusNumber(dto.getBusNumber());
+            if (busDAO.existsByBusNumberExceptId(busNumber, dto.getBusId())) {
+                return false;
+            }
+
+            Bus bus = new Bus();
+            bus.setBusId(dto.getBusId());
+            bus.setBusNumber(busNumber);
+            bus.setBusName(normalizeText(dto.getBusName()));
+            bus.setType(parseTypeStrict(dto.getBusType()));
+            bus.setTotalSeats(dto.getTotalSeats());
+            bus.setActive(parseStatusStrict(dto.getStatus()));
+            return busDAO.update(bus);
+        } catch (ValidationException ex) {
             return false;
         }
-        if (dto.getTotalSeats() <= 0) {
-            return false;
-        }
-        if (busDAO.existsByBusNumberExceptId(busNumber, dto.getBusId())) {
-            return false;
-        }
-        Bus bus = toModelLegacy(dto);
-        bus.setBusNumber(busNumber);
-        return busDAO.update(bus);
     }
 
     @Override
@@ -167,23 +182,12 @@ public class BusServiceImpl implements BusService {
         return dtos;
     }
 
-    private Bus toModelLegacy(BusDTO dto) {
-        Bus bus = new Bus();
-        bus.setBusId(dto.getBusId());
-        bus.setBusNumber(normalizeBusNumber(dto.getBusNumber()));
-        bus.setBusName(normalizeText(dto.getBusName()));
-        bus.setType(parseTypeOrDefault(dto.getType(), BusType.NORMAL));
-        bus.setTotalSeats(dto.getTotalSeats());
-        bus.setActive(!"INACTIVE".equalsIgnoreCase(normalizeText(dto.getStatus())));
-        return bus;
-    }
-
     private BusDTO toDTO(Bus bus) {
         BusDTO dto = new BusDTO();
         dto.setBusId(bus.getBusId());
         dto.setBusNumber(bus.getBusNumber());
         dto.setBusName(bus.getBusName() == null || bus.getBusName().isBlank() ? bus.getBusNumber() : bus.getBusName());
-        dto.setType(bus.getType() == null ? null : bus.getType().name());
+        dto.setBusType(bus.getType() == null ? null : bus.getType().name());
         dto.setStatus(bus.isActive() ? "ACTIVE" : "INACTIVE");
         dto.setTotalSeats(bus.getTotalSeats());
         return dto;
@@ -211,7 +215,7 @@ public class BusServiceImpl implements BusService {
         validateBusName(request.getBusName());
         validateSeats(request.getTotalSeats());
         parseTypeStrict(request.getBusType());
-        parseStatusStrictOrDefault(request.getStatus(), true);
+        parseStatusStrict(request.getStatus());
     }
 
     private void validateUpdateRequest(UpdateBusRequest request) throws ValidationException {
@@ -228,7 +232,7 @@ public class BusServiceImpl implements BusService {
         validateBusName(request.getBusName());
         validateSeats(request.getTotalSeats());
         parseTypeStrict(request.getBusType());
-        parseStatusStrictOrDefault(request.getStatus(), true);
+        parseStatusStrict(request.getStatus());
     }
 
     private void validateBusNumber(String busNumber) throws ValidationException {
@@ -260,9 +264,9 @@ public class BusServiceImpl implements BusService {
         }
     }
 
-    private boolean parseStatusStrictOrDefault(String status, boolean fallback) throws ValidationException {
+    private boolean parseStatusStrict(String status) throws ValidationException {
         if (status == null || status.isBlank()) {
-            return fallback;
+            throw new ValidationException("STATUS_REQUIRED");
         }
         String normalized = status.trim().toUpperCase(Locale.ROOT);
         return switch (normalized) {
@@ -270,17 +274,6 @@ public class BusServiceImpl implements BusService {
             case "INACTIVE", "0" -> false;
             default -> throw new ValidationException("INVALID_STATUS");
         };
-    }
-
-    private BusType parseTypeOrDefault(String type, BusType fallback) {
-        if (type == null || type.isBlank()) {
-            return fallback;
-        }
-        try {
-            return BusType.valueOf(type.trim().toUpperCase(Locale.ROOT));
-        } catch (IllegalArgumentException ex) {
-            return fallback;
-        }
     }
 
     private String normalizeBusNumber(String value) {

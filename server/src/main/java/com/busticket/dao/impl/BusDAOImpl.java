@@ -6,7 +6,6 @@ import com.busticket.exception.DuplicateResourceException;
 import com.busticket.model.Bus;
 
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLIntegrityConstraintViolationException;
@@ -17,7 +16,6 @@ import java.util.List;
 
 public class BusDAOImpl implements BusDAO {
     private final Connection connection;
-    private volatile Boolean hasBusNameColumnCache;
 
     public BusDAOImpl(Connection connection) {
         this.connection = connection;
@@ -54,9 +52,7 @@ public class BusDAOImpl implements BusDAO {
 
     @Override
     public Bus findById(Long busId) {
-        String sql = hasBusNameColumn()
-                ? "SELECT bus_id, bus_number, bus_name, type, total_seats, is_active FROM buses WHERE bus_id = ?"
-                : "SELECT bus_id, bus_number, bus_number AS bus_name, type, total_seats, is_active FROM buses WHERE bus_id = ?";
+        String sql = "SELECT bus_id, bus_number, bus_name, type, total_seats, is_active FROM buses WHERE bus_id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setLong(1, busId);
             try (ResultSet rs = ps.executeQuery()) {
@@ -86,18 +82,13 @@ public class BusDAOImpl implements BusDAO {
 
     @Override
     public Bus insert(Bus bus) throws DuplicateResourceException {
-        String sql = hasBusNameColumn()
-                ? "INSERT INTO buses(bus_number, bus_name, type, total_seats, is_active) VALUES(?,?,?,?,?)"
-                : "INSERT INTO buses(bus_number, type, total_seats, is_active) VALUES(?,?,?,?)";
+        String sql = "INSERT INTO buses(bus_number, bus_name, type, total_seats, is_active) VALUES(?,?,?,?,?)";
         try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, bus.getBusNumber());
-            int index = 2;
-            if (hasBusNameColumn()) {
-                ps.setString(index++, bus.getBusName());
-            }
-            ps.setString(index++, bus.getType().name());
-            ps.setInt(index++, bus.getTotalSeats());
-            ps.setInt(index, bus.isActive() ? 1 : 0);
+            ps.setString(2, bus.getBusName());
+            ps.setString(3, bus.getType().name());
+            ps.setInt(4, bus.getTotalSeats());
+            ps.setInt(5, bus.isActive() ? 1 : 0);
 
             int affected = ps.executeUpdate();
             if (affected == 0) {
@@ -127,19 +118,14 @@ public class BusDAOImpl implements BusDAO {
 
     @Override
     public Bus updateRecord(Bus bus) throws DuplicateResourceException {
-        String sql = hasBusNameColumn()
-                ? "UPDATE buses SET bus_number = ?, bus_name = ?, type = ?, total_seats = ?, is_active = ? WHERE bus_id = ?"
-                : "UPDATE buses SET bus_number = ?, type = ?, total_seats = ?, is_active = ? WHERE bus_id = ?";
+        String sql = "UPDATE buses SET bus_number = ?, bus_name = ?, type = ?, total_seats = ?, is_active = ? WHERE bus_id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, bus.getBusNumber());
-            int index = 2;
-            if (hasBusNameColumn()) {
-                ps.setString(index++, bus.getBusName());
-            }
-            ps.setString(index++, bus.getType().name());
-            ps.setInt(index++, bus.getTotalSeats());
-            ps.setInt(index++, bus.isActive() ? 1 : 0);
-            ps.setLong(index, bus.getBusId());
+            ps.setString(2, bus.getBusName());
+            ps.setString(3, bus.getType().name());
+            ps.setInt(4, bus.getTotalSeats());
+            ps.setInt(5, bus.isActive() ? 1 : 0);
+            ps.setLong(6, bus.getBusId());
 
             int affected = ps.executeUpdate();
             if (affected <= 0) {
@@ -224,9 +210,7 @@ public class BusDAOImpl implements BusDAO {
 
     @Override
     public List<Bus> findAll() {
-        String sql = hasBusNameColumn()
-                ? "SELECT bus_id, bus_number, bus_name, type, total_seats, is_active FROM buses ORDER BY bus_id DESC"
-                : "SELECT bus_id, bus_number, bus_number AS bus_name, type, total_seats, is_active FROM buses ORDER BY bus_id DESC";
+        String sql = "SELECT bus_id, bus_number, bus_name, type, total_seats, is_active FROM buses ORDER BY bus_id DESC";
         List<Bus> buses = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -253,33 +237,6 @@ public class BusDAOImpl implements BusDAO {
         bus.setTotalSeats(rs.getInt("total_seats"));
         bus.setActive(rs.getInt("is_active") == 1);
         return bus;
-    }
-
-    private boolean hasBusNameColumn() {
-        if (hasBusNameColumnCache != null) {
-            return hasBusNameColumnCache;
-        }
-        synchronized (this) {
-            if (hasBusNameColumnCache != null) {
-                return hasBusNameColumnCache;
-            }
-            try {
-                DatabaseMetaData metaData = connection.getMetaData();
-                try (ResultSet rs = metaData.getColumns(connection.getCatalog(), null, "buses", "bus_name")) {
-                    if (rs.next()) {
-                        hasBusNameColumnCache = true;
-                        return true;
-                    }
-                }
-                try (ResultSet rs = metaData.getColumns(connection.getCatalog(), null, "BUSES", "BUS_NAME")) {
-                    hasBusNameColumnCache = rs.next();
-                    return hasBusNameColumnCache;
-                }
-            } catch (SQLException ex) {
-                hasBusNameColumnCache = false;
-                return false;
-            }
-        }
     }
 
     private void generateSeats(Long busId, int totalSeats) {

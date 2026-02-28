@@ -19,6 +19,7 @@ import com.busticket.remote.RouteRemote;
 import com.busticket.remote.TripRemote;
 import com.busticket.rmi.RMIClient;
 import com.busticket.session.Session;
+import com.busticket.util.PdfExportSupport;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
@@ -37,7 +38,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
@@ -337,7 +337,13 @@ public class ReportsController {
             return;
         }
 
-        File target = chooseExportTarget("Export CSV", "csv", currentReportType.filePrefix());
+        Window window = reportsTable.getScene() == null ? null : reportsTable.getScene().getWindow();
+        File target = PdfExportSupport.chooseExportTarget(
+                window,
+                "Export CSV",
+                "csv",
+                currentReportType.filePrefix() + "_" + formatDate(LocalDate.now())
+        );
         if (target == null) {
             return;
         }
@@ -357,7 +363,13 @@ public class ReportsController {
             return;
         }
 
-        File target = chooseExportTarget("Export PDF", "pdf", currentReportType.filePrefix());
+        Window window = reportsTable.getScene() == null ? null : reportsTable.getScene().getWindow();
+        File target = PdfExportSupport.chooseExportTarget(
+                window,
+                "Export PDF",
+                "pdf",
+                currentReportType.filePrefix() + "_" + formatDate(LocalDate.now())
+        );
         if (target == null) {
             return;
         }
@@ -635,15 +647,15 @@ public class ReportsController {
 
             try (PDPageContentStream content = new PDPageContentStream(document, page)) {
                 content.setFont(fontBold, 16);
-                writeText(content, margin, y, currentReportType.label());
+                PdfExportSupport.writeText(content, margin, y, currentReportType.label());
                 y -= lineHeight * 1.5f;
 
                 content.setFont(fontRegular, 11);
-                writeText(content, margin, y, "Date Range: " + formatDate(fromDatePicker.getValue()) + " to " + formatDate(toDatePicker.getValue()));
+                PdfExportSupport.writeText(content, margin, y, "Date Range: " + formatDate(fromDatePicker.getValue()) + " to " + formatDate(toDatePicker.getValue()));
                 y -= lineHeight;
 
                 String filters = buildFilterSummary();
-                writeText(content, margin, y, "Filters: " + filters);
+                PdfExportSupport.writeText(content, margin, y, "Filters: " + filters);
                 y -= lineHeight * 1.5f;
 
                 List<String> kpiLines = List.of(
@@ -652,13 +664,13 @@ public class ReportsController {
                         kpiTitle3.getText() + ": " + kpiValue3.getText()
                 );
                 for (String line : kpiLines) {
-                    writeText(content, margin, y, line);
+                    PdfExportSupport.writeText(content, margin, y, line);
                     y -= lineHeight;
                 }
 
                 y -= lineHeight * 0.5f;
                 content.setFont(fontBold, 11);
-                writeText(content, margin, y, String.join(" | ", headers));
+                PdfExportSupport.writeText(content, margin, y, String.join(" | ", headers));
                 y -= lineHeight;
 
                 content.setFont(fontRegular, 10);
@@ -666,7 +678,7 @@ public class ReportsController {
                     if (y < margin) {
                         break;
                     }
-                    writeText(content, margin, y, String.join(" | ", row));
+                    PdfExportSupport.writeText(content, margin, y, String.join(" | ", row));
                     y -= lineHeight;
                 }
             }
@@ -779,32 +791,6 @@ public class ReportsController {
 
     private String safeString(Long value) {
         return value == null ? "-" : String.valueOf(value);
-    }
-
-    private File chooseExportTarget(String title, String extension, String prefix) {
-        FileChooser chooser = new FileChooser();
-        chooser.setTitle(title);
-        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(extension.toUpperCase(Locale.ROOT) + " Files", "*." + extension));
-        chooser.setInitialFileName(prefix + "_" + formatDate(LocalDate.now()) + "." + extension);
-
-        Window window = reportsTable.getScene() == null ? null : reportsTable.getScene().getWindow();
-        File file = chooser.showSaveDialog(window);
-        if (file == null) {
-            return null;
-        }
-
-        String name = file.getName().toLowerCase(Locale.ROOT);
-        if (name.endsWith("." + extension)) {
-            return file;
-        }
-        return new File(file.getParentFile(), file.getName() + "." + extension);
-    }
-
-    private void writeText(PDPageContentStream content, float x, float y, String text) throws IOException {
-        content.beginText();
-        content.newLineAtOffset(x, y);
-        content.showText(text);
-        content.endText();
     }
 
     private void showAlert(Alert.AlertType type, String title, String header, String content) {

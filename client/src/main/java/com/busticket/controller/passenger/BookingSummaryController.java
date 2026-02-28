@@ -34,6 +34,7 @@ public class BookingSummaryController {
     @FXML private Label perSeatPriceLabel;
     @FXML private Label totalPriceLabel;
     @FXML private Button confirmPayButton;
+    @FXML private Button paymentLaterButton;
 
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.ENGLISH);
     private static final DateTimeFormatter TIME_FMT = DateTimeFormatter.ofPattern("HH:mm");
@@ -121,6 +122,54 @@ public class BookingSummaryController {
             showAlert(Alert.AlertType.ERROR, "Navigation Failed", "Booking was created but payment screen failed to open.", ex.getMessage());
         } finally {
             confirmPayButton.setDisable(false);
+        }
+    }
+
+    @FXML
+    private void onPaymentLater() {
+        if (Session.getCurrentUser() == null || Session.getCurrentUser().getUserId() == null) {
+            showAlert(Alert.AlertType.WARNING, "Login Required", "User session missing.", "Please login and try again.");
+            return;
+        }
+        if (trip == null || trip.getTripId() == null || selectedSeats.isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "Invalid Summary", "Trip or seats missing.", "Please reselect your seats.");
+            return;
+        }
+
+        List<String> seatNumbers = selectedSeats.stream()
+                .map(SeatDTO::getSeatNumber)
+                .filter(Objects::nonNull)
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .distinct()
+                .sorted()
+                .toList();
+        if (seatNumbers.isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "Invalid Seats", "Selected seats are invalid.", "Please reselect your seats.");
+            return;
+        }
+
+        try {
+            paymentLaterButton.setDisable(true);
+
+            BookingRemote bookingRemote = RMIClient.getBookingRemote();
+            BookingDTO request = new BookingDTO();
+            request.setUserId(Session.getCurrentUser().getUserId());
+            request.setTripId(trip.getTripId());
+            request.setSeatNumbers(seatNumbers);
+            BookingDTO booking = bookingRemote.createBooking(request);
+            if (booking == null || booking.getBookingId() == null) {
+                showAlert(Alert.AlertType.ERROR, "Booking Failed", "Unable to create booking.", "Please try again.");
+                return;
+            }
+
+            Session.clearPendingSelection();
+            Session.clearBookingContext();
+            SceneSwitcher.switchContent("/com/busticket/view/passenger/SearchTripsView.fxml");
+        } catch (Exception ex) {
+            showAlert(Alert.AlertType.ERROR, "Booking Failed", "Unable to create pending booking.", ex.getMessage());
+        } finally {
+            paymentLaterButton.setDisable(false);
         }
     }
 

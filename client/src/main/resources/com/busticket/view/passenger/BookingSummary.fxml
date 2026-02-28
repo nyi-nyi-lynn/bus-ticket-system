@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox spacing="16" stylesheets="@../theme.css" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/25" fx:controller="com.busticket.controller.passenger.BookingSummaryController">
+<VBox spacing="16" stylesheets="@../theme.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.busticket.controller.passenger.BookingSummaryController">
     <HBox alignment="CENTER_LEFT" spacing="10">
         <Label styleClass="page-title" text="Booking Summary" />
     </HBox>
@@ -91,7 +91,8 @@
     <HBox alignment="CENTER_RIGHT" spacing="10">
         <Region HBox.hgrow="ALWAYS" />
         <Button onAction="#onBack" styleClass="ghost-button" text="Back" />
-        <Button fx:id="confirmPayButton" onAction="#onConfirmAndPay" styleClass="primary-button" text="Confirm Booking" />
+        <Button fx:id="paymentLaterButton" onAction="#onPaymentLater" styleClass="ghost-button" text="Payment Later" />
+        <Button fx:id="confirmPayButton" onAction="#onConfirmAndPay" styleClass="primary-button" text="Pay Now" />
     </HBox>
 
     <padding>

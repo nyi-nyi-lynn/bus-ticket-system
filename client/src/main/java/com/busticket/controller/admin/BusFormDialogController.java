@@ -284,7 +284,7 @@ public class BusFormDialogController {
         busNumberField.setText(trimmed(bus.getBusNumber()));
         busNameField.setText(trimmed(resolveBusName(bus)));
         totalSeatsField.setText(String.valueOf(bus.getTotalSeats()));
-        busTypeCombo.setValue(normalizeUpper(bus.getType()));
+        busTypeCombo.setValue(normalizeUpper(bus.getBusType()));
         statusCombo.setValue(normalizeStatus(bus.getStatus()));
     }
 
@@ -305,7 +305,7 @@ public class BusFormDialogController {
         boolean changed = !Objects.equals(normalizeBusNumber(busNumberField.getText()), normalizeBusNumber(originalBus.getBusNumber()))
                 || !Objects.equals(trimmed(busNameField.getText()), trimmed(resolveBusName(originalBus)))
                 || !Objects.equals(parseSeats(totalSeatsField.getText()), originalBus.getTotalSeats())
-                || !Objects.equals(normalizeUpper(busTypeCombo.getValue()), normalizeUpper(originalBus.getType()))
+                || !Objects.equals(normalizeUpper(busTypeCombo.getValue()), normalizeUpper(originalBus.getBusType()))
                 || !Objects.equals(normalizeStatus(statusCombo.getValue()), normalizeStatus(originalBus.getStatus()));
         formChanged.set(changed);
     }
@@ -345,6 +345,7 @@ public class BusFormDialogController {
             case "INVALID_TOTAL_SEATS" -> "Total seats must be greater than zero.";
             case "BUS_TYPE_REQUIRED" -> "Bus type is required.";
             case "INVALID_BUS_TYPE" -> "Bus type is invalid.";
+            case "STATUS_REQUIRED" -> "Status is required.";
             case "INVALID_STATUS" -> "Status is invalid.";
             case "BUS_NOT_FOUND" -> "Bus not found.";
             case "BUS_NUMBER_EXISTS" -> "Bus number already exists.";
@@ -395,7 +396,7 @@ public class BusFormDialogController {
         copy.setBusNumber(bus.getBusNumber());
         copy.setBusName(bus.getBusName());
         copy.setTotalSeats(bus.getTotalSeats());
-        copy.setType(bus.getType());
+        copy.setBusType(bus.getBusType());
         copy.setStatus(normalizeStatus(bus.getStatus()));
         return copy;
     }

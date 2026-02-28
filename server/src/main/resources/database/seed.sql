@@ -2,21 +2,22 @@ USE bus_ticket;
 
 INSERT INTO users (name, email, password, phone, role, status)
 VALUES
-    ('Maya Thant', 'maya.passenger@busticket.com', SHA2('pass123', 256), '0911111111', 'PASSENGER', 'ACTIVE'),
-    ('Ko Min', 'komin.passenger@busticket.com', SHA2('pass123', 256), '0922222222', 'PASSENGER', 'ACTIVE'),
-    ('Aye Aye', 'ayeaye.passenger@busticket.com', SHA2('pass123', 256), '0933333333', 'PASSENGER', 'ACTIVE')
+    ('Maya Thant', 'admin@busticket.com', SHA2('pass123', 256), '0911111111', 'ADMIN', 'ACTIVE'),
+    ('Ko Min', 'komin@gmail.com', SHA2('pass123', 256), '0922222222', 'PASSENGER', 'ACTIVE'),
+    ('Aye Aye', 'ayeaye@gmail.com', SHA2('pass123', 256), '0933333333', 'PASSENGER', 'ACTIVE')
 ON DUPLICATE KEY UPDATE
     name = VALUES(name),
     phone = VALUES(phone),
     role = VALUES(role),
     status = VALUES(status);
 
-INSERT INTO buses (bus_number, type, total_seats, is_active)
+INSERT INTO buses (bus_number, bus_name, type, total_seats, is_active)
 VALUES
-    ('VIP-1001', 'VIP', 28, 1),
-    ('VIP-1002', 'VIP', 28, 1),
-    ('NORM-2001', 'NORMAL', 40, 1)
+    ('VIP-1001', 'Golden Express', 'VIP', 28, 1),
+    ('VIP-1002', 'Silver Line', 'VIP', 28, 1),
+    ('NORM-2001', 'City Rider', 'NORMAL', 40, 1)
 ON DUPLICATE KEY UPDATE
+    bus_name = VALUES(bus_name),
     type = VALUES(type),
     total_seats = VALUES(total_seats),
     is_active = VALUES(is_active);

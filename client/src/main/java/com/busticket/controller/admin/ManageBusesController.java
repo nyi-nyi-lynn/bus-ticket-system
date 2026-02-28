@@ -94,7 +94,7 @@ public class ManageBusesController {
         busNumberColumn.setCellValueFactory(data -> new ReadOnlyStringWrapper(safeText(data.getValue().getBusNumber())));
         busNameColumn.setCellValueFactory(data -> new ReadOnlyStringWrapper(resolveBusName(data.getValue())));
         totalSeatsColumn.setCellValueFactory(data -> new ReadOnlyStringWrapper(String.valueOf(data.getValue().getTotalSeats())));
-        busTypeColumn.setCellValueFactory(data -> new ReadOnlyStringWrapper(safeText(data.getValue().getType())));
+        busTypeColumn.setCellValueFactory(data -> new ReadOnlyStringWrapper(safeText(data.getValue().getBusType())));
         statusColumn.setCellValueFactory(data -> new ReadOnlyStringWrapper(normalizeStatus(data.getValue().getStatus())));
 
         statusColumn.setCellFactory(col -> new StatusBadgeCell());
@@ -220,7 +220,7 @@ public class ManageBusesController {
             if (!global.isEmpty() && !matchesGlobal(bus, global)) {
                 return false;
             }
-            if (!typeValue.isEmpty() && !equalsIgnoreCase(bus.getType(), typeValue)) {
+            if (!typeValue.isEmpty() && !equalsIgnoreCase(bus.getBusType(), typeValue)) {
                 return false;
             }
             String busStatus = normalizeStatus(bus.getStatus());
@@ -369,7 +369,7 @@ public class ManageBusesController {
         return containsIgnoreCase(String.valueOf(bus.getBusId()), term)
                 || containsIgnoreCase(bus.getBusNumber(), term)
                 || containsIgnoreCase(resolveBusName(bus), term)
-                || containsIgnoreCase(bus.getType(), term)
+                || containsIgnoreCase(bus.getBusType(), term)
                 || containsIgnoreCase(normalizeStatus(bus.getStatus()), term)
                 || containsIgnoreCase(String.valueOf(bus.getTotalSeats()), term);
     }

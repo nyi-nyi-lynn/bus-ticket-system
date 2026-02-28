@@ -89,7 +89,7 @@ public class PaymentController {
             SceneSwitcher.switchContent("/com/busticket/view/guest/GuestInfoView.fxml");
             return;
         }
-        SceneSwitcher.switchToBookingSummary();
+        SceneSwitcher.switchContent("/com/busticket/view/passenger/SearchTripsView.fxml");
     }
 
     @FXML
@@ -184,7 +184,7 @@ public class PaymentController {
         }
 
         selectedSeatsValueLabel.setText(selectedSeats.isEmpty() ? "-" : String.join(", ", selectedSeats));
-        totalPriceValueLabel.setText(String.format(Locale.ENGLISH, "$%.2f", totalAmount));
+        totalPriceValueLabel.setText(String.format(Locale.ENGLISH, "%.2f", totalAmount));
     }
 
     private TripDTO resolveTripData() {
