@@ -1,6 +1,10 @@
 CREATE DATABASE IF NOT EXISTS bus_ticket;
 USE bus_ticket;
 
+-- Cleanup legacy/unused tables if they exist.
+DROP TABLE IF EXISTS ticket_validations;
+DROP TABLE IF EXISTS ticket_validation;
+
 CREATE TABLE IF NOT EXISTS users (
     user_id BIGINT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(120) NOT NULL,
