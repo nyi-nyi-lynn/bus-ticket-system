@@ -5,7 +5,6 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
@@ -20,21 +19,17 @@
             <TextField fx:id="emailField" promptText="Email" styleClass="field" />
             <TextField fx:id="phoneField" promptText="Phone" styleClass="field" />
 
-            <HBox spacing="8" alignment="CENTER_LEFT">
-                <StackPane HBox.hgrow="ALWAYS" styleClass="password-field-stack">
-                    <PasswordField fx:id="passwordField" promptText="Password" styleClass="field" maxWidth="1.7976931348623157E308" />
-                    <TextField fx:id="passwordVisibleField" promptText="Password" styleClass="field" maxWidth="1.7976931348623157E308" visible="false" managed="false" />
-                </StackPane>
-                <Button fx:id="passwordToggleButton" text="Show" styleClass="password-toggle-button" onAction="#onTogglePasswordVisibility" />
-            </HBox>
+            <StackPane styleClass="password-field-stack">
+                <PasswordField fx:id="passwordField" promptText="Password" styleClass="field" maxWidth="1.7976931348623157E308" />
+                <TextField fx:id="passwordVisibleField" promptText="Password" styleClass="field" maxWidth="1.7976931348623157E308" visible="false" managed="false" />
+                <Button fx:id="passwordToggleButton" text="👁" styleClass="password-toggle-button" onAction="#onTogglePasswordVisibility" StackPane.alignment="CENTER_RIGHT" />
+            </StackPane>
 
-            <HBox spacing="8" alignment="CENTER_LEFT">
-                <StackPane HBox.hgrow="ALWAYS" styleClass="password-field-stack">
-                    <PasswordField fx:id="confirmPasswordField" promptText="Confirm Password" styleClass="field" maxWidth="1.7976931348623157E308" />
-                    <TextField fx:id="confirmPasswordVisibleField" promptText="Confirm Password" styleClass="field" maxWidth="1.7976931348623157E308" visible="false" managed="false" />
-                </StackPane>
-                <Button fx:id="confirmPasswordToggleButton" text="Show" styleClass="password-toggle-button" onAction="#onToggleConfirmPasswordVisibility" />
-            </HBox>
+            <StackPane styleClass="password-field-stack">
+                <PasswordField fx:id="confirmPasswordField" promptText="Confirm Password" styleClass="field" maxWidth="1.7976931348623157E308" />
+                <TextField fx:id="confirmPasswordVisibleField" promptText="Confirm Password" styleClass="field" maxWidth="1.7976931348623157E308" visible="false" managed="false" />
+                <Button fx:id="confirmPasswordToggleButton" text="👁" styleClass="password-toggle-button" onAction="#onToggleConfirmPasswordVisibility" StackPane.alignment="CENTER_RIGHT" />
+            </StackPane>
         </VBox>
         <VBox spacing="10">
             <Button fx:id="registerButton" text="Register" onAction="#onRegister" styleClass="primary-button" maxWidth="Infinity" />

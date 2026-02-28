@@ -572,20 +572,34 @@
     -fx-alignment: CENTER_LEFT;
 }
 
+.password-field-stack .field {
+    -fx-padding: 10 44 10 12;
+}
+
 .password-toggle-button {
-    -fx-background-color: #eef2ff;
+    -fx-background-color: transparent;
     -fx-text-fill: #1e40af;
-    -fx-background-radius: 10;
-    -fx-border-radius: 10;
-    -fx-border-color: #c7d2fe;
-    -fx-padding: 8 10;
-    -fx-font-size: 12px;
-    -fx-font-weight: 600;
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-border-color: transparent;
+    -fx-padding: 0 10;
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
     -fx-cursor: hand;
+    -fx-min-width: 32;
+    -fx-pref-width: 32;
+    -fx-max-width: 32;
+    -fx-min-height: 32;
+    -fx-pref-height: 32;
+    -fx-max-height: 32;
 }
 
 .password-toggle-button:hover {
     -fx-background-color: #e0e7ff;
+}
+
+.password-toggle-button:pressed {
+    -fx-background-color: #c7d2fe;
 }
 
 .dashboard-scroll {

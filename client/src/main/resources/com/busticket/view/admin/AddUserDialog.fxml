@@ -60,25 +60,21 @@
 
     <VBox spacing="4">
         <Label text="Password" />
-        <HBox spacing="8" alignment="CENTER_LEFT">
-            <StackPane HBox.hgrow="ALWAYS" styleClass="password-field-stack">
-                <PasswordField fx:id="passwordField" promptText="Minimum 8 characters" styleClass="field" maxWidth="1.7976931348623157E308" />
-                <TextField fx:id="passwordVisibleField" promptText="Minimum 8 characters" styleClass="field" maxWidth="1.7976931348623157E308" visible="false" managed="false" />
-            </StackPane>
-            <Button fx:id="passwordToggleButton" text="Show" styleClass="password-toggle-button" onAction="#onTogglePasswordVisibility" />
-        </HBox>
+        <StackPane styleClass="password-field-stack">
+            <PasswordField fx:id="passwordField" promptText="Minimum 8 characters" styleClass="field" maxWidth="1.7976931348623157E308" />
+            <TextField fx:id="passwordVisibleField" promptText="Minimum 8 characters" styleClass="field" maxWidth="1.7976931348623157E308" visible="false" managed="false" />
+            <Button fx:id="passwordToggleButton" text="👁" styleClass="password-toggle-button" onAction="#onTogglePasswordVisibility" StackPane.alignment="CENTER_RIGHT" />
+        </StackPane>
         <Label fx:id="passwordErrorLabel" styleClass="field-error" managed="false" visible="false" wrapText="true" />
     </VBox>
 
     <VBox spacing="4">
         <Label text="Confirm Password" />
-        <HBox spacing="8" alignment="CENTER_LEFT">
-            <StackPane HBox.hgrow="ALWAYS" styleClass="password-field-stack">
-                <PasswordField fx:id="confirmPasswordField" promptText="Retype password" styleClass="field" maxWidth="1.7976931348623157E308" />
-                <TextField fx:id="confirmPasswordVisibleField" promptText="Retype password" styleClass="field" maxWidth="1.7976931348623157E308" visible="false" managed="false" />
-            </StackPane>
-            <Button fx:id="confirmPasswordToggleButton" text="Show" styleClass="password-toggle-button" onAction="#onToggleConfirmPasswordVisibility" />
-        </HBox>
+        <StackPane styleClass="password-field-stack">
+            <PasswordField fx:id="confirmPasswordField" promptText="Retype password" styleClass="field" maxWidth="1.7976931348623157E308" />
+            <TextField fx:id="confirmPasswordVisibleField" promptText="Retype password" styleClass="field" maxWidth="1.7976931348623157E308" visible="false" managed="false" />
+            <Button fx:id="confirmPasswordToggleButton" text="👁" styleClass="password-toggle-button" onAction="#onToggleConfirmPasswordVisibility" StackPane.alignment="CENTER_RIGHT" />
+        </StackPane>
         <Label fx:id="confirmPasswordErrorLabel" styleClass="field-error" managed="false" visible="false" wrapText="true" />
     </VBox>
 
