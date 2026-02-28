@@ -4,7 +4,6 @@ Auth Flow:
 Login -> Register
 Login -> Passenger Dashboard (Role: PASSENGER)
 Login -> Admin Dashboard (Role: ADMIN)
-Login -> Staff Dashboard (Role: STAFF)
 Login -> Guest Dashboard (Continue as Guest)
 
 Passenger Flow:
@@ -22,7 +21,3 @@ Admin Dashboard -> Manage Routes
 Admin Dashboard -> Manage Trips
 Admin Dashboard -> Reports
 
-Staff Flow:
-Staff Dashboard -> View Trips
-Staff Dashboard -> Manage Bookings
-Staff Dashboard -> Validate Ticket

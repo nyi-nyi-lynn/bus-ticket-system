@@ -14,6 +14,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class UserDAOImpl implements UserDAO {
 
@@ -181,10 +182,21 @@ public class UserDAOImpl implements UserDAO {
         user.setEmail(rs.getString("email"));
         user.setPassword(rs.getString("password"));
         user.setPhone(rs.getString("phone"));
-        user.setRole(Role.valueOf(rs.getString("role")));
+        user.setRole(parseRoleOrDefault(rs.getString("role")));
         user.setStatus(UserStatus.valueOf(rs.getString("status")));
         user.setCreatedAt(rs.getTimestamp("created_at"));
         user.setUpdatedAt(rs.getTimestamp("updated_at"));
         return user;
+    }
+
+    private Role parseRoleOrDefault(String roleValue) {
+        if (roleValue == null || roleValue.isBlank()) {
+            return Role.PASSENGER;
+        }
+        try {
+            return Role.valueOf(roleValue.trim().toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException ex) {
+            return Role.PASSENGER;
+        }
     }
 }

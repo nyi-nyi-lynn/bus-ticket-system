@@ -73,7 +73,7 @@ public class AddUserDialogController {
 
     @FXML
     private void initialize() {
-        roleCombo.setItems(FXCollections.observableArrayList(List.of("ADMIN", "STAFF", "PASSENGER")));
+        roleCombo.setItems(FXCollections.observableArrayList(List.of("ADMIN", "PASSENGER")));
         statusCombo.setItems(FXCollections.observableArrayList(List.of("ACTIVE", "BLOCKED")));
         statusCombo.setValue("ACTIVE");
 

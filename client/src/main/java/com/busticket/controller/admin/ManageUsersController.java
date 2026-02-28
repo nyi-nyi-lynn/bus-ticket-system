@@ -140,7 +140,7 @@ public class ManageUsersController {
     }
 
     private void setupFilters() {
-        List<String> roleOptions = List.of("ALL", "ADMIN", "STAFF", "PASSENGER");
+        List<String> roleOptions = List.of("ALL", "ADMIN", "PASSENGER");
         List<String> statusOptions = List.of("ALL", "ACTIVE", "BLOCKED");
 
         roleFilter.setItems(FXCollections.observableArrayList(roleOptions));

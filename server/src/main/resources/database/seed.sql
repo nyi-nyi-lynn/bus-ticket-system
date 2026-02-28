@@ -150,9 +150,3 @@ FROM bookings b
 WHERE b.ticket_code = 'TCK-10001'
   AND NOT EXISTS (SELECT 1 FROM payments WHERE booking_id = b.booking_id);
 
-INSERT INTO ticket_validations (booking_id, staff_user_id, validated_at)
-SELECT b.booking_id, s.user_id, '2026-02-20 11:00:00'
-FROM bookings b
-JOIN users s ON s.email = 'staff@busticket.com'
-WHERE b.ticket_code = 'TCK-10001'
-  AND NOT EXISTS (SELECT 1 FROM ticket_validations WHERE booking_id = b.booking_id);

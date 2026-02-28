@@ -53,7 +53,7 @@ public class EditUserDialogController {
 
     @FXML
     private void initialize() {
-        roleCombo.setItems(FXCollections.observableArrayList(List.of("ADMIN", "STAFF", "PASSENGER")));
+        roleCombo.setItems(FXCollections.observableArrayList(List.of("ADMIN", "PASSENGER")));
         statusCombo.setItems(FXCollections.observableArrayList(List.of("ACTIVE", "BLOCKED")));
 
         saveChangesButton.disableProperty().bind(formValid.not().or(formChanged.not()).or(saving));

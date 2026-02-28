@@ -23,9 +23,6 @@ public class AppShellController {
     @FXML private Button navManageRoutes;
     @FXML private Button navManageTrips;
     @FXML private Button navReports;
-    @FXML private Button navStaffTrips;
-    @FXML private Button navStaffBookings;
-    @FXML private Button navValidateTicket;
     @FXML private Button navLogout;
     @FXML private Button navBackToLogin;
 
@@ -37,7 +34,7 @@ public class AppShellController {
         navButtons = List.of(
                 navDashboard, navSearchTrips, navMyBookings, navProfile,
                 navManageUsers, navManageBuses, navManageRoutes, navManageTrips,
-                navReports, navStaffTrips, navStaffBookings, navValidateTicket, navLogout,navBackToLogin
+                navReports, navLogout, navBackToLogin
         );
         applyRoleNavigation();
         setDefaultActiveNav();
@@ -77,12 +74,6 @@ public class AppShellController {
             setNavVisibility(navReports, true);
             setNavVisibility(navLogout, true);
             roleBadge.setText("Admin");
-        } else if (role == Role.STAFF) {
-            setNavVisibility(navDashboard, true);
-            setNavVisibility(navStaffTrips, true);
-            setNavVisibility(navStaffBookings, true);
-            setNavVisibility(navValidateTicket, true);
-            roleBadge.setText("Staff");
         }
     }
 
@@ -125,8 +116,6 @@ public class AppShellController {
         Role role = Session.getRole();
         if (role == Role.ADMIN) {
             SceneSwitcher.switchContent("/com/busticket/view/admin/AdminDashboardView.fxml");
-        } else if (role == Role.STAFF) {
-            SceneSwitcher.switchContent("/com/busticket/view/staff/StaffDashboardView.fxml");
         } else {
             SceneSwitcher.switchContent("/com/busticket/view/passenger/PassengerDashboardView.fxml");
         }
@@ -178,24 +167,6 @@ public class AppShellController {
     private void onReports() {
         setActiveNav(navReports);
         SceneSwitcher.switchContent("/com/busticket/view/admin/ReportsView.fxml");
-    }
-
-    @FXML
-    private void onStaffTrips() {
-        setActiveNav(navStaffTrips);
-        SceneSwitcher.switchContent("/com/busticket/view/staff/StaffTripsView.fxml");
-    }
-
-    @FXML
-    private void onStaffBookings() {
-        setActiveNav(navStaffBookings);
-        SceneSwitcher.switchContent("/com/busticket/view/staff/StaffBookingsView.fxml");
-    }
-
-    @FXML
-    private void onValidateTicket() {
-        setActiveNav(navValidateTicket);
-        SceneSwitcher.switchContent("/com/busticket/view/staff/ValidateTicketView.fxml");
     }
 
     @FXML

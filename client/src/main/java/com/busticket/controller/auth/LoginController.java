@@ -81,8 +81,6 @@ public class LoginController {
         switch (Session.getRole()) {
             case ADMIN:
                 return "/com/busticket/view/admin/AdminDashboardView.fxml";
-            case STAFF:
-                return "/com/busticket/view/staff/StaffDashboardView.fxml";
             default:
                 return "/com/busticket/view/passenger/PassengerDashboardView.fxml";
         }

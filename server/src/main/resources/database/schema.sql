@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(190) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     phone VARCHAR(30),
-    role ENUM('ADMIN', 'STAFF', 'PASSENGER') NOT NULL DEFAULT 'PASSENGER',
+    role ENUM('ADMIN', 'PASSENGER') NOT NULL DEFAULT 'PASSENGER',
     status ENUM('ACTIVE', 'BLOCKED') NOT NULL DEFAULT 'ACTIVE',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -85,15 +85,6 @@ CREATE TABLE IF NOT EXISTS payments (
     CONSTRAINT fk_payments_booking FOREIGN KEY (booking_id) REFERENCES bookings(booking_id)
 );
 
-CREATE TABLE IF NOT EXISTS ticket_validations (
-    validation_id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    booking_id BIGINT NOT NULL UNIQUE,
-    staff_user_id BIGINT NOT NULL,
-    validated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_validation_booking FOREIGN KEY (booking_id) REFERENCES bookings(booking_id),
-    CONSTRAINT fk_validation_staff FOREIGN KEY (staff_user_id) REFERENCES users(user_id)
-);
-
 CREATE INDEX idx_trips_travel_date ON trips (travel_date);
 CREATE INDEX idx_trips_departure_time ON trips (departure_time);
 CREATE INDEX idx_trips_route_id ON trips (route_id);
@@ -109,6 +100,3 @@ INSERT INTO users(name, email, password, phone, role, status)
 SELECT 'System Admin', 'admin@busticket.com', SHA2('admin123', 256), '0000000000', 'ADMIN', 'ACTIVE'
 WHERE NOT EXISTS (SELECT 1 FROM users WHERE email = 'admin@busticket.com');
 
-INSERT INTO users(name, email, password, phone, role, status)
-SELECT 'System Staff', 'staff@busticket.com', SHA2('staff123', 256), '0000000001', 'STAFF', 'ACTIVE'
-WHERE NOT EXISTS (SELECT 1 FROM users WHERE email = 'staff@busticket.com');
