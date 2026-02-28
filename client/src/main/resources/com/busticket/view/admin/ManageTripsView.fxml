@@ -11,28 +11,24 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.busticket.controller.admin.ManageTripsController"
-      spacing="16"
-      maxWidth="1.7976931348623157E308"
-      stylesheets="@../theme.css">
+<VBox maxWidth="1.7976931348623157E308" spacing="16" stylesheets="@../theme.css" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/25" fx:controller="com.busticket.controller.admin.ManageTripsController">
     <padding>
-        <Insets top="16" right="16" bottom="16" left="16" />
+        <Insets bottom="16" left="16" right="16" top="16" />
     </padding>
 
-    <HBox spacing="12" alignment="CENTER_LEFT">
-        <Label text="Manage Trips" styleClass="page-title" />
+    <HBox alignment="CENTER_LEFT" spacing="12">
+        <Label styleClass="page-title" text="Manage Trips" />
         <Region HBox.hgrow="ALWAYS" />
-        <Button text="+ Add Trip" styleClass="primary-button" onAction="#onAddTrip" />
+        <Button onAction="#onAddTrip" styleClass="primary-button" text="+ Add Trip" />
     </HBox>
 
-    <HBox spacing="10" alignment="CENTER_LEFT">
-        <TextField fx:id="globalSearchField" promptText="Search all..." HBox.hgrow="ALWAYS" />
-        <ComboBox fx:id="statusFilter" prefWidth="140" />
-        <Button text="Reset" styleClass="ghost-button" onAction="#onResetFilters" />
+    <HBox alignment="CENTER_LEFT" spacing="10">
+        <TextField fx:id="globalSearchField" promptText="Search all..." styleClass="field" HBox.hgrow="ALWAYS" />
+        <ComboBox fx:id="statusFilter" prefWidth="140" styleClass="combo-field" />
+        <Button onAction="#onResetFilters" styleClass="ghost-button" text="Reset" />
     </HBox>
 
-    <TableView fx:id="tripsTable" VBox.vgrow="ALWAYS" maxWidth="1.7976931348623157E308">
+    <TableView fx:id="tripsTable" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS">
         <columns>
             <TableColumn fx:id="noColumn" text="No." />
             <TableColumn fx:id="routeColumn" text="Route" />
@@ -42,8 +38,7 @@
             <TableColumn fx:id="arrivalColumn" text="Arrival" />
             <TableColumn fx:id="priceColumn" text="Price" />
             <TableColumn fx:id="statusColumn" text="Status" />
-            <TableColumn fx:id="actionsColumn" text="Actions" sortable="false" />
+            <TableColumn fx:id="actionsColumn" sortable="false" text="Actions" />
         </columns>
     </TableView>
 </VBox>
-

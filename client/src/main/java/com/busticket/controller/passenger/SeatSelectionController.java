@@ -136,7 +136,7 @@ public class SeatSelectionController {
     private void updateTotal() {
         double price = selectedTrip == null ? 0.0 : selectedTrip.getPrice();
         double total = selectedSeats.size() * price;
-        totalPriceLabel.setText(String.format("%.2f", total));
+        totalPriceLabel.setText("MMK " + String.format("%.2f", total));
     }
 
     @FXML
