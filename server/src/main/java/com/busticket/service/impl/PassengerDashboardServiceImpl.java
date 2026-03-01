@@ -30,7 +30,7 @@ import java.util.Map;
 public class PassengerDashboardServiceImpl implements PassengerDashboardService {
     private static final int RECENT_BOOKINGS_LIMIT = 10;
     private static final double CANCELLATION_RATE_ALERT = 0.2;
-    private static final DateTimeFormatter DATE_TIME_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private static final DateTimeFormatter DATE_TIME_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a", Locale.ENGLISH);
 
     private final BookingDAO bookingDAO;
     private final UserDAO userDAO;
@@ -106,7 +106,7 @@ public class PassengerDashboardServiceImpl implements PassengerDashboardService 
                 Duration until = Duration.between(LocalDateTime.now(), departure);
                 if (!until.isNegative() && until.toHours() <= 24) {
                     notifications.add("Trip within 24 hours: " + routeLabel(upcomingTrip)
-                            + " at " + departure.format(DATE_TIME_FMT));
+                            + " at " + departure.format(DATE_TIME_FMT).toLowerCase(Locale.ENGLISH));
                 }
             }
         }

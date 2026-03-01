@@ -41,7 +41,7 @@ import java.util.Locale;
 
 public class PassengerDashboardController {
     private static final DecimalFormat MONEY_FORMAT = new DecimalFormat("#,##0.00");
-    private static final DateTimeFormatter DATE_TIME_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private static final DateTimeFormatter DATE_TIME_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a", Locale.ENGLISH);
 
     @FXML private Label welcomeLabel;
     @FXML private Button viewTicketButton;
@@ -379,7 +379,7 @@ public class PassengerDashboardController {
         if (date == null || time == null) {
             return "-";
         }
-        return LocalDateTime.of(date, time).format(DATE_TIME_FMT);
+        return LocalDateTime.of(date, time).format(DATE_TIME_FMT).toLowerCase(Locale.ENGLISH);
     }
 
     private String safe(String value) {

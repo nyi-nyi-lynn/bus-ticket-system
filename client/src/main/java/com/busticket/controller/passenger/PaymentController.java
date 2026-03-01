@@ -55,7 +55,7 @@ public class PaymentController {
     private static final String METHOD_CARD = "CARD";
 
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.ENGLISH);
-    private static final DateTimeFormatter TIME_FMT = DateTimeFormatter.ofPattern("HH:mm", Locale.ENGLISH);
+    private static final DateTimeFormatter TIME_FMT = DateTimeFormatter.ofPattern("hh:mm a", Locale.ENGLISH);
 
     private PaymentRemote paymentRemote;
     private BookingDTO bookingDTO;
@@ -161,7 +161,9 @@ public class PaymentController {
             String route = safe(tripDTO.getOriginCity()) + " \u2192 " + safe(tripDTO.getDestinationCity());
             routeValueLabel.setText(route);
             travelDateValueLabel.setText(tripDTO.getTravelDate() == null ? "-" : tripDTO.getTravelDate().format(DATE_FMT));
-            departureTimeValueLabel.setText(tripDTO.getDepartureTime() == null ? "-" : tripDTO.getDepartureTime().format(TIME_FMT));
+            departureTimeValueLabel.setText(tripDTO.getDepartureTime() == null
+                    ? "-"
+                    : tripDTO.getDepartureTime().format(TIME_FMT).toLowerCase(Locale.ENGLISH));
         }
 
         selectedSeatsValueLabel.setText(selectedSeats.isEmpty() ? "-" : String.join(", ", selectedSeats));

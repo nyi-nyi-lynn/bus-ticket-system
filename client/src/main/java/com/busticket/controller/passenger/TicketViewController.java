@@ -35,7 +35,7 @@ import java.util.Locale;
 public class TicketViewController {
     private static final String BUS_COMPANY_NAME = "Myanmar Express Bus";
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.ENGLISH);
-    private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm", Locale.ENGLISH);
+    private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("hh:mm a", Locale.ENGLISH);
     private static final DecimalFormat PRICE_FORMAT = new DecimalFormat("#,##0");
 
     @FXML private Label companyNameLabel;
@@ -245,7 +245,7 @@ public class TicketViewController {
     }
 
     private String formatTime(LocalTime time) {
-        return time == null ? "-" : TIME_FORMAT.format(time);
+        return time == null ? "-" : TIME_FORMAT.format(time).toLowerCase(Locale.ENGLISH);
     }
 
     private String formatSeats(List<String> seats) {

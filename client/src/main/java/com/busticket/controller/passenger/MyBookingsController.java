@@ -22,6 +22,7 @@ import javafx.scene.layout.VBox;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -31,7 +32,7 @@ public class MyBookingsController {
     private BookingRemote bookingRemote;
     private TripRemote tripRemote;
     private final Map<Long, TripDTO> tripById = new HashMap<>();
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a", Locale.ENGLISH);
 
     @FXML
     private void initialize() {
@@ -103,7 +104,7 @@ public class MyBookingsController {
                 : String.join(", ", booking.getSeatNumbers());
         String date = booking == null || booking.getBookingDate() == null
                 ? "-"
-                : DATE_FORMAT.format(booking.getBookingDate());
+                : DATE_FORMAT.format(booking.getBookingDate()).toLowerCase(Locale.ENGLISH);
         String status = safeStatus(booking == null ? null : booking.getStatus());
         String ticketCode = safe(booking == null ? null : booking.getTicketCode());
         String total = booking == null || booking.getTotalPrice() == null

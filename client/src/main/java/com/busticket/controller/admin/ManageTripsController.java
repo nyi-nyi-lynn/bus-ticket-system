@@ -32,6 +32,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
@@ -59,7 +60,7 @@ public class ManageTripsController {
     private BusRemote busRemote;
     private RouteRemote routeRemote;
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    private static final DateTimeFormatter TIME_FMT = DateTimeFormatter.ofPattern("HH:mm");
+    private static final DateTimeFormatter TIME_FMT = DateTimeFormatter.ofPattern("hh:mm a", Locale.ENGLISH);
     private static final DecimalFormat PRICE_FMT = new DecimalFormat("0.00");
 
     @FXML
@@ -110,10 +111,10 @@ public class ManageTripsController {
                 data.getValue().getTravelDate() == null ? "-" : data.getValue().getTravelDate().format(DATE_FMT)
         ));
         departureColumn.setCellValueFactory(data -> new ReadOnlyStringWrapper(
-                data.getValue().getDepartureTime() == null ? "-" : data.getValue().getDepartureTime().format(TIME_FMT)
+                formatTime(data.getValue().getDepartureTime())
         ));
         arrivalColumn.setCellValueFactory(data -> new ReadOnlyStringWrapper(
-                data.getValue().getArrivalTime() == null ? "-" : data.getValue().getArrivalTime().format(TIME_FMT)
+                formatTime(data.getValue().getArrivalTime())
         ));
         priceColumn.setCellValueFactory(data -> new ReadOnlyStringWrapper(PRICE_FMT.format(data.getValue().getPrice())));
         statusColumn.setCellValueFactory(data -> new ReadOnlyStringWrapper(normalizeStatus(data.getValue().getStatus())));
@@ -230,10 +231,14 @@ public class ManageTripsController {
                 || containsIgnoreCase(routeLabel(trip), term)
                 || containsIgnoreCase(trip.getBusNumber(), term)
                 || containsIgnoreCase(trip.getTravelDate() == null ? "" : trip.getTravelDate().format(DATE_FMT), term)
-                || containsIgnoreCase(trip.getDepartureTime() == null ? "" : trip.getDepartureTime().format(TIME_FMT), term)
-                || containsIgnoreCase(trip.getArrivalTime() == null ? "" : trip.getArrivalTime().format(TIME_FMT), term)
+                || containsIgnoreCase(trip.getDepartureTime() == null ? "" : formatTime(trip.getDepartureTime()), term)
+                || containsIgnoreCase(trip.getArrivalTime() == null ? "" : formatTime(trip.getArrivalTime()), term)
                 || containsIgnoreCase(PRICE_FMT.format(trip.getPrice()), term)
                 || containsIgnoreCase(normalizeStatus(trip.getStatus()), term);
+    }
+
+    private String formatTime(LocalTime time) {
+        return time == null ? "-" : time.format(TIME_FMT).toLowerCase(Locale.ENGLISH);
     }
 
     private void openTripFormDialog(TripFormDialogController.Mode mode, TripDTO trip) {

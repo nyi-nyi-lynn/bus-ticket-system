@@ -47,13 +47,13 @@
 
     <HBox spacing="10">
         <VBox spacing="4" HBox.hgrow="ALWAYS">
-            <Label text="Departure (HH:mm)" />
-            <TextField fx:id="departureTimeField" promptText="08:00" styleClass="field" />
+            <Label text="Departure (hh:mm am/pm)" />
+            <TextField fx:id="departureTimeField" promptText="08:00 am" styleClass="field" />
             <Label fx:id="departureErrorLabel" styleClass="field-error" managed="false" visible="false" wrapText="true" />
         </VBox>
         <VBox spacing="4" HBox.hgrow="ALWAYS">
-            <Label text="Arrival (HH:mm)" />
-            <TextField fx:id="arrivalTimeField" promptText="16:30" styleClass="field" />
+            <Label text="Arrival (hh:mm am/pm)" />
+            <TextField fx:id="arrivalTimeField" promptText="04:30 pm" styleClass="field" />
             <Label fx:id="arrivalErrorLabel" styleClass="field-error" managed="false" visible="false" wrapText="true" />
         </VBox>
     </HBox>

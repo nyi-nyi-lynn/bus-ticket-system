@@ -38,7 +38,7 @@ import java.util.Map;
 
 public class AdminDashboardController {
     private static final DecimalFormat MONEY_FORMAT = new DecimalFormat("#,##0.00");
-    private static final DateTimeFormatter DATE_TIME_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private static final DateTimeFormatter DATE_TIME_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a", Locale.ENGLISH);
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     @FXML private Button refreshButton;
@@ -206,7 +206,7 @@ public class AdminDashboardController {
         updateAlerts(response == null ? List.of() : response.getAlerts());
 
         LocalDateTime generatedAt = response == null ? null : response.getGeneratedAt();
-        generatedAtLabel.setText(generatedAt == null ? "-" : "Updated: " + generatedAt.format(DATE_TIME_FMT));
+        generatedAtLabel.setText(generatedAt == null ? "-" : "Updated: " + generatedAt.format(DATE_TIME_FMT).toLowerCase(Locale.ENGLISH));
     }
 
     private void updateKpis(List<KpiDTO> kpis) {
@@ -319,7 +319,7 @@ public class AdminDashboardController {
     }
 
     private String formatDateTime(LocalDateTime date) {
-        return date == null ? "-" : date.format(DATE_TIME_FMT);
+        return date == null ? "-" : date.format(DATE_TIME_FMT).toLowerCase(Locale.ENGLISH);
     }
 
     private String safeId(Long value) {

@@ -14,6 +14,7 @@ import java.text.DecimalFormat;
 import java.time.temporal.ChronoUnit;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.function.Consumer;
 
 public class TripCardController {
@@ -30,7 +31,7 @@ public class TripCardController {
     @FXML private Label seatsLeftLabel;
     @FXML private Button bookNowButton;
 
-    private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
+    private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("hh:mm a", Locale.ENGLISH);
     private static final DecimalFormat PRICE_FORMAT = new DecimalFormat("#,##0");
 
     private final ScaleTransition hoverIn = new ScaleTransition(Duration.millis(150));
@@ -112,7 +113,7 @@ public class TripCardController {
     }
 
     private String formatTime(LocalTime time) {
-        return time == null ? "--:--" : TIME_FORMAT.format(time);
+        return time == null ? "--:--" : TIME_FORMAT.format(time).toLowerCase(Locale.ENGLISH);
     }
 
     private String formatDuration(LocalTime departure, LocalTime arrival) {

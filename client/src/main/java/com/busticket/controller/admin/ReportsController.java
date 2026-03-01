@@ -71,7 +71,7 @@ import java.util.stream.Collectors;
 
 public class ReportsController {
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    private static final DateTimeFormatter DATE_TIME_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private static final DateTimeFormatter DATE_TIME_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a", Locale.ENGLISH);
     private static final DecimalFormat MONEY_FMT = new DecimalFormat("#,##0.00");
     private static final DecimalFormat PCT_FMT = new DecimalFormat("0.0");
 
@@ -395,7 +395,7 @@ public class ReportsController {
 
         generatedAtLabel.setText(response == null || response.getGeneratedAt() == null
                 ? "-"
-                : "Generated: " + response.getGeneratedAt().format(DATE_TIME_FMT));
+                : "Generated: " + response.getGeneratedAt().format(DATE_TIME_FMT).toLowerCase(Locale.ENGLISH));
 
         exportCsvButton.setDisable(tableData.isEmpty() || loading);
         exportPdfButton.setDisable(tableData.isEmpty() || loading);

@@ -34,7 +34,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 public class TripFormDialogController {
-    private static final DateTimeFormatter TIME_FMT = DateTimeFormatter.ofPattern("HH:mm");
+    private static final DateTimeFormatter TIME_FMT = DateTimeFormatter.ofPattern("hh:mm a", Locale.ENGLISH);
 
     @FXML private VBox dialogRoot;
     @FXML private Label titleLabel;
@@ -270,8 +270,8 @@ public class TripFormDialogController {
         String routeError = route == null ? "Route is required." : "";
         String dateError = travelDate == null ? "Travel date is required." : "";
 
-        String departureError = parseTime(departureText) == null ? "Departure time must be HH:mm." : "";
-        String arrivalError = parseTime(arrivalText) == null ? "Arrival time must be HH:mm." : "";
+        String departureError = parseTime(departureText) == null ? "Departure time must be hh:mm am/pm." : "";
+        String arrivalError = parseTime(arrivalText) == null ? "Arrival time must be hh:mm am/pm." : "";
 
         String priceError;
         Double price = parsePrice(priceText);
@@ -332,8 +332,8 @@ public class TripFormDialogController {
         busCombo.getSelectionModel().select(findOptionById(busCombo, trip.getBusId()));
         routeCombo.getSelectionModel().select(findOptionById(routeCombo, trip.getRouteId()));
         travelDatePicker.setValue(trip.getTravelDate());
-        departureTimeField.setText(trip.getDepartureTime() == null ? "" : trip.getDepartureTime().format(TIME_FMT));
-        arrivalTimeField.setText(trip.getArrivalTime() == null ? "" : trip.getArrivalTime().format(TIME_FMT));
+        departureTimeField.setText(trip.getDepartureTime() == null ? "" : trip.getDepartureTime().format(TIME_FMT).toLowerCase(Locale.ENGLISH));
+        arrivalTimeField.setText(trip.getArrivalTime() == null ? "" : trip.getArrivalTime().format(TIME_FMT).toLowerCase(Locale.ENGLISH));
         priceField.setText(String.valueOf(trip.getPrice()));
         statusCombo.setValue(normalizeTripStatus(trip.getStatus()));
     }
@@ -384,7 +384,7 @@ public class TripFormDialogController {
             return null;
         }
         try {
-            return LocalTime.parse(text, TIME_FMT);
+            return LocalTime.parse(text.toUpperCase(Locale.ENGLISH), TIME_FMT);
         } catch (DateTimeParseException ex) {
             return null;
         }

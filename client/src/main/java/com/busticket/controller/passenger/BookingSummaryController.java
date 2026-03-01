@@ -16,6 +16,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +39,7 @@ public class BookingSummaryController {
     @FXML private Button paymentLaterButton;
 
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.ENGLISH);
-    private static final DateTimeFormatter TIME_FMT = DateTimeFormatter.ofPattern("HH:mm");
+    private static final DateTimeFormatter TIME_FMT = DateTimeFormatter.ofPattern("hh:mm a", Locale.ENGLISH);
 
     private TripDTO trip;
     private List<SeatDTO> selectedSeats = List.of();
@@ -188,8 +189,8 @@ public class BookingSummaryController {
 
         routeLabel.setText(safe(trip.getOriginCity()) + " \u2192 " + safe(trip.getDestinationCity()));
         travelDateLabel.setText(trip.getTravelDate() == null ? "-" : trip.getTravelDate().format(DATE_FMT));
-        departureTimeLabel.setText(trip.getDepartureTime() == null ? "-" : trip.getDepartureTime().format(TIME_FMT));
-        arrivalTimeLabel.setText(trip.getArrivalTime() == null ? "-" : trip.getArrivalTime().format(TIME_FMT));
+        departureTimeLabel.setText(formatTime(trip.getDepartureTime()));
+        arrivalTimeLabel.setText(formatTime(trip.getArrivalTime()));
         busNumberLabel.setText(safe(trip.getBusNumber()));
         busTypeLabel.setText(resolveBusType(trip));
 
@@ -242,6 +243,10 @@ public class BookingSummaryController {
 
     private String safe(String value) {
         return value == null || value.isBlank() ? "-" : value;
+    }
+
+    private String formatTime(LocalTime time) {
+        return time == null ? "-" : time.format(TIME_FMT).toLowerCase(Locale.ENGLISH);
     }
 
     private void showAlert(Alert.AlertType type, String title, String header, String content) {
