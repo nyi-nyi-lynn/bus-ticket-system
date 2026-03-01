@@ -17,7 +17,6 @@ public class SeatServiceImpl implements SeatService {
 
     @Override
     public List<SeatDTO> getSeatsByBusId(Long busId) {
-        // ADDED
         if (busId == null) {
             return List.of();
         }

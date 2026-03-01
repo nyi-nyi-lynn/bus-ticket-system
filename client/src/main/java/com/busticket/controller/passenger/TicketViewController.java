@@ -1,6 +1,5 @@
 package com.busticket.controller.passenger;
 
-import com.busticket.dto.BookingDTO;
 import com.busticket.dto.TicketDetailsDTO;
 import com.busticket.enums.BookingStatus;
 import com.busticket.enums.PaymentStatus;
@@ -62,17 +61,6 @@ public class TicketViewController {
         }
         clearLabels();
         loadTicketFromSession();
-    }
-
-    public void setBookingId(long bookingId) {
-        this.bookingId = bookingId;
-        loadTicketDetails();
-    }
-
-    public void setBooking(BookingDTO booking) {
-        if (booking != null && booking.getBookingId() != null) {
-            setBookingId(booking.getBookingId());
-        }
     }
 
     @FXML

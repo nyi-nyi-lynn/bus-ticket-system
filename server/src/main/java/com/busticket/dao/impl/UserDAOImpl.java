@@ -148,19 +148,6 @@ public class UserDAOImpl implements UserDAO {
     }
 
     @Override
-    public boolean deactivate(Long userId) {
-        String sql = "UPDATE users SET status = ? WHERE user_id = ?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, UserStatus.BLOCKED.name());
-            ps.setLong(2, userId);
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    @Override
     public List<User> findAll() {
         String sql = "SELECT user_id, name, email, password, phone, role, status, created_at, updated_at FROM users ORDER BY user_id DESC";
         List<User> users = new ArrayList<>();

@@ -7,13 +7,9 @@ public class BookingResponseDTO implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    // ADDED
     private Long bookingId;
-    // ADDED
     private String ticketCode;
-    // ADDED
     private Double totalAmount;
-    // ADDED
     private String status;
     private String paymentStatus;
 

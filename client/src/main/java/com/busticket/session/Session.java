@@ -55,7 +55,6 @@ public final class Session {
         return guest;
     }
 
-    // ADDED
     public static void setPendingSelection(TripDTO trip, List<String> seatNumbers) {
         pendingTrip = trip;
         pendingSeatNumbers = seatNumbers == null ? new ArrayList<>() : new ArrayList<>(seatNumbers);
@@ -68,12 +67,10 @@ public final class Session {
         pendingSeatNumbers = seatNumbers == null ? new ArrayList<>() : new ArrayList<>(seatNumbers);
     }
 
-    // ADDED
     public static TripDTO getPendingTrip() {
         return pendingTrip;
     }
 
-    // ADDED
     public static List<String> getPendingSeatNumbers() {
         return new ArrayList<>(pendingSeatNumbers);
     }
@@ -82,14 +79,12 @@ public final class Session {
         return new ArrayList<>(pendingSeats);
     }
 
-    // ADDED
     public static void clearPendingSelection() {
         pendingTrip = null;
         pendingSeatNumbers = new ArrayList<>();
         pendingSeats = new ArrayList<>();
     }
 
-    // ADDED
     public static void setCurrentBookingContext(Long bookingId, String ticketCode, Double totalAmount) {
         setCurrentBookingContext(bookingId, null, ticketCode, totalAmount);
     }
@@ -101,7 +96,6 @@ public final class Session {
         currentBookingAmount = totalAmount;
     }
 
-    // ADDED
     public static Long getCurrentBookingId() {
         return currentBookingId;
     }
@@ -110,17 +104,14 @@ public final class Session {
         return currentBookingUserId;
     }
 
-    // ADDED
     public static String getCurrentTicketCode() {
         return currentTicketCode;
     }
 
-    // ADDED
     public static Double getCurrentBookingAmount() {
         return currentBookingAmount;
     }
 
-    // ADDED
     public static void clearBookingContext() {
         currentBookingId = null;
         currentBookingUserId = null;

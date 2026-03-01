@@ -16,12 +16,4 @@ public interface BusService {
     void deleteBus(Long busId) throws ValidationException;
 
     List<BusDTO> getAllBuses();
-
-    boolean save(BusDTO dto);
-
-    boolean update(BusDTO dto);
-
-    boolean deactivate(Long id);
-
-    List<BusDTO> getAll();
 }

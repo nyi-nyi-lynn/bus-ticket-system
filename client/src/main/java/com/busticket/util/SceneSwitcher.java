@@ -1,8 +1,8 @@
 package com.busticket.util;
 
 import com.busticket.controller.shell.AppShellController;
-import com.busticket.controller.passenger.SeatSelectionController; // ADDED
-import com.busticket.dto.TripDTO; // ADDED
+import com.busticket.controller.passenger.SeatSelectionController;
+import com.busticket.dto.TripDTO;
 import javafx.animation.FadeTransition;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -63,12 +63,10 @@ public final class SceneSwitcher {
         playFade(content);
     }
 
-    // ADDED
     public static void switchToBookingSummary() {
         switchContent("/com/busticket/view/passenger/BookingSummary.fxml");
     }
 
-    // ADDED
     public static void switchToSeatSelection(TripDTO trip) {
         if (appShellController == null || trip == null) {
             return;
@@ -77,7 +75,7 @@ public final class SceneSwitcher {
         try {
             Parent content = loader.load();
             SeatSelectionController controller = loader.getController();
-            controller.setTripData(trip); // ADDED
+            controller.setTripData(trip);
             appShellController.setContent(content);
             playFade(content);
         } catch (IOException ex) {

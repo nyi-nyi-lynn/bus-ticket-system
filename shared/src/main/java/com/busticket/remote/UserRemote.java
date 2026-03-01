@@ -14,11 +14,7 @@ public interface UserRemote extends Remote {
 
     boolean register(UserDTO user) throws RemoteException;
 
-    UserDTO getUserById(Long userId) throws RemoteException;
-
     boolean updateUser(UserDTO user) throws RemoteException;
-
-    boolean deactivateUser(Long userId) throws RemoteException;
 
     List<UserDTO> getAllUsers() throws RemoteException;
 

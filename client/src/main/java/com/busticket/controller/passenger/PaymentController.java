@@ -1,12 +1,10 @@
 package com.busticket.controller.passenger;
 
-import com.busticket.dto.BookingDTO;
 import com.busticket.dto.PaymentRequestDTO;
 import com.busticket.dto.TripDTO;
 import com.busticket.enums.PaymentMethod;
 import com.busticket.exception.UnauthorizedException;
 import com.busticket.remote.PaymentRemote;
-import com.busticket.remote.TripRemote;
 import com.busticket.rmi.RMIClient;
 import com.busticket.session.Session;
 import com.busticket.util.SceneSwitcher;
@@ -25,10 +23,8 @@ import javafx.scene.paint.Color;
 
 import java.time.format.DateTimeFormatter;
 import java.lang.reflect.Method;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 
 public class PaymentController {
 
@@ -58,7 +54,6 @@ public class PaymentController {
     private static final DateTimeFormatter TIME_FMT = DateTimeFormatter.ofPattern("hh:mm a", Locale.ENGLISH);
 
     private PaymentRemote paymentRemote;
-    private BookingDTO bookingDTO;
     private TripDTO tripDTO;
     private List<String> selectedSeats = List.of();
     private double totalAmount;
@@ -70,12 +65,6 @@ public class PaymentController {
         renderBookingSummary();
 
         paymentMethodToggle.selectedToggleProperty().addListener((obs, oldVal, newVal) -> updateQrSection());
-        updateQrSection();
-    }
-
-    public void setBookingDTO(BookingDTO bookingDTO) {
-        this.bookingDTO = bookingDTO;
-        renderBookingSummary();
         updateQrSection();
     }
 
@@ -171,57 +160,14 @@ public class PaymentController {
     }
 
     private TripDTO resolveTripData() {
-        TripDTO sessionTrip = Session.getPendingTrip();
-        if (sessionTrip != null) {
-            return sessionTrip;
-        }
-
-        Long tripId = bookingDTO == null ? null : bookingDTO.getTripId();
-        if (tripId == null) {
-            return null;
-        }
-
-        try {
-            TripRemote tripRemote = RMIClient.getTripRemote();
-            List<TripDTO> trips = tripRemote.getAllTrips();
-            if (trips == null) {
-                return null;
-            }
-            return trips.stream()
-                    .filter(Objects::nonNull)
-                    .filter(trip -> Objects.equals(trip.getTripId(), tripId))
-                    .findFirst()
-                    .orElse(null);
-        } catch (Exception ex) {
-            return null;
-        }
+        return Session.getPendingTrip();
     }
 
     private List<String> resolveSelectedSeats() {
-        List<String> dtoSeats = bookingDTO == null ? null : bookingDTO.getSeatNumbers();
-        if (dtoSeats != null && !dtoSeats.isEmpty()) {
-            return dtoSeats.stream()
-                    .filter(Objects::nonNull)
-                    .sorted(Comparator.naturalOrder())
-                    .toList();
-        }
-
-        List<String> sessionSeats = Session.getPendingSeatNumbers();
-        if (sessionSeats != null && !sessionSeats.isEmpty()) {
-            return sessionSeats.stream()
-                    .filter(Objects::nonNull)
-                    .sorted(Comparator.naturalOrder())
-                    .toList();
-        }
-
-        return List.of();
+        return Session.getPendingSeatNumbers();
     }
 
     private double resolveTotalAmount(int seatCount) {
-        if (bookingDTO != null && bookingDTO.getTotalPrice() != null && bookingDTO.getTotalPrice() > 0) {
-            return bookingDTO.getTotalPrice();
-        }
-
         Double sessionAmount = Session.getCurrentBookingAmount();
         if (sessionAmount != null && sessionAmount > 0) {
             return sessionAmount;
@@ -234,9 +180,6 @@ public class PaymentController {
     }
 
     private Long resolveBookingId() {
-        if (bookingDTO != null && bookingDTO.getBookingId() != null) {
-            return bookingDTO.getBookingId();
-        }
         return Session.getCurrentBookingId();
     }
 

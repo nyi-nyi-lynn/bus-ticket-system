@@ -23,23 +23,8 @@ public class BusRemoteImpl extends UnicastRemoteObject implements BusRemote {
     }
 
     @Override
-    public boolean saveBus(BusDTO dto) throws RemoteException {
-        return busService().save(dto);
-    }
-
-    @Override
-    public boolean updateBus(BusDTO dto) throws RemoteException {
-        return busService().update(dto);
-    }
-
-    @Override
-    public boolean deactivateBus(Long id) throws RemoteException {
-        return busService().deactivate(id);
-    }
-
-    @Override
     public List<BusDTO> getAllBuses() throws RemoteException {
-        return busService().getAll();
+        return busService().getAllBuses();
     }
 
     @Override

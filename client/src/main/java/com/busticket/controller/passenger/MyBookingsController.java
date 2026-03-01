@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.Objects;
 
 public class MyBookingsController {
-    @FXML private VBox bookingsFlow; // MODIFIED
+    @FXML private VBox bookingsFlow;
 
     private BookingRemote bookingRemote;
     private TripRemote tripRemote;
@@ -88,10 +88,10 @@ public class MyBookingsController {
 
     private VBox createBookingCard(BookingDTO booking) {
         VBox card = new VBox(8);
-        card.getStyleClass().add("trip-card"); // MODIFIED
+        card.getStyleClass().add("trip-card");
         card.setPadding(new Insets(14));
-        card.setMaxWidth(Double.MAX_VALUE); // MODIFIED
-        if (bookingsFlow != null) { // MODIFIED
+        card.setMaxWidth(Double.MAX_VALUE);
+        if (bookingsFlow != null) {
             card.prefWidthProperty().bind(bookingsFlow.widthProperty().subtract(2));
         }
 
@@ -111,17 +111,17 @@ public class MyBookingsController {
                 ? "0.00"
                 : String.format("%.2f", booking.getTotalPrice());
 
-        Label routeLabel = new Label("Route: " + route); // MODIFIED
+        Label routeLabel = new Label("Route: " + route);
         routeLabel.getStyleClass().add("trip-route");
-        Label seatsLabel = new Label("Seats: " + seats); // MODIFIED
+        Label seatsLabel = new Label("Seats: " + seats);
         seatsLabel.getStyleClass().add("trip-seats");
-        Label dateLabel = new Label("Booking Date: " + date); // MODIFIED
+        Label dateLabel = new Label("Booking Date: " + date);
         dateLabel.getStyleClass().add("trip-meta-title");
-        Label statusLabel = new Label("Status: " + status); // MODIFIED
+        Label statusLabel = new Label("Status: " + status);
         statusLabel.getStyleClass().add("trip-meta-title");
-        Label ticketLabel = new Label("Ticket Code: " + ticketCode); // MODIFIED
+        Label ticketLabel = new Label("Ticket Code: " + ticketCode);
         ticketLabel.getStyleClass().add("trip-meta-title");
-        Label totalLabel = new Label("Total Price: " + total); // MODIFIED
+        Label totalLabel = new Label("Total Price: " + total);
         totalLabel.getStyleClass().add("trip-price");
 
         HBox actionRow = new HBox(10);
@@ -213,28 +213,6 @@ public class MyBookingsController {
             payNowButton.setText("Pay Now");
             payNowButton.setGraphic(null);
             showAlert(Alert.AlertType.ERROR, "Navigation Failed", "Unable to open payment page.", ex.getMessage());
-        }
-    }
-
-    private void onCancelBooking(BookingDTO booking) {
-        if (Session.isGuest() || Session.getCurrentUser() == null || Session.getCurrentUser().getUserId() == null) {
-            showAlert(Alert.AlertType.WARNING, "Login Required", "You are not logged in.", "Please login to cancel bookings.");
-            return;
-        }
-        if (booking == null || booking.getBookingId() == null) {
-            showAlert(Alert.AlertType.WARNING, "Invalid Selection", "Booking is missing.", "Please refresh and try again.");
-            return;
-        }
-
-        try {
-            boolean cancelled = bookingRemote.cancelBooking(booking.getBookingId(), Session.getCurrentUser().getUserId());
-            if (!cancelled) {
-                showAlert(Alert.AlertType.WARNING, "Cancel Failed", "Unable to cancel booking.", "Booking may already be cancelled.");
-                return;
-            }
-            loadBookings();
-        } catch (Exception ex) {
-            showAlert(Alert.AlertType.ERROR, "Cancel Failed", "Unable to cancel booking.", ex.getMessage());
         }
     }
 

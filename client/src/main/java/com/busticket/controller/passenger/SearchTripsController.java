@@ -2,11 +2,11 @@ package com.busticket.controller.passenger;
 
 import com.busticket.dto.TripDTO;
 import com.busticket.exception.UnauthorizedException;
-import com.busticket.remote.BookingRemote; // ADDED
+import com.busticket.remote.BookingRemote;
 import com.busticket.remote.TripRemote;
 import com.busticket.rmi.RMIClient;
 import com.busticket.session.Session;
-import com.busticket.util.SceneSwitcher; // ADDED
+import com.busticket.util.SceneSwitcher;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.collections.FXCollections;
@@ -40,14 +40,14 @@ public class SearchTripsController {
     @FXML private Label resultsTitleLabel;
 
     private TripRemote tripRemote;
-    private BookingRemote bookingRemote; // ADDED
+    private BookingRemote bookingRemote;
     private List<TripDTO> allTrips = new ArrayList<>();
 
     @FXML
     private void initialize() {
         try {
             tripRemote = RMIClient.getTripRemote();
-            bookingRemote = RMIClient.getBookingRemote(); // ADDED
+            bookingRemote = RMIClient.getBookingRemote();
             List<TripDTO> fetched = tripRemote.getAllTrips();
             if (fetched != null) {
                 allTrips = fetched;
@@ -128,13 +128,13 @@ public class SearchTripsController {
 
         for (TripDTO trip : trips) {
             try {
-                if (bookingRemote != null && trip.getTripId() != null) { // ADDED
+                if (bookingRemote != null && trip.getTripId() != null) {
                     List<String> available = bookingRemote.getAvailableSeatNumbers(trip.getTripId());
                     trip.setAvailableSeats(available == null ? 0 : available.size());
                 }
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/busticket/view/components/TripCard.fxml"));
                 Node card = loader.load();
-                if (card instanceof Region region) { // MODIFIED
+                if (card instanceof Region region) {
                     region.setMaxWidth(Double.MAX_VALUE);
                     region.prefWidthProperty().bind(resultContainer.widthProperty().subtract(24));
                 }
@@ -169,7 +169,7 @@ public class SearchTripsController {
         resultContainer.setAlignment(Pos.TOP_LEFT);
 
         if (resultScrollPane != null) {
-            // MODIFIED: allow natural content height growth so vertical scrolling works.
+            // allow natural content height growth so vertical scrolling works.
             resultScrollPane.setFitToHeight(false);
             resultScrollPane.setPannable(true);
             resultScrollPane.addEventFilter(ScrollEvent.SCROLL, event -> {

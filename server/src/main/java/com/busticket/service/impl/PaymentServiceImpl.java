@@ -32,11 +32,6 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public PaymentDTO createPayment(PaymentDTO dto) throws UnauthorizedException {
-        return processPayment(toRequest(dto));
-    }
-
-    @Override
     public PaymentDTO processPayment(PaymentRequestDTO request) throws UnauthorizedException {
         validateRequest(request);
 
@@ -108,29 +103,6 @@ public class PaymentServiceImpl implements PaymentService {
                 e.printStackTrace();
             }
         }
-    }
-
-    @Override
-    public PaymentDTO processPayment(PaymentDTO dto) throws UnauthorizedException {
-        return processPayment(toRequest(dto));
-    }
-
-    @Override
-    public PaymentDTO getPaymentById(Long paymentId) {
-        if (paymentId == null) {
-            return null;
-        }
-        Payment payment = paymentDAO.findById(paymentId);
-        return toDTO(payment);
-    }
-
-    @Override
-    public PaymentDTO getPaymentByBookingId(Long bookingId) {
-        if (bookingId == null) {
-            return null;
-        }
-        Payment payment = paymentDAO.findByBookingId(bookingId);
-        return toDTO(payment);
     }
 
     private void validateRequest(PaymentRequestDTO request) throws UnauthorizedException {
@@ -214,31 +186,6 @@ public class PaymentServiceImpl implements PaymentService {
         } catch (IllegalArgumentException ex) {
             throw new IllegalArgumentException("Unsupported payment method.");
         }
-    }
-
-    private PaymentRequestDTO toRequest(PaymentDTO dto) {
-        if (dto == null) {
-            throw new IllegalArgumentException("Payment payload is required.");
-        }
-        PaymentRequestDTO request = new PaymentRequestDTO();
-        request.setUserId(dto.getUserId());
-        request.setBookingId(dto.getBookingId());
-        request.setAmount(dto.getPaidAmount());
-        request.setPaymentMethod(dto.getPaymentMethod());
-        return request;
-    }
-
-    private PaymentDTO toDTO(Payment payment) {
-        if (payment == null) {
-            return null;
-        }
-        PaymentDTO dto = new PaymentDTO();
-        dto.setPaymentId(payment.getPaymentId());
-        dto.setBookingId(payment.getBookingId());
-        dto.setPaymentMethod(payment.getPaymentMethod());
-        dto.setPaymentStatus(payment.getPaymentStatus() == null ? null : payment.getPaymentStatus().name());
-        dto.setPaidAmount(payment.getPaidAmount());
-        return dto;
     }
 
     private static final class BookingPaymentContext {

@@ -16,7 +16,6 @@ public class BookingSeatDAOImpl implements BookingSeatDAO {
 
     @Override
     public void saveAll(Long bookingId, List<Long> seatIds) {
-        // ADDED
         if (bookingId == null || seatIds == null || seatIds.isEmpty()) {
             return;
         }

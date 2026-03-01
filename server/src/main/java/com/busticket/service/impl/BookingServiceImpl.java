@@ -1,15 +1,15 @@
 package com.busticket.service.impl;
 
 import com.busticket.dao.BookingDAO;
-import com.busticket.dao.BookingSeatDAO; // ADDED
-import com.busticket.dao.SeatDAO; // ADDED
+import com.busticket.dao.BookingSeatDAO;
+import com.busticket.dao.SeatDAO;
 import com.busticket.dao.impl.BookingDAOImpl;
-import com.busticket.dao.impl.BookingSeatDAOImpl; // ADDED
-import com.busticket.dao.impl.SeatDAOImpl; // ADDED
+import com.busticket.dao.impl.BookingSeatDAOImpl;
+import com.busticket.dao.impl.SeatDAOImpl;
 import com.busticket.database.DatabaseConnection;
 import com.busticket.dto.BookingDTO;
-import com.busticket.dto.BookingRequestDTO; // ADDED
-import com.busticket.dto.BookingResponseDTO; // ADDED
+import com.busticket.dto.BookingRequestDTO;
+import com.busticket.dto.BookingResponseDTO;
 import com.busticket.enums.BookingStatus;
 import com.busticket.exception.UnauthorizedException;
 import com.busticket.model.Booking;
@@ -29,15 +29,15 @@ import java.util.UUID;
 
 public class BookingServiceImpl implements BookingService {
     private final BookingDAO bookingDAO;
-    private final BookingSeatDAO bookingSeatDAO; // ADDED
-    private final SeatDAO seatDAO; // ADDED
+    private final BookingSeatDAO bookingSeatDAO;
+    private final SeatDAO seatDAO;
     private final Connection connection;
 
     public BookingServiceImpl(){
         connection = DatabaseConnection.getConnection();
         bookingDAO = new BookingDAOImpl(connection);
-        bookingSeatDAO = new BookingSeatDAOImpl(connection); // ADDED
-        seatDAO = new SeatDAOImpl(connection); // ADDED
+        bookingSeatDAO = new BookingSeatDAOImpl(connection);
+        seatDAO = new SeatDAOImpl(connection);
     }
 
     @Override
@@ -54,7 +54,7 @@ public class BookingServiceImpl implements BookingService {
         request.setTripId(dto.getTripId());
         request.setSeatNumbers(dto.getSeatNumbers());
 
-        BookingResponseDTO response = createBooking(request);
+        BookingResponseDTO response = createBookingInternal(request);
         if (response == null || response.getBookingId() == null) {
             return null;
         }
@@ -70,9 +70,7 @@ public class BookingServiceImpl implements BookingService {
         return result;
     }
 
-    @Override
-    public BookingResponseDTO createBooking(BookingRequestDTO request) throws UnauthorizedException {
-        // MODIFIED
+    private BookingResponseDTO createBookingInternal(BookingRequestDTO request) throws UnauthorizedException {
         if (request == null || request.getUserId() == null) {
             throw new UnauthorizedException("Please login to continue booking");
         }
@@ -184,34 +182,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public boolean confirmBooking(Long bookingId) {
-        if (bookingId == null) {
-            return false;
-        }
-        String sql = """
-            UPDATE bookings b
-            SET b.status = 'CONFIRMED'
-            WHERE b.booking_id = ?
-              AND b.status = 'PENDING'
-              AND EXISTS (
-                  SELECT 1
-                  FROM payments p
-                  WHERE p.booking_id = b.booking_id
-                    AND p.payment_status = 'PAID'
-              )
-        """;
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setLong(1, bookingId);
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    @Override
     public boolean cancelBooking(Long bookingId, Long userId) {
-        // MODIFIED
         if (bookingId == null || userId == null) {
             return false;
         }
@@ -220,7 +191,6 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<BookingDTO> getBookingsByUserId(Long userId) {
-        // ADDED
         if (userId == null) {
             return List.of();
         }
@@ -243,26 +213,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<Long> getBookedSeatIds(Long tripId) {
-        // Validate required identifier.
-        if (tripId == null) {
-            return List.of();
-        }
-        return findBookedSeatIdsByTrip(tripId);
-    }
-
-    @Override
-    public List<Long> findBookedSeatIdsByTrip(Long tripId) {
-        // ADDED
-        if (tripId == null) {
-            return List.of();
-        }
-        return bookingDAO.findBookedSeatIdsByTrip(tripId);
-    }
-
-    @Override
     public List<String> getAvailableSeatNumbers(Long tripId) {
-        // MODIFIED
         if (tripId == null) {
             return List.of();
         }
@@ -271,7 +222,6 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public int cancelExpiredPending(int minutes) {
-        // Validate required parameter.
         if (minutes <= 0) {
             return 0;
         }
@@ -311,21 +261,6 @@ public class BookingServiceImpl implements BookingService {
         return seatIds;
     }
 
-    private void lockSeatsForTrip(Long tripId) throws SQLException {
-        String sql = """
-            SELECT s.seat_id
-            FROM seats s
-            JOIN trips t ON t.bus_id = s.bus_id
-            WHERE t.trip_id = ?
-            FOR UPDATE
-        """;
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setLong(1, tripId);
-            ps.executeQuery();
-        }
-    }
-
-    // ADDED
     private TripSnapshot findTripForUpdate(Long tripId) throws SQLException {
         String sql = """
             SELECT trip_id, bus_id, price, status
@@ -349,7 +284,6 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    // ADDED
     private List<Long> findSeatIdsForBusForUpdate(Long busId, List<Long> seatIds) throws SQLException {
         if (busId == null || seatIds == null || seatIds.isEmpty()) {
             return Collections.emptyList();
@@ -391,7 +325,6 @@ public class BookingServiceImpl implements BookingService {
         return "TCK" + raw.substring(0, 12);
     }
 
-    // ADDED
     private static final class TripSnapshot {
         private Long tripId;
         private Long busId;

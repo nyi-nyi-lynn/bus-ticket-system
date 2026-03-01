@@ -13,7 +13,6 @@ public class SeatRemoteImpl extends UnicastRemoteObject implements SeatRemote {
     public SeatRemoteImpl() throws RemoteException {
     }
 
-    // ADDED
     private SeatService seatService() {
         return new SeatServiceImpl();
     }

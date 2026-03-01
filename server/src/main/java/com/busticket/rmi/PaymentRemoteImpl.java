@@ -20,28 +20,7 @@ public class PaymentRemoteImpl extends UnicastRemoteObject implements PaymentRem
     }
 
     @Override
-    public PaymentDTO createPayment(PaymentDTO dto) throws UnauthorizedException, RemoteException {
-        return paymentService().createPayment(dto);
-    }
-
-    @Override
     public PaymentDTO processPayment(PaymentRequestDTO request) throws UnauthorizedException, RemoteException {
         return paymentService().processPayment(request);
-    }
-
-    @Override
-    public PaymentDTO processPayment(PaymentDTO dto) throws UnauthorizedException, RemoteException {
-        // ADDED
-        return paymentService().processPayment(dto);
-    }
-
-    @Override
-    public PaymentDTO getPaymentById(Long paymentId) throws RemoteException {
-        return paymentService().getPaymentById(paymentId);
-    }
-
-    @Override
-    public PaymentDTO getPaymentByBookingId(Long bookingId) throws RemoteException {
-        return paymentService().getPaymentByBookingId(bookingId);
     }
 }

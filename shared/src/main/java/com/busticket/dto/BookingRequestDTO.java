@@ -9,15 +9,10 @@ public class BookingRequestDTO implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    // ADDED
     private Long userId;
-    // ADDED
     private Long tripId;
-    // MODIFIED
     private List<String> seatNumbers;
-    // ADDED
     private List<Long> seatIds;
-    // ADDED
     private String paymentMethod;
 
     public Long getUserId() {

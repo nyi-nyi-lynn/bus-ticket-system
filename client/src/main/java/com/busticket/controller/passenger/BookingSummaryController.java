@@ -207,8 +207,8 @@ public class BookingSummaryController {
 
         seatCountLabel.setText(String.valueOf(seatCount));
         seatNumbersLabel.setText(seatNumbers.isEmpty() ? "-" : String.join(", ", seatNumbers));
-        perSeatPriceLabel.setText(String.format("$%.2f", pricePerSeat));
-        totalPriceLabel.setText(String.format("$%.2f", totalPrice));
+        perSeatPriceLabel.setText(String.format("%.2f", pricePerSeat));
+        totalPriceLabel.setText(String.format("%.2f", totalPrice));
     }
 
     private String resolveBusType(TripDTO tripDto) {
@@ -238,7 +238,7 @@ public class BookingSummaryController {
         seatCountLabel.setText("0");
         seatNumbersLabel.setText("-");
         perSeatPriceLabel.setText("$0.00");
-        totalPriceLabel.setText("$0.00");
+        totalPriceLabel.setText("0.00");
     }
 
     private String safe(String value) {

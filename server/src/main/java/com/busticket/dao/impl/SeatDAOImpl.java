@@ -18,38 +18,7 @@ public class SeatDAOImpl implements SeatDAO {
     }
 
     @Override
-    public List<Long> findBookedSeatIdsByTrip(Long tripId) {
-        // ADDED
-        if (tripId == null) {
-            return List.of();
-        }
-
-        String sql = """
-            SELECT bs.seat_id
-            FROM booking_seat bs
-            JOIN bookings b ON b.booking_id = bs.booking_id
-            WHERE b.trip_id = ?
-              AND b.status IN ('PENDING', 'CONFIRMED')
-            FOR UPDATE
-        """;
-
-        List<Long> seatIds = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setLong(1, tripId);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    seatIds.add(rs.getLong("seat_id"));
-                }
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return seatIds;
-    }
-
-    @Override
     public List<String> findAvailableSeatNumbersByTrip(Long tripId) {
-        // ADDED
         if (tripId == null) {
             return List.of();
         }
@@ -86,7 +55,6 @@ public class SeatDAOImpl implements SeatDAO {
 
     @Override
     public List<SeatDTO> findByBusId(Long busId) {
-        // ADDED
         if (busId == null) {
             return List.of();
         }

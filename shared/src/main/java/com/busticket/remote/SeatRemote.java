@@ -7,5 +7,5 @@ import java.rmi.RemoteException;
 import java.util.List;
 
 public interface SeatRemote extends Remote {
-    List<SeatDTO> getSeatsByBusId(Long busId) throws RemoteException; // ADDED
+    List<SeatDTO> getSeatsByBusId(Long busId) throws RemoteException;
 }

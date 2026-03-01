@@ -42,10 +42,6 @@ public class PasswordUtil {
         return hashPasswordLegacy(plain).equals(hashed);
     }
 
-    public static String hashPassword(String password) {
-        return hash(password);
-    }
-
     private static byte[] digest(byte[] salt, String plain) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");

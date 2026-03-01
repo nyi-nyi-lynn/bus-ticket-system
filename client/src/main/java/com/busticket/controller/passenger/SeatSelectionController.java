@@ -1,18 +1,18 @@
 package com.busticket.controller.passenger;
 
 import com.busticket.dto.TripDTO;
-import com.busticket.dto.SeatDTO; // ADDED
+import com.busticket.dto.SeatDTO;
 import com.busticket.exception.UnauthorizedException;
 import com.busticket.remote.BookingRemote;
-import com.busticket.remote.SeatRemote; // ADDED
+import com.busticket.remote.SeatRemote;
 import com.busticket.rmi.RMIClient;
 import com.busticket.session.Session;
 import com.busticket.util.SceneSwitcher;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button; // ADDED
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.Tooltip; // ADDED
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
 
 import java.util.ArrayList;
@@ -31,17 +31,17 @@ public class SeatSelectionController {
 
     private final Set<String> selectedSeats = new HashSet<>();
     private List<String> availableSeatNumbers = Collections.emptyList();
-    private List<SeatDTO> busSeats = Collections.emptyList(); // MODIFIED
+    private List<SeatDTO> busSeats = Collections.emptyList();
     private TripDTO selectedTrip;
-    private BookingRemote bookingRemote; // ADDED
-    private SeatRemote seatRemote; // ADDED
+    private BookingRemote bookingRemote;
+    private SeatRemote seatRemote;
 
     @FXML
     private void initialize() {
         Session.clearPendingSelection();
         try {
-            bookingRemote = RMIClient.getBookingRemote(); // ADDED
-            seatRemote = RMIClient.getSeatRemote(); // ADDED
+            bookingRemote = RMIClient.getBookingRemote();
+            seatRemote = RMIClient.getSeatRemote();
         } catch (Exception ex) {
             showAlert(Alert.AlertType.ERROR, "Connection Failed", "Unable to initialize booking service.", ex.getMessage());
         }
@@ -60,7 +60,7 @@ public class SeatSelectionController {
             tripLabel.setText(label);
         }
         try {
-            loadSeats(selectedTrip); // MODIFIED
+            loadSeats(selectedTrip);
         } catch (Exception ex) {
             showAlert(Alert.AlertType.ERROR, "Seat Loading Failed", "Unable to load seat layout.", ex.getMessage());
             availableSeatNumbers = Collections.emptyList();
@@ -70,7 +70,6 @@ public class SeatSelectionController {
         updateTotal();
     }
 
-    // MODIFIED
     public void loadSeats(TripDTO trip) throws Exception {
         this.selectedTrip = trip;
         if (trip == null || trip.getTripId() == null || trip.getBusId() == null) {
@@ -92,7 +91,6 @@ public class SeatSelectionController {
         renderSeatGrid(busSeats, availableSeatNumbers);
     }
 
-    // ADDED
     private void renderSeatGrid(List<SeatDTO> allSeats, List<String> availableSeats) {
         seatGrid.getChildren().clear();
         Set<String> availableSet = new HashSet<>(availableSeats == null ? Collections.emptyList() : availableSeats);
@@ -118,7 +116,6 @@ public class SeatSelectionController {
         }
     }
 
-    // ADDED
     private void toggleSelection(Button seatBtn) {
         String seatLabel = String.valueOf(seatBtn.getUserData());
         if (selectedSeats.contains(seatLabel)) {
@@ -168,7 +165,6 @@ public class SeatSelectionController {
         SceneSwitcher.switchToBookingSummary();
     }
 
-    // MODIFIED
     private void showAlert(Alert.AlertType type, String title, String header, String content) {
         Alert alert = new Alert(type);
         alert.setTitle(title);

@@ -22,11 +22,5 @@ public interface BusDAO {
 
     boolean deleteById(Long id);
 
-    boolean save(Bus bus);
-
-    boolean update(Bus bus);
-
-    boolean deactivate(Long id);
-
     List<Bus> findAll();
 }

@@ -30,8 +30,7 @@ public class BookingDAOImpl implements BookingDAO {
         this.connection = connection;
     }
 
-    @Override
-    public Long createBooking(Booking booking) {
+    private Long createBooking(Booking booking) {
         String sqlWithPaymentStatus = """
             INSERT INTO bookings(user_id, trip_id, total_price, ticket_code, status, payment_status)
             VALUES(?,?,?,?,?,?)
@@ -84,28 +83,11 @@ public class BookingDAOImpl implements BookingDAO {
 
     @Override
     public Long save(Booking booking) {
-        // ADDED
         return createBooking(booking);
     }
 
     @Override
-    public void insertBookingSeats(Long bookingId, List<Long> seatIds) {
-        String sql = "INSERT INTO booking_seat(booking_id, seat_id) VALUES(?, ?)";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            for (Long seatId : seatIds) {
-                ps.setLong(1, bookingId);
-                ps.setLong(2, seatId);
-                ps.addBatch();
-            }
-            ps.executeBatch();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
     public List<Booking> findByUserId(Long userId) {
-        // ADDED
         if (userId == null) {
             return List.of();
         }
@@ -170,7 +152,10 @@ public class BookingDAOImpl implements BookingDAO {
     }
 
     @Override
-    public List<Long> findBookedSeats(Long tripId) {
+    public List<Long> findBookedSeatIdsByTrip(Long tripId) {
+        if (tripId == null) {
+            return List.of();
+        }
         String sql = """
             SELECT bs.seat_id
             FROM booking_seat bs
@@ -193,50 +178,7 @@ public class BookingDAOImpl implements BookingDAO {
     }
 
     @Override
-    public List<Long> findBookedSeatIdsByTrip(Long tripId) {
-        // ADDED
-        return findBookedSeats(tripId);
-    }
-
-    @Override
-    public List<String> findAvailableSeatNumbers(Long tripId) {
-        // ADDED
-        if (tripId == null) {
-            return new ArrayList<>();
-        }
-
-        String sql = """
-            SELECT s.seat_number
-            FROM seats s
-            JOIN trips t ON t.bus_id = s.bus_id
-            WHERE t.trip_id = ?
-              AND NOT EXISTS (
-                  SELECT 1
-                  FROM booking_seat bs
-                  JOIN bookings b ON b.booking_id = bs.booking_id
-                  WHERE b.trip_id = t.trip_id
-                    AND bs.seat_id = s.seat_id
-                    AND b.status IN ('PENDING', 'CONFIRMED')
-              )
-            ORDER BY s.seat_number
-        """;
-        List<String> seatNumbers = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setLong(1, tripId);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    seatNumbers.add(rs.getString("seat_number"));
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return seatNumbers;
-    }
-
-    @Override
     public List<Long> findByTripAndSeatIds(Long tripId, List<Long> seatIds) {
-        // ADDED
         if (tripId == null || seatIds == null || seatIds.isEmpty()) {
             return List.of();
         }
@@ -274,21 +216,7 @@ public class BookingDAOImpl implements BookingDAO {
     }
 
     @Override
-    public boolean updateStatus(Long bookingId, BookingStatus status) {
-        String sql = "UPDATE bookings SET status = ? WHERE booking_id = ?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, status.name());
-            ps.setLong(2, bookingId);
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    @Override
     public boolean cancelBooking(Long bookingId, Long userId) {
-        // MODIFIED
         if (bookingId == null || userId == null) {
             return false;
         }

@@ -20,7 +20,5 @@ public interface UserDAO {
 
     boolean update(User user);
 
-    boolean deactivate(Long userId);
-
     List<User> findAll();
 }

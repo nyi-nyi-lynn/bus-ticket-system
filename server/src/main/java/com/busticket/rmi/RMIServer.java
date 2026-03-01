@@ -13,7 +13,7 @@ public class RMIServer {
         Naming.rebind("rmi://localhost/RouteService", new RouteRemoteImpl());
         Naming.rebind("rmi://localhost/BusService", new BusRemoteImpl());
         Naming.rebind("rmi://localhost/TripService", new TripRemoteImpl());
-        Naming.rebind("rmi://localhost/SeatService", new SeatRemoteImpl()); // ADDED
+        Naming.rebind("rmi://localhost/SeatService", new SeatRemoteImpl());
         Naming.rebind("rmi://localhost/BookingService", new BookingRemoteImpl());
         Naming.rebind("rmi://localhost/PaymentService", new PaymentRemoteImpl());
         Naming.rebind("rmi://localhost/TicketService", new TicketRemoteImpl());
@@ -21,7 +21,7 @@ public class RMIServer {
         Naming.rebind("rmi://localhost/DashboardService", new DashboardRemoteImpl());
         Naming.rebind("rmi://localhost/PassengerService", new PassengerRemoteImpl());
 
-        new BookingExpiryJob(new BookingServiceImpl(), 15).start();
+        new BookingExpiryJob(new BookingServiceImpl(), 1).start();
 
         System.out.println("RMI Server Running on port 1099...");
     }

@@ -1,7 +1,7 @@
 package com.busticket.controller.components;
 
 import com.busticket.dto.TripDTO;
-import com.busticket.util.SceneSwitcher; // ADDED
+import com.busticket.util.SceneSwitcher;
 import javafx.animation.ScaleTransition;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -58,9 +58,9 @@ public class TripCardController {
             hoverIn.stop();
             hoverOut.playFromStart();
         });
-        // ADDED: Ensure button click triggers booking handler even if FXML lacks onAction.
+        // Ensure button click triggers booking handler even if FXML lacks onAction.
         if (bookNowButton != null) {
-            bookNowButton.setOnAction(event -> handleBookNow()); // MODIFIED
+            bookNowButton.setOnAction(event -> handleBookNow());
         }
     }
 
@@ -183,7 +183,6 @@ public class TripCardController {
     }
 
     private void navigateToBooking(TripDTO trip) {
-        // MODIFIED
         if (trip == null) {
             return;
         }
@@ -191,6 +190,6 @@ public class TripCardController {
             onBookNow.accept(trip);
             return;
         }
-        SceneSwitcher.switchToSeatSelection(trip); // ADDED
+        SceneSwitcher.switchToSeatSelection(trip);
     }
 }

@@ -6,7 +6,7 @@ import com.busticket.enums.BookingStatus;
 import com.busticket.enums.PaymentStatus;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime; // ADDED
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -23,7 +23,7 @@ public class BookingDTO implements Serializable {
     private Double totalPrice;
     private String ticketCode;
     private String status;
-    private LocalDateTime bookingDate; // ADDED
+    private LocalDateTime bookingDate;
     private String originCity;
     private String destinationCity;
     private LocalDate travelDate;
@@ -153,12 +153,10 @@ public class BookingDTO implements Serializable {
         this.paymentStatus = paymentStatus;
     }
 
-    // ADDED
     public LocalDateTime getBookingDate() {
         return bookingDate;
     }
 
-    // ADDED
     public void setBookingDate(LocalDateTime bookingDate) {
         this.bookingDate = bookingDate;
     }

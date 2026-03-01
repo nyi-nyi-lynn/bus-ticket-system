@@ -217,42 +217,6 @@ public class BusDAOImpl implements BusDAO {
     }
 
     @Override
-    public boolean save(Bus bus) {
-        try {
-            return insert(bus) != null;
-        } catch (DuplicateResourceException ex) {
-            return false;
-        } catch (RuntimeException ex) {
-            ex.printStackTrace();
-            return false;
-        }
-    }
-
-    @Override
-    public boolean update(Bus bus) {
-        try {
-            return updateRecord(bus) != null;
-        } catch (DuplicateResourceException ex) {
-            return false;
-        } catch (RuntimeException ex) {
-            ex.printStackTrace();
-            return false;
-        }
-    }
-
-    @Override
-    public boolean deactivate(Long id) {
-        String sql = "UPDATE buses SET is_active = 0 WHERE bus_id = ?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setLong(1, id);
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    @Override
     public List<Bus> findAll() {
         String sql = "SELECT bus_id, bus_number, bus_name, type, total_seats, is_active FROM buses ORDER BY bus_id DESC";
         List<Bus> buses = new ArrayList<>();

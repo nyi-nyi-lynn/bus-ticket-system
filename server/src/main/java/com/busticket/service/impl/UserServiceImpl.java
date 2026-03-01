@@ -71,12 +71,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO getUserById(Long userId) {
-        User user = userDAO.findById(userId);
-        return user == null ? null : toDTO(user);
-    }
-
-    @Override
     public boolean updateUser(UserDTO dto) {
         if (dto == null || dto.getUserId() == null) {
             return false;
@@ -111,11 +105,6 @@ public class UserServiceImpl implements UserService {
         user.setStatus(parseStatusOrDefault(dto.getStatus(), existing.getStatus()));
 
         return userDAO.update(user);
-    }
-
-    @Override
-    public boolean deactivateUser(Long userId) {
-        return userDAO.deactivate(userId);
     }
 
     @Override
