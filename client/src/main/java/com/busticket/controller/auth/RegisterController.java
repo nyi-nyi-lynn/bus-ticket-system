@@ -4,27 +4,49 @@ import com.busticket.dto.UserDTO;
 import com.busticket.remote.UserRemote;
 import com.busticket.rmi.RMIClient;
 import com.busticket.util.SceneSwitcher;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
 import javafx.scene.Group;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.SVGPath;
 
+import java.util.Locale;
+import java.util.regex.Pattern;
+
 public class RegisterController {
+    private static final Pattern EMAIL_PATTERN =
+            Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
+
     @FXML private TextField nameField;
+    @FXML private Label nameErrorLabel;
     @FXML private TextField emailField;
+    @FXML private Label emailErrorLabel;
     @FXML private TextField phoneField;
+    @FXML private Label phoneErrorLabel;
     @FXML private PasswordField passwordField;
     @FXML private TextField passwordVisibleField;
     @FXML private Button passwordToggleButton;
+    @FXML private Label passwordErrorLabel;
     @FXML private PasswordField confirmPasswordField;
     @FXML private TextField confirmPasswordVisibleField;
     @FXML private Button confirmPasswordToggleButton;
+    @FXML private Label confirmPasswordErrorLabel;
+    @FXML private Label formErrorLabel;
+    @FXML private Button registerButton;
 
     private UserRemote userRemote;
+    private final BooleanProperty formValid = new SimpleBooleanProperty(false);
+    private boolean nameTouched;
+    private boolean emailTouched;
+    private boolean phoneTouched;
+    private boolean passwordTouched;
+    private boolean confirmPasswordTouched;
 
     @FXML
     private void initialize() {
@@ -35,6 +57,12 @@ public class RegisterController {
         }
         setupPasswordToggle(passwordField, passwordVisibleField, passwordToggleButton);
         setupPasswordToggle(confirmPasswordField, confirmPasswordVisibleField, confirmPasswordToggleButton);
+        registerButton.disableProperty().bind(formValid.not());
+
+        addValidationListeners();
+        addTouchListeners();
+        hideFieldValidationErrors();
+        validateForm(false);
     }
 
     @FXML
@@ -49,11 +77,15 @@ public class RegisterController {
 
     @FXML
     private void onRegister() {
+        clearFormError();
+        if (!validateForm(true)) {
+            return;
+        }
         try {
             UserDTO user = new UserDTO();
-            user.setName(nameField.getText());
-            user.setEmail(emailField.getText());
-            user.setPhone(phoneField.getText());
+            user.setName(trimmed(nameField.getText()));
+            user.setEmail(trimmed(emailField.getText()).toLowerCase(Locale.ROOT));
+            user.setPhone(trimmed(phoneField.getText()));
             user.setPassword(passwordField.getText());
             userRemote.register(user);
 
@@ -65,13 +97,144 @@ public class RegisterController {
 
             SceneSwitcher.showAuth("/com/busticket/view/auth/LoginView.fxml");
         } catch (Exception ex) {
-            throw new RuntimeException(ex);
+            showAlert(Alert.AlertType.ERROR, "Register Failed", "Unable to create account.", ex.getMessage());
         }
     }
 
     @FXML
     private void onBack() {
         SceneSwitcher.showAuth("/com/busticket/view/auth/LoginView.fxml");
+    }
+
+    private void addValidationListeners() {
+        nameField.textProperty().addListener((obs, oldVal, newVal) -> onInputChanged());
+        emailField.textProperty().addListener((obs, oldVal, newVal) -> onInputChanged());
+        phoneField.textProperty().addListener((obs, oldVal, newVal) -> onInputChanged());
+        passwordField.textProperty().addListener((obs, oldVal, newVal) -> onInputChanged());
+        passwordVisibleField.textProperty().addListener((obs, oldVal, newVal) -> onInputChanged());
+        confirmPasswordField.textProperty().addListener((obs, oldVal, newVal) -> onInputChanged());
+        confirmPasswordVisibleField.textProperty().addListener((obs, oldVal, newVal) -> onInputChanged());
+    }
+
+    private void addTouchListeners() {
+        nameField.focusedProperty().addListener((obs, oldVal, focused) -> {
+            if (focused) {
+                nameTouched = true;
+                validateForm(false);
+            }
+        });
+        emailField.focusedProperty().addListener((obs, oldVal, focused) -> {
+            if (focused) {
+                emailTouched = true;
+                validateForm(false);
+            }
+        });
+        phoneField.focusedProperty().addListener((obs, oldVal, focused) -> {
+            if (focused) {
+                phoneTouched = true;
+                validateForm(false);
+            }
+        });
+        passwordField.focusedProperty().addListener((obs, oldVal, focused) -> {
+            if (focused) {
+                passwordTouched = true;
+                validateForm(false);
+            }
+        });
+        passwordVisibleField.focusedProperty().addListener((obs, oldVal, focused) -> {
+            if (focused) {
+                passwordTouched = true;
+                validateForm(false);
+            }
+        });
+        confirmPasswordField.focusedProperty().addListener((obs, oldVal, focused) -> {
+            if (focused) {
+                confirmPasswordTouched = true;
+                validateForm(false);
+            }
+        });
+        confirmPasswordVisibleField.focusedProperty().addListener((obs, oldVal, focused) -> {
+            if (focused) {
+                confirmPasswordTouched = true;
+                validateForm(false);
+            }
+        });
+    }
+
+    private void onInputChanged() {
+        clearFormError();
+        validateForm(false);
+    }
+
+    private boolean validateForm(boolean showAllErrors) {
+        String name = trimmed(nameField.getText());
+        String email = trimmed(emailField.getText());
+        String phone = trimmed(phoneField.getText());
+        String password = passwordField.getText() == null ? "" : passwordField.getText();
+        String confirmPassword = confirmPasswordField.getText() == null ? "" : confirmPasswordField.getText();
+
+        String nameError = name.isBlank() ? "Name is required." : "";
+        String emailError = email.isBlank()
+                ? "Email is required."
+                : (EMAIL_PATTERN.matcher(email).matches() ? "" : "Invalid email format.");
+        String phoneError = phone.isBlank() ? "Phone is required." : "";
+        String passwordError = password.isBlank()
+                ? "Password is required."
+                : (password.length() >= 8 ? "" : "Password must be at least 8 characters.");
+
+        String confirmError;
+        if (confirmPassword.isBlank()) {
+            confirmError = "Confirm password is required.";
+        } else if (!password.equals(confirmPassword)) {
+            confirmError = "Passwords do not match.";
+        } else {
+            confirmError = "";
+        }
+
+        updateError(nameErrorLabel, (showAllErrors || nameTouched) ? nameError : "");
+        updateError(emailErrorLabel, (showAllErrors || emailTouched) ? emailError : "");
+        updateError(phoneErrorLabel, (showAllErrors || phoneTouched) ? phoneError : "");
+        updateError(passwordErrorLabel, (showAllErrors || passwordTouched) ? passwordError : "");
+        updateError(confirmPasswordErrorLabel, (showAllErrors || confirmPasswordTouched) ? confirmError : "");
+
+        boolean valid = nameError.isEmpty()
+                && emailError.isEmpty()
+                && phoneError.isEmpty()
+                && passwordError.isEmpty()
+                && confirmError.isEmpty();
+        formValid.set(valid);
+        return valid;
+    }
+
+    private void hideFieldValidationErrors() {
+        updateError(nameErrorLabel, "");
+        updateError(emailErrorLabel, "");
+        updateError(phoneErrorLabel, "");
+        updateError(passwordErrorLabel, "");
+        updateError(confirmPasswordErrorLabel, "");
+    }
+
+    private void updateError(Label label, String message) {
+        boolean hasError = message != null && !message.isBlank();
+        label.setText(hasError ? message : "");
+        label.setVisible(hasError);
+        label.setManaged(hasError);
+    }
+
+    private void clearFormError() {
+        updateError(formErrorLabel, "");
+    }
+
+    private String trimmed(String value) {
+        return value == null ? "" : value.trim();
+    }
+
+    private void showAlert(Alert.AlertType type, String title, String header, String content) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 
     private void setupPasswordToggle(PasswordField hiddenField, TextField visibleField, Button toggleButton) {
