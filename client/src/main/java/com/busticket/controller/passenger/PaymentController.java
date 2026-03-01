@@ -40,6 +40,7 @@ public class PaymentController {
     @FXML private RadioButton cardRadio;
 
     @FXML private VBox qrSection;
+    @FXML private VBox cardFormSection;
     @FXML private ImageView qrImageView;
     @FXML private Label accountNameValueLabel;
     @FXML private Label accountPhoneValueLabel;
@@ -194,9 +195,12 @@ public class PaymentController {
     private void updateQrSection() {
         String selectedMethod = resolveSelectedMethod();
         boolean mobileBanking = METHOD_KBZPAY.equals(selectedMethod) || METHOD_WAVEPAY.equals(selectedMethod);
+        boolean cardSelected = METHOD_CARD.equals(selectedMethod);
 
         qrSection.setVisible(mobileBanking);
         qrSection.setManaged(mobileBanking);
+        cardFormSection.setVisible(cardSelected);
+        cardFormSection.setManaged(cardSelected);
 
         if (!mobileBanking) {
             qrImageView.setImage(null);
@@ -208,10 +212,10 @@ public class PaymentController {
 
         if (METHOD_KBZPAY.equals(selectedMethod)) {
             accountNameValueLabel.setText("Bus Ticket System (KBZPay)");
-            accountPhoneValueLabel.setText("09-7711-22334");
+            accountPhoneValueLabel.setText("09-7000-70003");
         } else {
             accountNameValueLabel.setText("Bus Ticket System (WavePay)");
-            accountPhoneValueLabel.setText("09-8822-33445");
+            accountPhoneValueLabel.setText("09-7000-70004");
         }
 
         instructionLabel.setText("Scan to pay");

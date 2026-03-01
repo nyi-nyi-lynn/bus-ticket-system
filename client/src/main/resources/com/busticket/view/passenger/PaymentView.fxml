@@ -3,9 +3,11 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -99,6 +101,47 @@
                 </HBox>
 
                 <Label fx:id="instructionLabel" text="Scan to pay" />
+            </VBox>
+
+            <VBox fx:id="cardFormSection" spacing="10" managed="false" visible="false" styleClass="card">
+                <Label styleClass="section-title" text="Card Details" />
+
+                <GridPane hgap="12" vgap="8">
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="130" prefWidth="130" />
+                        <ColumnConstraints hgrow="ALWAYS" />
+                    </columnConstraints>
+
+                    <Label styleClass="page-subtitle" text="Cardholder Name" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                    <TextField fx:id="cardHolderNameField"
+                               promptText="Enter cardholder name"
+                               styleClass="field"
+                               GridPane.columnIndex="1"
+                               GridPane.rowIndex="0" />
+
+                    <Label styleClass="page-subtitle" text="Card Number" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                    <TextField fx:id="cardNumberField"
+                               promptText="1234 5678 9012 3456"
+                               styleClass="field"
+                               GridPane.columnIndex="1"
+                               GridPane.rowIndex="1" />
+
+                    <Label styleClass="page-subtitle" text="Expiry Date" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                    <TextField fx:id="expiryDateField"
+                               promptText="MM/YY"
+                               styleClass="field"
+                               GridPane.columnIndex="1"
+                               GridPane.rowIndex="2" />
+
+                    <Label styleClass="page-subtitle" text="CVV" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                    <PasswordField fx:id="cvvField"
+                                   promptText="CVV"
+                                   styleClass="field"
+                                   GridPane.columnIndex="1"
+                                   GridPane.rowIndex="3" />
+                </GridPane>
+
+                <Label styleClass="page-subtitle" text="UI preview only." />
             </VBox>
 
             <HBox alignment="CENTER_RIGHT" spacing="10">
