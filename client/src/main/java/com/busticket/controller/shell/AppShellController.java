@@ -5,7 +5,9 @@ import com.busticket.session.Session;
 import com.busticket.util.SceneSwitcher;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
 
@@ -171,6 +173,14 @@ public class AppShellController {
 
     @FXML
     private void onLogout() {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Confirm Logout");
+        confirm.setHeaderText("Are you sure you want to logout?");
+        confirm.setContentText("You will need to login again to continue.");
+        ButtonType result = confirm.showAndWait().orElse(ButtonType.CANCEL);
+        if (result != ButtonType.OK) {
+            return;
+        }
         Session.clear();
         SceneSwitcher.resetToAuth("/com/busticket/view/auth/LoginView.fxml");
     }

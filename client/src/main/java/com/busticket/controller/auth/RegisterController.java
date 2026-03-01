@@ -6,6 +6,7 @@ import com.busticket.rmi.RMIClient;
 import com.busticket.util.SceneSwitcher;
 import javafx.fxml.FXML;
 import javafx.scene.Group;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -55,6 +56,13 @@ public class RegisterController {
             user.setPhone(phoneField.getText());
             user.setPassword(passwordField.getText());
             userRemote.register(user);
+
+            Alert success = new Alert(Alert.AlertType.INFORMATION);
+            success.setTitle("Registration Successful");
+            success.setHeaderText("Account created successfully.");
+            success.setContentText("You can now login with your new account.");
+            success.showAndWait();
+
             SceneSwitcher.showAuth("/com/busticket/view/auth/LoginView.fxml");
         } catch (Exception ex) {
             throw new RuntimeException(ex);
