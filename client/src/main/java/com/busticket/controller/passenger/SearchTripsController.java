@@ -2,11 +2,11 @@ package com.busticket.controller.passenger;
 
 import com.busticket.dto.TripDTO;
 import com.busticket.exception.UnauthorizedException;
-import com.busticket.remote.BookingRemote;
 import com.busticket.remote.TripRemote;
 import com.busticket.rmi.RMIClient;
 import com.busticket.session.Session;
 import com.busticket.util.SceneSwitcher;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.collections.FXCollections;
@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class SearchTripsController {
@@ -40,34 +41,18 @@ public class SearchTripsController {
     @FXML private Label resultsTitleLabel;
 
     private TripRemote tripRemote;
-    private BookingRemote bookingRemote;
     private List<TripDTO> allTrips = new ArrayList<>();
 
     @FXML
     private void initialize() {
-        try {
-            tripRemote = RMIClient.getTripRemote();
-            bookingRemote = RMIClient.getBookingRemote();
-            List<TripDTO> fetched = tripRemote.getAllTrips();
-            if (fetched != null) {
-                allTrips = fetched;
-            }
-        } catch (Exception ex) {
-            showSimpleAlert(Alert.AlertType.ERROR, "Error", "Failed to load trips", ex.getMessage());
-        }
-
-        populateCityLists();
         configureResultContainer();
 
         LocalDate today = LocalDate.now();
         travelDatePicker.setValue(today);
         resultsTitleLabel.setText("Today's Trips");
+        showEmptyState();
 
-        List<TripDTO> todays = allTrips.stream()
-                .filter(t -> t.getTravelDate() != null && t.getTravelDate().equals(today))
-                .collect(Collectors.toList());
-
-        displayTrips(todays);
+        loadTripsAsync();
     }
 
     @FXML
@@ -116,6 +101,31 @@ public class SearchTripsController {
         destinationCombo.setItems(FXCollections.observableArrayList(destinations));
     }
 
+    private void loadTripsAsync() {
+        CompletableFuture
+                .supplyAsync(() -> {
+                    try {
+                        tripRemote = RMIClient.getTripRemote();
+                        return tripRemote.getAllTrips();
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .whenComplete((fetched, throwable) -> Platform.runLater(() -> {
+                    if (throwable != null) {
+                        showSimpleAlert(Alert.AlertType.ERROR, "Error", "Failed to load trips", throwable.getCause() == null ? throwable.getMessage() : throwable.getCause().getMessage());
+                        return;
+                    }
+                    allTrips = fetched == null ? new ArrayList<>() : new ArrayList<>(fetched);
+                    populateCityLists();
+                    LocalDate today = LocalDate.now();
+                    List<TripDTO> todays = allTrips.stream()
+                            .filter(t -> t.getTravelDate() != null && t.getTravelDate().equals(today))
+                            .collect(Collectors.toList());
+                    displayTrips(todays);
+                }));
+    }
+
     private void displayTrips(List<TripDTO> trips) {
         resultContainer.getChildren().clear();
 
@@ -128,10 +138,6 @@ public class SearchTripsController {
 
         for (TripDTO trip : trips) {
             try {
-                if (bookingRemote != null && trip.getTripId() != null) {
-                    List<String> available = bookingRemote.getAvailableSeatNumbers(trip.getTripId());
-                    trip.setAvailableSeats(available == null ? 0 : available.size());
-                }
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/busticket/view/components/TripCard.fxml"));
                 Node card = loader.load();
                 if (card instanceof Region region) {

@@ -22,7 +22,10 @@ public class TripDAOImpl implements TripDAO {
             UPDATE trips
             SET status = 'CLOSED'
             WHERE status = 'OPEN'
-              AND TIMESTAMP(travel_date, departure_time) <= (NOW() + INTERVAL 1 HOUR)
+              AND (
+                    travel_date < CURRENT_DATE
+                    OR (travel_date = CURRENT_DATE AND departure_time <= ADDTIME(CURRENT_TIME, '01:00:00'))
+              )
         """;
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             return ps.executeUpdate();
