@@ -16,6 +16,22 @@ public class TripDAOImpl implements TripDAO {
         this.connection = connection;
     }
 
+    @Override
+    public int autoCloseOverdueTrips() {
+        String sql = """
+            UPDATE trips
+            SET status = 'CLOSED'
+            WHERE status = 'OPEN'
+              AND TIMESTAMP(travel_date, departure_time) <= (NOW() + INTERVAL 1 HOUR)
+        """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            return ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
 
     @Override
     public boolean save(Trip trip) {
@@ -78,6 +94,7 @@ public class TripDAOImpl implements TripDAO {
 
     @Override
     public List<Trip> findAll() {
+        autoCloseOverdueTrips();
         String sql = """
             SELECT t.trip_id, t.bus_id, t.route_id, t.travel_date, t.departure_time, t.arrival_time, t.price, t.status,
                    b.bus_number, b.total_seats, r.origin_city, r.destination_city,
@@ -109,6 +126,7 @@ public class TripDAOImpl implements TripDAO {
 
     @Override
     public List<Trip> search(String origin, String destination, LocalDate date) {
+        autoCloseOverdueTrips();
         String sql = """
             SELECT t.trip_id, t.bus_id, t.route_id, t.travel_date, t.departure_time, t.arrival_time, t.price, t.status,
                    b.bus_number, b.total_seats, r.origin_city, r.destination_city,

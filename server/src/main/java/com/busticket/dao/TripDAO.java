@@ -6,6 +6,8 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface TripDAO {
+    int autoCloseOverdueTrips();
+
     boolean save(Trip trip);
 
     boolean update(Trip trip);

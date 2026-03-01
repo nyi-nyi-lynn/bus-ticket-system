@@ -92,6 +92,10 @@ public class BookingServiceImpl implements BookingService {
             if (trip == null) {
                 throw new IllegalStateException("Trip not found.");
             }
+            if (trip.overdue) {
+                autoCloseTripIfOpen(trip.tripId);
+                throw new IllegalStateException("Trip is overdue and closed for booking.");
+            }
             if (!"OPEN".equalsIgnoreCase(trip.status)) {
                 throw new IllegalStateException("Trip is not OPEN.");
             }
@@ -263,7 +267,8 @@ public class BookingServiceImpl implements BookingService {
 
     private TripSnapshot findTripForUpdate(Long tripId) throws SQLException {
         String sql = """
-            SELECT trip_id, bus_id, price, status
+            SELECT trip_id, bus_id, price, status,
+                   (TIMESTAMP(travel_date, departure_time) <= (NOW() + INTERVAL 1 HOUR)) AS overdue
             FROM trips
             WHERE trip_id = ?
             FOR UPDATE
@@ -279,8 +284,26 @@ public class BookingServiceImpl implements BookingService {
                 snapshot.busId = rs.getLong("bus_id");
                 snapshot.price = rs.getDouble("price");
                 snapshot.status = rs.getString("status");
+                snapshot.overdue = rs.getBoolean("overdue");
                 return snapshot;
             }
+        }
+    }
+
+    private void autoCloseTripIfOpen(Long tripId) throws SQLException {
+        if (tripId == null) {
+            return;
+        }
+        String sql = """
+            UPDATE trips
+            SET status = 'CLOSED'
+            WHERE trip_id = ?
+              AND status = 'OPEN'
+              AND TIMESTAMP(travel_date, departure_time) <= (NOW() + INTERVAL 1 HOUR)
+        """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setLong(1, tripId);
+            ps.executeUpdate();
         }
     }
 
@@ -330,5 +353,6 @@ public class BookingServiceImpl implements BookingService {
         private Long busId;
         private double price;
         private String status;
+        private boolean overdue;
     }
 }
